@@ -28,23 +28,27 @@ class DryButton extends BaseElement {
   }
 
   _extractContent() {
-    return this.textContent.trim();
+    // Extract the text content - escaping will be handled during render
+    const content = this.textContent.trim();
+    return content;
   }
 
   _render() {
     const isLink = !!this.href;
     const tagName = isLink ? 'a' : 'button';
-    const linkProps = isLink ? `href="${this.href}" ${this.target ? `target="${this.target}"` : ''}` : '';
-    const buttonProps = !isLink ? `type="${this.type}"` : '';
+    const validatedHref = this._validateUrl(this.href);
+    const sanitizedTarget = this._sanitizeAttribute(this.target, 'target');
+    const linkProps = isLink ? `href="${validatedHref}" ${sanitizedTarget ? `target="${sanitizedTarget}"` : ''}` : '';
+    const buttonProps = !isLink ? `type="${this._escapeHtml(this.type)}"` : '';
 
-    // Create Alpine data object - can't use utility for functions
-    const alpineData = `{
-      content: '${this._componentData.content}',
-      variant: '${this.variant}',
-      size: '${this.size}',
-      disabled: ${this.disabled},
-      loading: ${this.loading},
-      icon: '${this.icon}',
+    // Use secure Alpine data creation instead of unsafe string concatenation
+    const alpineDataObject = {
+      content: this._componentData.content,
+      variant: this.variant,
+      size: this.size,
+      disabled: this.disabled,
+      loading: this.loading,
+      icon: this.icon,
       
       getButtonClasses() {
         let classes = 'inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border ';
@@ -86,7 +90,9 @@ class DryButton extends BaseElement {
         
         return classes.trim();
       }
-    }`;
+    };
+
+    const alpineData = this._createSecureAlpineDataString(alpineDataObject);
 
     this.innerHTML = `
       <div x-data="${alpineData}" class="inline-block">
@@ -114,7 +120,36 @@ class DryButton extends BaseElement {
     `;
   }
 
+  // Input validation methods
+  _validateSize(size) {
+    const allowedSizes = ['sm', 'md', 'lg', 'xl'];
+    return allowedSizes.includes(size) ? size : 'md';
+  }
 
+  _validateVariant(variant) {
+    const allowedVariants = ['primary', 'secondary', 'outline', 'text', 'danger', 'success', 'warning'];
+    return allowedVariants.includes(variant) ? variant : 'primary';
+  }
+
+  _validateType(type) {
+    const allowedTypes = ['button', 'submit', 'reset'];
+    return allowedTypes.includes(type) ? type : 'button';
+  }
+
+  _validateIcon(icon) {
+    if (!icon || typeof icon !== 'string') return '';
+    
+    // Allow only safe CSS class patterns (letters, numbers, hyphens, spaces)
+    // This prevents injection of malicious CSS or JavaScript
+    const safeIconPattern = /^[a-zA-Z0-9\s\-_]+$/;
+    
+    if (safeIconPattern.test(icon)) {
+      return icon.trim();
+    } else {
+      console.warn(`Invalid icon class rejected: ${icon}`);
+      return '';
+    }
+  }
 
   // Public API methods
   setLoading(loading) {
@@ -126,10 +161,19 @@ class DryButton extends BaseElement {
   }
 
   setText(text) {
+    // Validate and sanitize the text input
+    const sanitizedText = String(text || '');
+    
     if (this._componentData) {
-      this._componentData.content = text;
+      // Store the sanitized text in component data (will be escaped when rendering)
+      this._componentData.content = sanitizedText;
     }
-    this.textContent = text;
+    
+    // Set textContent directly - browser handles this safely without escaping
+    this.textContent = sanitizedText;
+    
+    // Trigger a refresh to update the Alpine.js data
+    this._refresh();
   }
 
   click() {
@@ -143,19 +187,23 @@ class DryButton extends BaseElement {
 
   // Getters and setters using base class utilities
   get variant() {
-    return this._getAttributeWithDefault('variant', 'primary');
+    const value = this._getAttributeWithDefault('variant', 'primary');
+    return this._validateVariant(value);
   }
 
   set variant(value) {
-    this._setAttribute('variant', value);
+    const validatedValue = this._validateVariant(value);
+    this._setAttribute('variant', validatedValue);
   }
 
   get size() {
-    return this._getAttributeWithDefault('size', 'md');
+    const value = this._getAttributeWithDefault('size', 'md');
+    return this._validateSize(value);
   }
 
   set size(value) {
-    this._setAttribute('size', value);
+    const validatedValue = this._validateSize(value);
+    this._setAttribute('size', validatedValue);
   }
 
   get disabled() {
@@ -175,11 +223,13 @@ class DryButton extends BaseElement {
   }
 
   get type() {
-    return this._getAttributeWithDefault('type', 'button');
+    const value = this._getAttributeWithDefault('type', 'button');
+    return this._validateType(value);
   }
 
   set type(value) {
-    this._setAttribute('type', value);
+    const validatedValue = this._validateType(value);
+    this._setAttribute('type', validatedValue);
   }
 
   get href() {
@@ -199,23 +249,24 @@ class DryButton extends BaseElement {
   }
 
   get icon() {
-    return this.getAttribute('icon') || '';
+    const value = this.getAttribute('icon') || '';
+    return this._validateIcon(value);
   }
 
   set icon(value) {
-    this._setAttribute('icon', value);
+    const validatedValue = this._validateIcon(value);
+    this._setAttribute('icon', validatedValue);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue && this._isInitialized) {
-      // Update component data and refresh
-      this._updateComponentData(name, newValue);
-      
-      // For buttons, we need to re-render when attributes change
-      if (this._componentData) {
+      // Update component data if it exists
+      if (this._componentData && this._componentData.hasOwnProperty(name)) {
         this._componentData[name] = newValue;
-        this._refresh();
       }
+      
+      // Single refresh call to update the component
+      this._refresh();
     }
   }
 }

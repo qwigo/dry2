@@ -166,7 +166,7 @@ class BaseElement extends HTMLElement {
   _createAlpineDataString(dataObject) {
     const entries = Object.entries(dataObject).map(([key, value]) => {
       if (typeof value === 'string') {
-        return `${key}: '${value.replace(/'/g, "\\'")}'`;
+        return `${key}: '${this._escapeJavaScriptString(value)}'`;
       } else if (typeof value === 'boolean') {
         return `${key}: ${value}`;
       } else if (typeof value === 'number') {
@@ -174,6 +174,144 @@ class BaseElement extends HTMLElement {
       } else if (typeof value === 'function') {
         return `${key}: ${value.toString()}`;
       } else {
+        return `${key}: ${JSON.stringify(value)}`;
+      }
+    }).join(',\n        ');
+    
+    return `{
+        ${entries}
+      }`;
+  }
+
+  /**
+   * Security: Escape HTML entities to prevent XSS attacks
+   * @param {string} text - The text to escape
+   * @returns {string} - HTML-escaped text
+   */
+  _escapeHtml(text) {
+    if (typeof text !== 'string') return text;
+    
+    const htmlEscapeMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;'
+    };
+    
+    return text.replace(/[&<>"'/]/g, (char) => htmlEscapeMap[char]);
+  }
+
+  /**
+   * Security: Escape JavaScript strings to prevent code injection
+   * @param {string} text - The text to escape
+   * @returns {string} - JavaScript-escaped text
+   */
+  _escapeJavaScriptString(text) {
+    if (typeof text !== 'string') return text;
+    
+    const jsEscapeMap = {
+      '\\': '\\\\',
+      "'": "\\'",
+      '"': '\\"',
+      '\n': '\\n',
+      '\r': '\\r',
+      '\t': '\\t',
+      '\b': '\\b',
+      '\f': '\\f',
+      '\v': '\\v'
+    };
+    
+    return text.replace(/[\\"'\n\r\t\b\f\v]/g, (char) => jsEscapeMap[char]);
+  }
+
+  /**
+   * Security: Validate and sanitize URLs
+   * @param {string} url - The URL to validate
+   * @param {Array} allowedProtocols - Array of allowed protocols (default: ['http:', 'https:', 'mailto:', 'tel:'])
+   * @returns {string} - Validated URL or '#' if invalid
+   */
+  _validateUrl(url, allowedProtocols = ['http:', 'https:', 'mailto:', 'tel:']) {
+    if (!url || typeof url !== 'string') return '#';
+    
+    try {
+      // Handle relative URLs by resolving against current origin
+      const resolvedUrl = new URL(url, window.location.origin);
+      
+      // Check if protocol is allowed
+      if (allowedProtocols.includes(resolvedUrl.protocol)) {
+        return resolvedUrl.href;
+      } else {
+        console.warn(`Blocked URL with disallowed protocol: ${resolvedUrl.protocol}`);
+        return '#';
+      }
+    } catch (error) {
+      console.warn(`Invalid URL rejected: ${url}`, error);
+      return '#';
+    }
+  }
+
+  /**
+   * Security: Validate HTML attribute values
+   * @param {string} value - The attribute value to validate
+   * @param {string} attributeName - Name of the attribute for context
+   * @returns {string} - Sanitized attribute value
+   */
+  _sanitizeAttribute(value, attributeName = '') {
+    if (typeof value !== 'string') return value;
+    
+    // Remove any potential script injection attempts
+    const sanitized = value
+      .replace(/javascript:/gi, '')
+      .replace(/data:/gi, '')
+      .replace(/vbscript:/gi, '')
+      .replace(/on\w+\s*=/gi, ''); // Remove event handlers like onclick=
+    
+    // Additional validation for specific attributes
+    if (attributeName === 'target') {
+      const allowedTargets = ['_blank', '_self', '_parent', '_top'];
+      return allowedTargets.includes(sanitized) ? sanitized : '_self';
+    }
+    
+    return sanitized;
+  }
+
+  /**
+   * Security: Create secure Alpine.js data string with proper escaping
+   * This replaces the unsafe string concatenation approach
+   * @param {Object} dataObject - The data object to convert
+   * @returns {string} - Secure Alpine.js data string
+   */
+  _createSecureAlpineDataString(dataObject) {
+    const entries = Object.entries(dataObject).map(([key, value]) => {
+      if (typeof value === 'string') {
+        // Escape the string value for safe inclusion in JavaScript
+        return `${key}: '${this._escapeJavaScriptString(value)}'`;
+      } else if (typeof value === 'boolean') {
+        return `${key}: ${value}`;
+      } else if (typeof value === 'number') {
+        return `${key}: ${value}`;
+      } else if (typeof value === 'function') {
+        // Handle function definitions properly
+        const funcString = value.toString();
+        
+        // Check if it's an ES6 method syntax (starts with method name followed by parentheses)
+        if (funcString.startsWith(key + '(')) {
+          // It's ES6 method syntax, use it directly
+          return funcString;
+        } else {
+          // It's a regular function, convert to method syntax
+          return `${key}: ${funcString}`;
+        }
+      } else if (Array.isArray(value)) {
+        // Safely serialize arrays
+        const escapedArray = value.map(item => 
+          typeof item === 'string' ? `'${this._escapeJavaScriptString(item)}'` : JSON.stringify(item)
+        );
+        return `${key}: [${escapedArray.join(', ')}]`;
+      } else {
+        // Use JSON.stringify for objects and other types
         return `${key}: ${JSON.stringify(value)}`;
       }
     }).join(',\n        ');
