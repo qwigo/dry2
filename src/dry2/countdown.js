@@ -6,20 +6,67 @@ class DryCountdown extends BaseElement {
     this.remainingTime = 0;
     this.initialTime = 0;
     this.pausedTime = 0;
+    this._isDestroyed = false;
+    this._cachedElements = null;
   }
 
   _initializeComponent() {
-    this.calculateInitialTime();
-    this.render();
-    if (this._getBooleanAttribute('autostart')) {
-      this.startCountdown();
+    try {
+      if (this._validateConfiguration()) {
+        this._calculateInitialTime();
+        this._render();
+        if (this._getBooleanAttribute('autostart')) {
+          this._startCountdown();
+        }
+      }
+    } catch (error) {
+      this._handleError('Failed to initialize countdown component', error);
     }
   }
 
   disconnectedCallback() {
+    this._cleanup();
+    super.disconnectedCallback?.();
+  }
+
+  _cleanup() {
+    this._isDestroyed = true;
     if (this.interval) {
       clearInterval(this.interval);
+      this.interval = null;
     }
+  }
+
+  _validateConfiguration() {
+    const targetDate = this.targetDate;
+    const duration = this.duration;
+    
+    // Must have either target date or duration
+    if (!targetDate && !duration) {
+      this._handleError('Countdown requires either target-date or duration attribute');
+      return false;
+    }
+    
+    // Validate target date if provided
+    if (targetDate && !this._validateDate(targetDate)) {
+      this._handleError(`Invalid target date: ${targetDate}`);
+      return false;
+    }
+    
+    // Validate duration if provided
+    if (duration && (isNaN(duration) || duration < 0)) {
+      this._handleError(`Invalid duration: ${duration}. Must be a positive number`);
+      return false;
+    }
+    
+    return true;
+  }
+  
+  _validateDate(dateString) {
+    if (!dateString || typeof dateString !== 'string') return false;
+    
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date.getTime()) && date > new Date();
   }
 
   static get observedAttributes() {
@@ -31,20 +78,33 @@ class DryCountdown extends BaseElement {
   }
 
   _handleAttributeChange(name, oldValue, newValue) {
-    if (this.isConnected && oldValue !== newValue) {
-      if (name === 'target-date' || name === 'duration') {
-        this.calculateInitialTime();
+    if (this.isConnected && oldValue !== newValue && !this._isDestroyed) {
+      try {
+        if (name === 'target-date' || name === 'duration') {
+          if (this._validateConfiguration()) {
+            this._calculateInitialTime();
+          } else {
+            return; // Don't render if validation fails
+          }
+        }
+        this._render();
+      } catch (error) {
+        this._handleError(`Failed to handle attribute change for ${name}`, error);
       }
-      this.render();
     }
   }
 
   get targetDate() {
-    return this.getAttribute('target-date');
+    const date = this.getAttribute('target-date');
+    return date ? this._escapeHtml(date) : null;
   }
 
   set targetDate(value) {
-    this._setAttribute('target-date', value);
+    if (value && this._validateDate(value)) {
+      this._setAttribute('target-date', value);
+    } else {
+      this._handleError(`Invalid target date: ${value}`);
+    }
   }
 
   get duration() {
@@ -52,11 +112,23 @@ class DryCountdown extends BaseElement {
   }
 
   set duration(value) {
-    this._setNumericAttribute('duration', value);
+    const numValue = Number(value);
+    if (!isNaN(numValue) && numValue >= 0) {
+      this._setNumericAttribute('duration', numValue);
+    } else {
+      this._handleError(`Invalid duration: ${value}. Must be a positive number`);
+    }
   }
 
   get format() {
-    return this._getAttributeWithDefault('format', 'days,hours,minutes,seconds');
+    const format = this._getAttributeWithDefault('format', 'days,hours,minutes,seconds');
+    return this._validateFormat(format);
+  }
+  
+  _validateFormat(format) {
+    const validUnits = ['days', 'hours', 'minutes', 'seconds'];
+    const units = format.split(',').map(u => u.trim()).filter(u => validUnits.includes(u));
+    return units.length > 0 ? units.join(',') : 'days,hours,minutes,seconds';
   }
 
   get unitClass() {
@@ -72,7 +144,8 @@ class DryCountdown extends BaseElement {
   }
 
   get expiryText() {
-    return this._getAttributeWithDefault('expiry-text', '');
+    const text = this._getAttributeWithDefault('expiry-text', '');
+    return this._escapeHtml(text);
   }
 
   getLabel(unit, value) {
@@ -86,23 +159,29 @@ class DryCountdown extends BaseElement {
 
     const label = labelAttr || defaultLabels[unit];
     const [singular, plural] = label.split('|');
-    return value === 1 ? singular : plural;
+    return this._escapeHtml(value === 1 ? singular : plural);
   }
 
-  calculateInitialTime() {
-    if (this.targetDate) {
-      const target = new Date(this.targetDate);
-      const now = new Date();
-      this.initialTime = Math.max(0, Math.floor((target - now) / 1000));
-    } else if (this.duration) {
-      this.initialTime = this.duration;
-    } else {
+  _calculateInitialTime() {
+    try {
+      if (this.targetDate) {
+        const target = new Date(this.targetDate);
+        const now = new Date();
+        this.initialTime = Math.max(0, Math.floor((target - now) / 1000));
+      } else if (this.duration) {
+        this.initialTime = Math.max(0, this.duration);
+      } else {
+        this.initialTime = 0;
+      }
+      this.remainingTime = this.initialTime;
+    } catch (error) {
+      this._handleError('Failed to calculate initial time', error);
       this.initialTime = 0;
+      this.remainingTime = 0;
     }
-    this.remainingTime = this.initialTime;
   }
 
-  formatTime(seconds) {
+  _formatTime(seconds) {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -111,125 +190,233 @@ class DryCountdown extends BaseElement {
     return { days, hours, minutes, seconds: secs };
   }
 
-  formatValue(value) {
-    return this.leadingZeros ? value.toString().padStart(2, '0') : value.toString();
+  _formatValue(value) {
+    const numValue = Math.max(0, Math.floor(value));
+    return this.leadingZeros ? numValue.toString().padStart(2, '0') : numValue.toString();
   }
 
-  shouldShowUnit(unit, value) {
+  _shouldShowUnit(unit, value) {
     if (this.showZeros) return true;
     return value > 0;
   }
 
-  render() {
-    // Check for expiry first
-    if (this.remainingTime <= 0 && this.expiryText) {
-      this.innerHTML = `<div class="text-center">${this.expiryText}</div>`;
-      return;
-    }
-
-    if (this.remainingTime <= 0) {
-      const expiredSlot = this.querySelector('[slot="expired"]');
-      if (expiredSlot) {
-        this.innerHTML = expiredSlot.outerHTML.replace(' slot="expired"', '');
+  _render() {
+    if (this._isDestroyed) return;
+    
+    try {
+      // Check for expiry first
+      if (this.remainingTime <= 0 && this.expiryText) {
+        const expiredDiv = document.createElement('div');
+        expiredDiv.className = 'text-center';
+        expiredDiv.textContent = this.expiryText;
+        
+        this.innerHTML = '';
+        this.appendChild(expiredDiv);
         return;
       }
-    }
-
-    const timeUnits = this.formatTime(this.remainingTime);
-    const formatUnits = this.format.split(',').map(u => u.trim());
-    const unitClass = this.unitClass;
-
-    let html = '<div class="flex items-center justify-center">';
-
-    formatUnits.forEach((unit, index) => {
-      const value = timeUnits[unit];
-      if (this.shouldShowUnit(unit, value) || formatUnits.length === 1) {
-        html += `
-                    <div class="${unitClass}">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold">${this.formatValue(value)}</div>
-                            <div class="text-sm text-gray-600">${this.getLabel(unit, value)}</div>
-                        </div>
-                    </div>
-                `;
-      }
-    });
-
-    html += '</div>';
-    this.innerHTML = html;
-  }
-
-  startCountdown() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-
-    // Only recalculate initial time if not already running
-    if (this.remainingTime === 0) {
-      this.calculateInitialTime();
-    }
-
-    this.isPaused = false;
-
-    this.interval = setInterval(() => {
-      if (this.isPaused) return;
-
-      if (this.targetDate) {
-        // For target dates, always recalculate from current time
-        const target = new Date(this.targetDate);
-        const now = new Date();
-        this.remainingTime = Math.max(0, Math.floor((target - now) / 1000));
-      } else {
-        // For duration-based, just decrement
-        this.remainingTime--;
-      }
-
-      this.render();
 
       if (this.remainingTime <= 0) {
-        this.complete();
+        const expiredSlot = this.querySelector('[slot="expired"]');
+        if (expiredSlot) {
+          const expiredContent = expiredSlot.cloneNode(true);
+          expiredContent.removeAttribute('slot');
+          
+          this.innerHTML = '';
+          this.appendChild(expiredContent);
+          return;
+        }
       }
-    }, 1000);
 
-    this._dispatchEvent('countdown:started', { remainingTime: this.remainingTime });
+      const timeUnits = this._formatTime(this.remainingTime);
+      const formatUnits = this.format.split(',').map(u => u.trim());
+      const unitClass = this.unitClass;
+
+      const container = document.createElement('div');
+      container.className = 'flex items-center justify-center';
+
+      formatUnits.forEach((unit) => {
+        const value = timeUnits[unit];
+        if (this._shouldShowUnit(unit, value) || formatUnits.length === 1) {
+          const unitDiv = document.createElement('div');
+          unitDiv.className = unitClass;
+          
+          const innerDiv = document.createElement('div');
+          innerDiv.className = 'text-center';
+          
+          const valueDiv = document.createElement('div');
+          valueDiv.className = 'text-2xl font-bold';
+          valueDiv.textContent = this._formatValue(value);
+          
+          const labelDiv = document.createElement('div');
+          labelDiv.className = 'text-sm text-gray-600';
+          labelDiv.textContent = this.getLabel(unit, value);
+          
+          innerDiv.appendChild(valueDiv);
+          innerDiv.appendChild(labelDiv);
+          unitDiv.appendChild(innerDiv);
+          container.appendChild(unitDiv);
+        }
+      });
+
+      this.innerHTML = '';
+      this.appendChild(container);
+      
+    } catch (error) {
+      this._handleError('Failed to render countdown', error);
+    }
   }
 
-  pause() {
+  _startCountdown() {
+    if (this._isDestroyed) return;
+    
+    try {
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+
+      // Only recalculate initial time if not already running
+      if (this.remainingTime === 0) {
+        this._calculateInitialTime();
+      }
+
+      this.isPaused = false;
+
+      this.interval = setInterval(() => {
+        if (this.isPaused || this._isDestroyed) return;
+
+        try {
+          if (this.targetDate) {
+            // For target dates, always recalculate from current time
+            const target = new Date(this.targetDate);
+            const now = new Date();
+            this.remainingTime = Math.max(0, Math.floor((target - now) / 1000));
+          } else {
+            // For duration-based, just decrement
+            this.remainingTime = Math.max(0, this.remainingTime - 1);
+          }
+
+          this._render();
+
+          if (this.remainingTime <= 0) {
+            this._complete();
+          }
+        } catch (error) {
+          this._handleError('Error in countdown interval', error);
+          this._complete();
+        }
+      }, 1000);
+
+      this._dispatchEvent('countdown:started', { remainingTime: this.remainingTime });
+    } catch (error) {
+      this._handleError('Failed to start countdown', error);
+    }
+  }
+
+  _pause() {
+    if (this._isDestroyed) return;
+    
     this.isPaused = true;
     this._dispatchEvent('countdown:paused', { remainingTime: this.remainingTime });
   }
 
-  resume() {
+  _resume() {
+    if (this._isDestroyed) return;
+    
     this.isPaused = false;
     this._dispatchEvent('countdown:resumed', { remainingTime: this.remainingTime });
   }
 
-  reset() {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
+  _reset() {
+    if (this._isDestroyed) return;
+    
+    try {
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+
+      this.isPaused = false;
+      this._calculateInitialTime();
+      this._render();
+
+      if (this._getBooleanAttribute('autostart')) {
+        this._startCountdown();
+      }
+
+      this._dispatchEvent('countdown:reset', { remainingTime: this.remainingTime });
+    } catch (error) {
+      this._handleError('Failed to reset countdown', error);
     }
-
-    this.isPaused = false;
-    this.calculateInitialTime();
-    this.render();
-
-    if (this._getBooleanAttribute('autostart')) {
-      this.startCountdown();
-    }
-
-    this._dispatchEvent('countdown:reset', { remainingTime: this.remainingTime });
   }
 
-  complete() {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
+  _complete() {
+    if (this._isDestroyed) return;
+    
+    try {
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+
+      this._render();
+      this._dispatchEvent('countdown:completed', { completedAt: new Date() });
+    } catch (error) {
+      this._handleError('Error in countdown completion', error);
     }
+  }
+  
+  _handleError(message, error) {
+    console.error(`DryCountdown: ${message}`, error);
+    this._dispatchEvent('countdown:error', { 
+      message, 
+      error: error?.message,
+      timestamp: new Date()
+    });
+  }
 
-    this.render();
+  // Public API with validation
+  startCountdown() {
+    if (this._validateConfiguration()) {
+      this._startCountdown();
+    }
+  }
 
-    this._dispatchEvent('countdown:completed', { completedAt: new Date() });
+  pause() {
+    this._pause();
+  }
+
+  resume() {
+    this._resume();
+  }
+
+  reset() {
+    this._reset();
+  }
+
+  getRemainingTime() {
+    return {
+      total: this.remainingTime,
+      formatted: this._formatTime(this.remainingTime)
+    };
+  }
+
+  isRunning() {
+    return this.interval !== null && !this.isPaused;
+  }
+
+  isPausedState() {
+    return this.isPaused;
+  }
+
+  isCompleted() {
+    return this.remainingTime <= 0;
+  }
+
+  // Enhanced attributeChangedCallback with better error handling
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (this._isInitialized && oldValue !== newValue) {
+      this._handleAttributeChange(name, oldValue, newValue);
+    }
   }
 }
 

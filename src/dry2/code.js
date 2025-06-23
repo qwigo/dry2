@@ -1,6 +1,8 @@
 class DryCode extends BaseElement {
   constructor() {
     super();
+    this._cachedElements = null;
+    this._renderingScheduled = false;
   }
 
   static get observedAttributes() {
@@ -8,102 +10,168 @@ class DryCode extends BaseElement {
   }
 
   _initializeComponent() {
-    // Extract code content from the element's original content
-    const codeContent = this._extractContent();
-    
-    this._componentData = {
-      code: codeContent,
-      language: this.language,
-      showCopy: this.showCopy,
-      showHeader: this.showHeader
-    };
+    try {
+      // Extract code content from the element's original content
+      const codeContent = this._extractContent();
+      
+      this._componentData = {
+        code: codeContent,
+        language: this.language,
+        showCopy: this.showCopy,
+        showHeader: this.showHeader
+      };
 
-    this._render();
-    this._attachEventListeners();
+      this._scheduleRender();
+      this._attachEventListeners();
+    } catch (error) {
+      this._handleError('Failed to initialize code component', error);
+    }
   }
 
   _extractContent() {
     // Get the original innerHTML and decode HTML entities properly
     const innerHTML = this.innerHTML.trim();
+    if (!innerHTML) return '';
+    
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = innerHTML;
-    return tempDiv.textContent.trim();
+    return tempDiv.textContent || tempDiv.innerText || '';
+  }
+
+  _scheduleRender() {
+    if (this._renderingScheduled) return;
+    
+    this._renderingScheduled = true;
+    requestAnimationFrame(() => {
+      this._render();
+      this._renderingScheduled = false;
+    });
   }
 
   _render() {
-    const headerHtml = this.showHeader ? `
-      <div class="code-header">
-        <span class="code-language">${this.language}</span>
-        ${this.showCopy ? `
-          <button class="copy-button" data-copy-btn>
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-            </svg>
-            <span data-copy-text>Copy</span>
-          </button>
-        ` : ''}
-      </div>
-    ` : '';
-
-    this.innerHTML = `
-      <div class="code-block">
-        ${headerHtml}
-                 <div class="code-content">
-           <pre><code>${this._highlightCode(this._componentData.code, this.language)}</code></pre>
-          ${!this.showHeader && this.showCopy ? `
-            <button class="copy-button absolute top-2 right-2" data-copy-btn>
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-              </svg>
-              <span data-copy-text>Copy</span>
-            </button>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  }
-
-  _escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  _highlightCode(code, language) {
-    const escaped = this._escapeHtml(code);
-    const lang = language.toLowerCase();
-    
-    if (lang === 'html' || lang === 'xml') {
-      return this._highlightHTML(escaped);
-    } else if (lang === 'javascript' || lang === 'js') {
-      return this._highlightJavaScript(escaped);
-    } else if (lang === 'css') {
-      return this._highlightCSS(escaped);
-    } else if (lang === 'json') {
-      return this._highlightJSON(escaped);
-    } else if (lang === 'python' || lang === 'py') {
-      return this._highlightPython(escaped);
-    } else if (lang === 'bash' || lang === 'shell' || lang === 'sh') {
-      return this._highlightBash(escaped);
-    } else if (lang === 'sql') {
-      return this._highlightSQL(escaped);
-    } else {
-      return escaped;
+    try {
+      const container = document.createElement('div');
+      container.className = 'code-block';
+      
+      if (this.showHeader) {
+        container.appendChild(this._createHeader());
+      }
+      
+      container.appendChild(this._createCodeContent());
+      
+      // Clear and append new content safely
+      this.innerHTML = '';
+      this.appendChild(container);
+      
+      // Cache elements after render
+      this._cacheElements();
+    } catch (error) {
+      this._handleError('Failed to render code component', error);
     }
   }
 
+  _createHeader() {
+    const header = document.createElement('div');
+    header.className = 'code-header';
+    
+    const languageSpan = document.createElement('span');
+    languageSpan.className = 'code-language';
+    languageSpan.textContent = this._escapeHtml(this.language);
+    header.appendChild(languageSpan);
+    
+    if (this.showCopy) {
+      header.appendChild(this._createCopyButton());
+    }
+    
+    return header;
+  }
+
+  _createCodeContent() {
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'code-content';
+    
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    
+    // Safely set highlighted code content
+    code.innerHTML = this._highlightCode(this._componentData.code, this.language);
+    pre.appendChild(code);
+    contentDiv.appendChild(pre);
+    
+    // Add floating copy button if header is not shown
+    if (!this.showHeader && this.showCopy) {
+      const copyBtn = this._createCopyButton();
+      copyBtn.classList.add('absolute', 'top-2', 'right-2');
+      contentDiv.appendChild(copyBtn);
+    }
+    
+    return contentDiv;
+  }
+
+  _createCopyButton() {
+    const button = document.createElement('button');
+    button.className = 'copy-button';
+    button.setAttribute('data-copy-btn', '');
+    button.setAttribute('aria-label', 'Copy code to clipboard');
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('w-3', 'h-3');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('d', 'M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3');
+    
+    svg.appendChild(path);
+    button.appendChild(svg);
+    
+    const span = document.createElement('span');
+    span.setAttribute('data-copy-text', '');
+    span.textContent = 'Copy';
+    button.appendChild(span);
+    
+    return button;
+  }
+
+  _cacheElements() {
+    this._cachedElements = {
+      copyBtn: this.querySelector('[data-copy-btn]'),
+      copyText: this.querySelector('[data-copy-text]')
+    };
+  }
+
+  _highlightCode(code, language) {
+    if (!code || typeof code !== 'string') return '';
+    
+    const escaped = this._escapeHtml(code);
+    const lang = language.toLowerCase();
+    
+    const highlighters = {
+      'html': () => this._highlightHTML(escaped),
+      'xml': () => this._highlightHTML(escaped),
+      'javascript': () => this._highlightJavaScript(escaped),
+      'js': () => this._highlightJavaScript(escaped),
+      'css': () => this._highlightCSS(escaped),
+      'json': () => this._highlightJSON(escaped),
+      'python': () => this._highlightPython(escaped),
+      'py': () => this._highlightPython(escaped),
+      'bash': () => this._highlightBash(escaped),
+      'shell': () => this._highlightBash(escaped),
+      'sh': () => this._highlightBash(escaped),
+      'sql': () => this._highlightSQL(escaped)
+    };
+    
+    const highlighter = highlighters[lang];
+    return highlighter ? highlighter() : escaped;
+  }
+
   _highlightHTML(text) {
-    // Token-based HTML highlighting inspired by Prism.js approach
-    // Process text sequentially without overlapping matches
-    
-    let result = '';
-    let index = 0;
+    // Token-based HTML highlighting with performance optimization
     const tokens = [];
-    
-    // First pass: find all tokens (tags, attributes, strings)
     const patterns = [
       { name: 'tag', regex: /&lt;\/?\w+/g, color: '#e06c75' },
       { name: 'bracket', regex: /&gt;/g, color: '#e06c75' },
@@ -115,41 +183,20 @@ class DryCode extends BaseElement {
     // Find all matches and sort by position
     patterns.forEach(pattern => {
       let match;
-      pattern.regex.lastIndex = 0; // Reset regex
+      pattern.regex.lastIndex = 0;
       while ((match = pattern.regex.exec(text)) !== null) {
         tokens.push({
           start: match.index,
           end: match.index + match[0].length,
           text: match[0],
-          name: pattern.name,
           color: pattern.color
         });
       }
     });
     
-    // Sort tokens by start position
     tokens.sort((a, b) => a.start - b.start);
     
-    // Build result, avoiding overlaps
-    let lastEnd = 0;
-    tokens.forEach(token => {
-      if (token.start >= lastEnd) {
-        // Add any text before this token
-        if (token.start > lastEnd) {
-          result += text.slice(lastEnd, token.start);
-        }
-        // Add the highlighted token
-        result += `<span style="color: ${token.color};">${token.text}</span>`;
-        lastEnd = token.end;
-      }
-    });
-    
-    // Add any remaining text
-    if (lastEnd < text.length) {
-      result += text.slice(lastEnd);
-    }
-    
-    return result;
+    return this._buildHighlightedText(text, tokens);
   }
 
   _highlightJavaScript(text) {
@@ -216,30 +263,29 @@ class DryCode extends BaseElement {
   }
 
   _highlightWithTokens(text, patterns) {
-    let result = '';
-    let index = 0;
     const tokens = [];
     
-    // Find all matches and sort by position
     patterns.forEach(pattern => {
       let match;
-      pattern.regex.lastIndex = 0; // Reset regex
+      pattern.regex.lastIndex = 0;
       while ((match = pattern.regex.exec(text)) !== null) {
         tokens.push({
           start: match.index,
           end: match.index + match[0].length,
           text: match[0],
-          name: pattern.name,
           color: pattern.color
         });
       }
     });
     
-    // Sort tokens by start position
     tokens.sort((a, b) => a.start - b.start);
-    
-    // Build result, avoiding overlaps
+    return this._buildHighlightedText(text, tokens);
+  }
+
+  _buildHighlightedText(text, tokens) {
+    let result = '';
     let lastEnd = 0;
+    
     tokens.forEach(token => {
       if (token.start >= lastEnd) {
         // Add any text before this token
@@ -247,7 +293,7 @@ class DryCode extends BaseElement {
           result += text.slice(lastEnd, token.start);
         }
         // Add the highlighted token
-        result += `<span style="color: ${token.color};">${token.text}</span>`;
+        result += `<span style="color: ${this._escapeHtml(token.color)};">${token.text}</span>`;
         lastEnd = token.end;
       }
     });
@@ -261,40 +307,57 @@ class DryCode extends BaseElement {
   }
 
   _attachEventListeners() {
-    const copyBtn = this.querySelector('[data-copy-btn]');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => this._copyToClipboard());
+    if (!this._cachedElements?.copyBtn) return;
+    
+    // Remove existing listener to prevent duplicates
+    this._removeEventListeners();
+    
+    this._boundCopyHandler = this._copyToClipboard.bind(this);
+    this._cachedElements.copyBtn.addEventListener('click', this._boundCopyHandler);
+  }
+
+  _removeEventListeners() {
+    if (this._boundCopyHandler && this._cachedElements?.copyBtn) {
+      this._cachedElements.copyBtn.removeEventListener('click', this._boundCopyHandler);
     }
   }
 
   async _copyToClipboard() {
-    const copyBtn = this.querySelector('[data-copy-btn]');
-    const copyText = this.querySelector('[data-copy-text]');
+    const { copyBtn, copyText } = this._cachedElements;
     
-    if (!copyBtn || !copyText) return;
+    if (!copyBtn || !copyText || !this._componentData?.code) return;
 
     try {
       await navigator.clipboard.writeText(this._componentData.code);
       this._showSuccessState(copyBtn, copyText);
+      this._dispatchEvent('code:copied', { code: this._componentData.code });
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.warn('Modern clipboard API failed, trying fallback:', err);
       this._fallbackCopy(copyBtn, copyText);
     }
   }
 
   _fallbackCopy(copyBtn, copyText) {
-    // Fallback for older browsers - can be removed if not supporting legacy browsers
     const textArea = document.createElement('textarea');
     textArea.value = this._componentData.code;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
     document.body.appendChild(textArea);
+    textArea.focus();
     textArea.select();
     
     try {
-      // @ts-ignore - deprecated but needed for older browser support
-      document.execCommand('copy');
-      this._showSuccessState(copyBtn, copyText);
+      const successful = document.execCommand('copy');
+      if (successful) {
+        this._showSuccessState(copyBtn, copyText);
+        this._dispatchEvent('code:copied', { code: this._componentData.code });
+      } else {
+        throw new Error('execCommand failed');
+      }
     } catch (err) {
-      console.error('Fallback copy failed: ', err);
+      this._handleError('Failed to copy code to clipboard', err);
+      this._dispatchEvent('code:copy-failed', { error: err.message });
     } finally {
       document.body.removeChild(textArea);
     }
@@ -305,10 +368,20 @@ class DryCode extends BaseElement {
     copyText.textContent = 'Copied!';
     copyBtn.disabled = true;
     
-    setTimeout(() => {
+    // Clear any existing timeout
+    if (this._successTimeout) {
+      clearTimeout(this._successTimeout);
+    }
+    
+    this._successTimeout = setTimeout(() => {
       copyText.textContent = originalText;
       copyBtn.disabled = false;
     }, 2000);
+  }
+
+  _handleError(message, error) {
+    console.error(`DryCode: ${message}`, error);
+    this._dispatchEvent('code:error', { message, error: error?.message });
   }
 
   // Public API methods
@@ -317,18 +390,26 @@ class DryCode extends BaseElement {
   }
 
   setCode(code) {
+    if (typeof code !== 'string') {
+      this._handleError('setCode expects a string parameter');
+      return;
+    }
+    
     this._componentData.code = code;
-    this._render();
+    this._scheduleRender();
     this._attachEventListeners();
   }
 
-  // Getters and setters
+  // Getters and setters with validation
   get language() {
-    return this._getAttributeWithDefault('language', 'HTML');
+    const lang = this._getAttributeWithDefault('language', 'text');
+    return this._escapeHtml(lang);
   }
 
   set language(value) {
-    this._setAttribute('language', value);
+    if (typeof value === 'string') {
+      this._setAttribute('language', value);
+    }
   }
 
   get showCopy() {
@@ -348,11 +429,26 @@ class DryCode extends BaseElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (this._isInitialized) {
+    if (this._isInitialized && oldValue !== newValue) {
       this._handleAttributeChange(name, oldValue, newValue);
-      this._render();
+      
+      // Update component data
+      if (name === 'language') this._componentData.language = this.language;
+      if (name === 'show-copy') this._componentData.showCopy = this.showCopy;
+      if (name === 'show-header') this._componentData.showHeader = this.showHeader;
+      
+      this._scheduleRender();
       this._attachEventListeners();
     }
+  }
+
+  disconnectedCallback() {
+    // Clean up timeouts and event listeners
+    if (this._successTimeout) {
+      clearTimeout(this._successTimeout);
+    }
+    this._removeEventListeners();
+    super.disconnectedCallback?.();
   }
 }
 
