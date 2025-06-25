@@ -8,6 +8,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     
+    <!-- Include the dry-code component -->
+    <script src="../src/dry2/base.js"></script>
+    <script src="../src/dry2/code.js"></script>
+    
     <style>
         .gradient-text {
             background: linear-gradient(45deg, #3B82F6, #8B5CF6);
@@ -80,6 +84,78 @@
             max-height: calc(100vh - 100px);
             overflow-y: auto;
         }
+        
+        .step-number {
+            background: #3b82f6;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        /* Additional styling for dry-code component */
+        dry-code {
+            display: block;
+            margin: 1rem 0;
+        }
+        
+        dry-code .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        dry-code .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #374151;
+            border-radius: 8px 8px 0 0;
+            margin: -1rem -1rem 1rem -1rem;
+        }
+        
+        dry-code .code-language {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+        }
+        
+        dry-code .copy-button {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px solid #4b5563;
+            border-radius: 4px;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        dry-code .copy-button:hover {
+            background: #4b5563;
+            color: white;
+        }
+        
+        dry-code .copy-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -89,15 +165,15 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="../index.html" class="text-2xl font-bold gradient-text">DRY2</a>
-                    <span class="ml-2 text-gray-600">Documentation</span>
+                    <span class="ml-2 text-gray-600">Web Components</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="../index.html" class="text-gray-600 hover:text-gray-900">Home</a>
-                    <a href="getting-started.html" class="text-gray-600 hover:text-gray-900">Getting Started</a>
+                    <a href="../index.html#features" class="text-gray-600 hover:text-gray-900">Features</a>
+                    <a href="../index.html#components" class="text-gray-600 hover:text-gray-900">Components</a>
+                    <a href="./" class="text-gray-600 hover:text-gray-900">Documentation</a>
                     <a href="../examples/" class="text-gray-600 hover:text-gray-900">Examples</a>
-                    <a href="API.html" class="text-gray-600 hover:text-gray-900">API Reference</a>
-                                    <a href="https://github.com/capless/dry2" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                    <i class="fab fa-github mr-2"></i>GitHub
+                    <a href="https://github.com/capless/dry2" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fab fa-github mr-2"></i>GitHub
                     </a>
                 </div>
             </div>
@@ -112,8 +188,10 @@
                     <h3 class="text-sm font-medium text-gray-900 uppercase tracking-wider mb-3">Getting Started</h3>
                     <ul class="space-y-2">
                         <li><a href="#overview" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Overview</a></li>
+                        <li><a href="#prerequisites" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Prerequisites</a></li>
                         <li><a href="#installation" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Installation</a></li>
-                        <li><a href="#usage" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Usage</a></li>
+                        <li><a href="#quick-start" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Quick Start</a></li>
+                        <li><a href="#usage" class="sidebar-link block px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100">Usage Patterns</a></li>
                     </ul>
                 </div>
                 
@@ -241,60 +319,290 @@
                     </div>
                 </section>
 
+                <!-- Prerequisites -->
+                <section id="prerequisites" class="mb-12">
+                    <div class="component-header">
+                        <h2 class="text-2xl font-bold text-gray-900">Prerequisites</h2>
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    <strong>Browser Support:</strong> DRY2 components work in all modern browsers that support Custom Elements, including Chrome 54+, Firefox 63+, Safari 10.1+, and Edge 79+.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                            <span><strong>Modern Browser:</strong> Support for Custom Elements and ES6 features</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                            <span><strong>Tailwind CSS:</strong> Required for styling (can be included via CDN)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
+                            <span><strong>Alpine.js:</strong> Optional but recommended for enhanced components</span>
+                        </li>
+                    </ul>
+                </section>
+
                 <!-- Installation -->
                 <section id="installation" class="mb-12">
                     <div class="component-header">
                         <h2 class="text-2xl font-bold text-gray-900">Installation</h2>
                     </div>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">CDN Installation</h3>
-                    <div class="code-block mb-6">
-&lt;!-- Include dependencies --&gt;
+                    <!-- Step 1 -->
+                    <div class="flex mb-8">
+                        <div class="step-number mr-4">1</div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Include Dependencies</h3>
+                            <p class="text-gray-600 mb-4">Add Tailwind CSS and Alpine.js to your HTML head section:</p>
+                            <dry-code language="html" show-header="true">
+&lt;!-- Include Tailwind CSS --&gt;
 &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+
+&lt;!-- Include Alpine.js (optional but recommended) --&gt;
 &lt;script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer&gt;&lt;/script&gt;
 
-&lt;!-- Include DRY2 components bundle (all 21 components) --&gt;
-&lt;script src="https://unpkg.com/dry2-web-components/dist/dry2.js"&gt;&lt;/script&gt;
+&lt;!-- Include Font Awesome for icons (optional) --&gt;
+&lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"&gt;
+                            </dry-code>
+                        </div>
                     </div>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">NPM Installation</h3>
-                    <div class="code-block mb-6">
-# Install the package
+                    <!-- Step 2 -->
+                    <div class="flex mb-8">
+                        <div class="step-number mr-4">2</div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Install DRY2 Components</h3>
+                            <p class="text-gray-600 mb-4">Install via npm or download directly:</p>
+                            <dry-code language="bash" show-header="true">
+# Install via npm
 npm install dry2-web-components
 
-# Import in your JavaScript
-import 'dry2-web-components/dist/dry2.js';
+# Or download the complete bundle directly
+curl -O https://unpkg.com/dry2-web-components/dist/dry2.js
+                            </dry-code>
+                            <p class="text-sm text-gray-500 mt-4">The npm package includes the complete bundled file in the <code class="bg-gray-100 px-1 rounded">dist/</code> directory.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex mb-8">
+                        <div class="step-number mr-4">3</div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-3">Include the Bundle</h3>
+                            <p class="text-gray-600 mb-4">Include the single bundle file to get all components:</p>
+                            <dry-code language="html" show-header="true">
+&lt;!-- Option 1: From CDN --&gt;
+&lt;script src="https://unpkg.com/dry2-web-components/dist/dry2.js"&gt;&lt;/script&gt;
+
+&lt;!-- Option 2: Local file --&gt;
+&lt;script src="path/to/dist/dry2.js"&gt;&lt;/script&gt;
+
+&lt;!-- Option 3: Individual components (if needed) --&gt;
+&lt;script src="path/to/dist/components/button.js"&gt;&lt;/script&gt;
+                            </dry-code>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Usage -->
+                <!-- Quick Start -->
+                <section id="quick-start" class="mb-12">
+                    <div class="component-header">
+                        <h2 class="text-2xl font-bold text-gray-900">Quick Start Example</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">Here's a complete HTML file to get you started:</p>
+
+                    <dry-code language="html" show-header="true">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;DRY2 Components Example&lt;/title&gt;
+    
+    &lt;!-- Dependencies --&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer&gt;&lt;/script&gt;
+    &lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"&gt;
+    
+    &lt;!-- DRY2 Components Bundle (All components in one file) --&gt;
+    &lt;script src="https://unpkg.com/dry2-web-components/dist/dry2.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class="bg-gray-100 p-8"&gt;
+    &lt;div class="max-w-2xl mx-auto space-y-8"&gt;
+        &lt;h1 class="text-3xl font-bold"&gt;DRY2 Components Demo&lt;/h1&gt;
+        
+        &lt;!-- Button Examples --&gt;
+        &lt;div&gt;
+            &lt;h2 class="text-xl font-semibold mb-4"&gt;Buttons&lt;/h2&gt;
+            &lt;div class="space-x-4"&gt;
+                &lt;dry-button variant="primary" size="md"&gt;Primary&lt;/dry-button&gt;
+                &lt;dry-button variant="secondary" size="md"&gt;Secondary&lt;/dry-button&gt;
+                &lt;dry-button variant="outline" size="md"&gt;Outline&lt;/dry-button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Avatar Examples --&gt;
+        &lt;div&gt;
+            &lt;h2 class="text-xl font-semibold mb-4"&gt;Avatars&lt;/h2&gt;
+            &lt;div class="flex space-x-4"&gt;
+                &lt;avatar-component name="John Doe" size="sm"&gt;&lt;/avatar-component&gt;
+                &lt;avatar-component name="Jane Smith" size="md"&gt;&lt;/avatar-component&gt;
+                &lt;avatar-component name="Alex Johnson" size="lg"&gt;&lt;/avatar-component&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Toast Example --&gt;
+        &lt;div&gt;
+            &lt;h2 class="text-xl font-semibold mb-4"&gt;Toast Notifications&lt;/h2&gt;
+            &lt;dry-button variant="primary" onclick="showToast()"&gt;Show Toast&lt;/dry-button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;script&gt;
+        function showToast() {
+            // Create and show a toast notification
+            const toast = document.createElement('toast-component');
+            toast.setAttribute('type', 'success');
+            toast.setAttribute('auto-show', 'true');
+            toast.textContent = 'Hello from DRY2 Components!';
+            document.body.appendChild(toast);
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                    </dry-code>
+
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-lightbulb text-green-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">
+                                    <strong>Tip:</strong> Save this as an HTML file and open it in your browser to see the components in action!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Usage Patterns -->
                 <section id="usage" class="mb-12">
                     <div class="component-header">
-                        <h2 class="text-2xl font-bold text-gray-900">Basic Usage</h2>
+                        <h2 class="text-2xl font-bold text-gray-900">Common Usage Patterns</h2>
                     </div>
 
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Quick Example</h3>
-                    <div class="code-block mb-8">
-&lt;!-- Use any component - they're all available! --&gt;
-&lt;dry-button variant="primary" size="lg"&gt;
-    &lt;i class="fas fa-rocket"&gt;&lt;/i&gt; Get Started
+                    <!-- Framework Integration -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Framework Integration</h3>
+                        <p class="text-gray-600 mb-4">DRY2 components work seamlessly with popular frameworks:</p>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white p-6 rounded-lg border">
+                                <h4 class="font-semibold text-gray-900 mb-3">React</h4>
+                                <dry-code language="javascript" show-header="false">
+// Import in your React component
+import 'dry2-web-components/dist/dry2.js';
+
+function MyComponent() {
+  return (
+    &lt;dry-button 
+      variant="primary" 
+      onClick={handleClick}
+    &gt;
+      Click me!
+    &lt;/dry-button&gt;
+  );
+}
+                                </dry-code>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-lg border">
+                                <h4 class="font-semibold text-gray-900 mb-3">Vue.js</h4>
+                                <dry-code language="html" show-header="false">
+&lt;!-- In your Vue template --&gt;
+&lt;template&gt;
+  &lt;dry-button 
+    variant="primary" 
+    @click="handleClick"
+  &gt;
+    Click me!
+  &lt;/dry-button&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import 'dry2-web-components/dist/dry2.js';
+&lt;/script&gt;
+                                </dry-code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customization -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Customization with Tailwind CSS</h3>
+                        <p class="text-gray-600 mb-4">Use Tailwind classes to customize component appearance:</p>
+                        <dry-code language="html" show-header="true">
+&lt;!-- Custom styling with Tailwind classes --&gt;
+&lt;dry-button 
+  variant="primary" 
+  class="shadow-lg hover:shadow-xl transition-shadow"
+&gt;
+  Enhanced Button
 &lt;/dry-button&gt;
 
-&lt;avatar-component name="John Doe" size="md"&gt;&lt;/avatar-component&gt;
-&lt;carousel-component slides='[...]' autoplay&gt;&lt;/carousel-component&gt;
+&lt;avatar-component 
+  name="John Doe" 
+  class="ring-4 ring-blue-500 ring-opacity-50"
+&gt;&lt;/avatar-component&gt;
+                        </dry-code>
+                    </div>
+
+                    <!-- Event Handling -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Event Handling</h3>
+                        <p class="text-gray-600 mb-4">Components emit custom events that you can listen for:</p>
+                        <dry-code language="javascript" show-header="true">
+// Listen for component events
+document.addEventListener('toast:close', (event) => {
+  console.log('Toast closed:', event.detail);
+});
+
+document.addEventListener('accordion:change', (event) => {
+  console.log('Accordion state changed:', event.detail);
+});
+
+// Programmatic control
+const button = document.querySelector('dry-button');
+button.addEventListener('click', () => {
+  console.log('Button clicked!');
+});
+                        </dry-code>
                     </div>
 
                     <div class="bg-gray-50 p-6 rounded-lg">
                         <h3 class="text-xl font-semibold text-gray-900 mb-4">What's Next?</h3>
                         <div class="grid md:grid-cols-3 gap-4">
-                            <a href="getting-started.html" class="bg-white p-4 rounded-lg border hover:border-blue-300 transition-colors">
-                                <i class="fas fa-play text-blue-600 text-xl mb-2"></i>
-                                <h4 class="font-semibold">Getting Started</h4>
-                                <p class="text-sm text-gray-600">Installation and setup guide</p>
+                            <a href="#button" class="bg-white p-4 rounded-lg border hover:border-blue-300 transition-colors">
+                                <i class="fas fa-puzzle-piece text-blue-600 text-xl mb-2"></i>
+                                <h4 class="font-semibold">Explore Components</h4>
+                                <p class="text-sm text-gray-600">Browse the complete component library below</p>
                             </a>
                             <a href="../examples/" class="bg-white p-4 rounded-lg border hover:border-blue-300 transition-colors">
                                 <i class="fas fa-code text-blue-600 text-xl mb-2"></i>
-                                <h4 class="font-semibold">Examples</h4>
+                                <h4 class="font-semibold">View Examples</h4>
                                 <p class="text-sm text-gray-600">Live demos and code samples</p>
                             </a>
                             <a href="API.html" class="bg-white p-4 rounded-lg border hover:border-blue-300 transition-colors">
@@ -318,12 +626,12 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">A versatile button component with multiple variants, sizes, loading states, and icon support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dry-button variant="primary" size="md"&gt;Click me!&lt;/dry-button&gt;
 &lt;dry-button variant="secondary" disabled&gt;Disabled&lt;/dry-button&gt;
 &lt;dry-button variant="outline" loading&gt;Loading...&lt;/dry-button&gt;
 &lt;dry-button href="/link" target="_blank"&gt;Link Button&lt;/dry-button&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -386,7 +694,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Advanced select dropdown with search functionality, multi-selection, and custom styling.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;super-select-component 
     placeholder="Choose options..."
     searchable
@@ -396,7 +704,7 @@ import 'dry2-web-components/dist/dry2.js';
     &lt;option value="2"&gt;Option 2&lt;/option&gt;
     &lt;option value="3"&gt;Option 3&lt;/option&gt;
 &lt;/super-select-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -447,11 +755,11 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Form-compatible toggle switch with validation, custom styling, and accessibility support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;toggle-switch name="notifications" size="md"&gt;Enable Notifications&lt;/toggle-switch&gt;
 &lt;toggle-switch checked disabled&gt;Disabled Switch&lt;/toggle-switch&gt;
 &lt;toggle-switch size="lg" required&gt;Required Setting&lt;/toggle-switch&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -516,7 +824,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Collapsible content sections with smooth animations, programmatic control, and accessibility support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dry-accordion allow-multiple&gt;
     &lt;div slot="item"&gt;
         &lt;h3 slot="header"&gt;Section 1&lt;/h3&gt;
@@ -527,7 +835,7 @@ import 'dry2-web-components/dist/dry2.js';
         &lt;div slot="content"&gt;Content for section 2&lt;/div&gt;
     &lt;/div&gt;
 &lt;/dry-accordion&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -604,7 +912,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Flexible card container with slots for header, media, body, and footer content.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;card-component variant="elevated"&gt;
     &lt;h3 slot="header"&gt;Card Title&lt;/h3&gt;
     &lt;img slot="media" src="image.jpg" alt="Card image"&gt;
@@ -613,7 +921,7 @@ import 'dry2-web-components/dist/dry2.js';
         &lt;dry-button size="sm"&gt;Action&lt;/dry-button&gt;
     &lt;/div&gt;
 &lt;/card-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -662,7 +970,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Height-based collapse animations with programmatic control and custom triggers.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dry-button onclick="document.querySelector('#collapse1').toggle()"&gt;
     Toggle Content
 &lt;/dry-button&gt;
@@ -671,7 +979,7 @@ import 'dry2-web-components/dist/dry2.js';
     &lt;p&gt;This content can be collapsed and expanded with smooth animations.&lt;/p&gt;
     &lt;p&gt;Multiple paragraphs and complex content are supported.&lt;/p&gt;
 &lt;/collapse-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -734,7 +1042,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Slide-in panels with positioning options, AJAX content support, and custom animations.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dry-drawer position="right" drawer-class="bg-white w-80"&gt;
     Open Drawer
     &lt;span slot="header"&gt;Drawer Title&lt;/span&gt;
@@ -743,7 +1051,7 @@ import 'dry2-web-components/dist/dry2.js';
         &lt;p&gt;Multiple elements supported&lt;/p&gt;
     &lt;/div&gt;
 &lt;/dry-drawer&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -799,7 +1107,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Modal dialogs with HTMX support for dynamic content loading and responsive design.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dialog-component title="Confirmation"&gt;
     Open Dialog
     &lt;div slot="content"&gt;
@@ -810,7 +1118,7 @@ import 'dry2-web-components/dist/dry2.js';
         &lt;dry-button variant="primary"&gt;Confirm&lt;/dry-button&gt;
     &lt;/div&gt;
 &lt;/dialog-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -855,7 +1163,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Tabbed interface with multiple variants, keyboard navigation, and icon support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;tabs-component variant="underline"&gt;
     &lt;div slot="tab"&gt;
         &lt;span slot="label"&gt;Tab 1&lt;/span&gt;
@@ -866,7 +1174,7 @@ import 'dry2-web-components/dist/dry2.js';
         &lt;div slot="content"&gt;Content for tab 2&lt;/div&gt;
     &lt;/div&gt;
 &lt;/tabs-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -910,11 +1218,11 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">User avatar with automatic fallback to initials, multiple sizes and shapes, and consistent color generation.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;avatar-component name="John Doe" size="md"&gt;&lt;/avatar-component&gt;
 &lt;avatar-component src="avatar.jpg" name="Jane Smith" size="lg"&gt;&lt;/avatar-component&gt;
 &lt;avatar-component name="AB" shape="square"&gt;&lt;/avatar-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -977,11 +1285,11 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Notification badges with positioning, variants, overflow handling, and animations.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;badge-component variant="primary" position="standalone"&gt;New&lt;/badge-component&gt;
 &lt;badge-component variant="danger" position="top-right" max="99"&gt;150&lt;/badge-component&gt;
 &lt;badge-component variant="success" dot&gt;&lt;/badge-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1044,13 +1352,13 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Hierarchical navigation with customizable separators, responsive design, and icon support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;breadcrumbs-component separator="chevron"&gt;
     &lt;a href="/" slot="crumb"&gt;Home&lt;/a&gt;
     &lt;a href="/products" slot="crumb"&gt;Products&lt;/a&gt;
     &lt;span slot="crumb" class="text-gray-500"&gt;Current Page&lt;/span&gt;
 &lt;/breadcrumbs-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1092,7 +1400,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Image carousel with autoplay, navigation controls, touch support, and responsive design.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;carousel-component
     slides='[
         {
@@ -1111,7 +1419,7 @@ import 'dry2-web-components/dist/dry2.js';
     show-dots="true"
     show-arrows="true"
 &gt;&lt;/carousel-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1174,7 +1482,7 @@ import 'dry2-web-components/dist/dry2.js';
                     <p class="text-gray-600 mb-6">Syntax-highlighted code blocks with copy-to-clipboard functionality for multiple programming languages.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;dry-code language="javascript"&gt;
 function greet(name) {
     console.log(`Hello, ${name}!`);
@@ -1188,7 +1496,7 @@ greet('World');
     &lt;h1&gt;Welcome&lt;/h1&gt;
 &lt;/div&gt;
 &lt;/dry-code&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1260,7 +1568,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Flexible countdown timer with multiple format options, real-time updates, and completion events.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;countdown-component target="2025-12-31T23:59:59"&gt;
     &lt;span slot="expired"&gt;Time's up!&lt;/span&gt;
 &lt;/countdown-component&gt;
@@ -1268,7 +1576,7 @@ greet('World');
 &lt;countdown-component duration="3600" format="hms"&gt;
     &lt;span slot="expired"&gt;Timer finished!&lt;/span&gt;
 &lt;/countdown-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1324,7 +1632,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">QR code generation with customization options, download functionality, and error handling.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;qr-component 
     data="https://example.com"
     size="200"
@@ -1332,7 +1640,7 @@ greet('World');
     background="#ffffff"
     show-download="true"
 &gt;&lt;/qr-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1395,7 +1703,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Statistical display with value formatting, trend indicators, and comparison text.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;stat-component 
     value="98.5"
     label="Performance Score"
@@ -1403,7 +1711,7 @@ greet('World');
     trend-value="+12%"
     icon="fas fa-chart-line"
 &gt;&lt;/stat-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1466,7 +1774,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Timeline visualization with multiple variants, custom styling, and responsive design.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;timeline-component orientation="vertical"&gt;
     &lt;div slot="item" data-type="success"&gt;
         &lt;h4 slot="title"&gt;Project Started&lt;/h4&gt;
@@ -1479,7 +1787,7 @@ greet('World');
         &lt;span slot="time"&gt;February 2025&lt;/span&gt;
     &lt;/div&gt;
 &lt;/timeline-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1549,7 +1857,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Toggle between two states with smooth transitions, custom events, and accessibility support.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;swap-component size="md"&gt;
     &lt;i slot="off" class="fas fa-play"&gt;&lt;/i&gt;
     &lt;i slot="on" class="fas fa-pause"&gt;&lt;/i&gt;
@@ -1559,7 +1867,7 @@ greet('World');
     &lt;span slot="off"&gt;Show&lt;/span&gt;
     &lt;span slot="on"&gt;Hide&lt;/span&gt;
 &lt;/swap-component&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1626,7 +1934,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Notification toasts with multiple types, positioning, auto-hide timers, and global convenience methods.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;!-- Using HTML element --&gt;
 &lt;toast-component type="success" auto-show duration="3000"&gt;
     Operation completed successfully!
@@ -1639,7 +1947,7 @@ greet('World');
     Toast.warning('Warning message!');
     Toast.info('Information message!');
 &lt;/script&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1730,7 +2038,7 @@ greet('World');
                     <p class="text-gray-600 mb-6">Chat interface with message grouping, status indicators, and support for different content types.</p>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <div class="code-block mb-6">
+                    <dry-code language="html" show-header="true">
 &lt;chat-bubble 
     type="sent"
     timestamp="2025-01-15T10:30:00"
@@ -1746,7 +2054,7 @@ greet('World');
 &gt;
     I'm doing great, thanks for asking!
 &lt;/chat-bubble&gt;
-                    </div>
+                    </dry-code>
 
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
                     <table class="attribute-table mb-6">
@@ -1811,6 +2119,25 @@ greet('World');
                         </div>
                     </div>
                 </div>
+
+                <!-- Support Section -->
+                <section class="mt-16 mb-12">
+                    <div class="bg-gray-100 rounded-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Need Help?</h2>
+                        <p class="text-gray-600 mb-6">Get support and connect with the community:</p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="https://github.com/capless/dry2" target="_blank" class="bg-white px-4 py-2 rounded border hover:border-gray-400 transition-colors">
+                                <i class="fab fa-github mr-2"></i>GitHub Issues
+                            </a>
+                            <a href="#" class="bg-white px-4 py-2 rounded border hover:border-gray-400 transition-colors">
+                                <i class="fab fa-discord mr-2"></i>Discord Community
+                            </a>
+                            <a href="#" class="bg-white px-4 py-2 rounded border hover:border-gray-400 transition-colors">
+                                <i class="fas fa-envelope mr-2"></i>Email Support
+                            </a>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
