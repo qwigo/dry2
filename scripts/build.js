@@ -232,7 +232,30 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
         mangle: {
           reserved: [
             'DRY2', 
-            'BaseElement'
+            'BaseElement',
+            // Alpine.js method names used in templates
+            'getButtonClasses',
+            'getAvatarClasses',
+            'getInitialsBackground', 
+            'getImageClasses',
+            'shouldShowImage',
+            'shouldShowInitials',
+            'shouldShowIcon',
+            'handleImageLoad',
+            'handleImageError',
+            'getCardClasses',
+            'getHeaderClasses',
+            'getMediaClasses', 
+            'getBodyClasses',
+            'getFooterClasses',
+            'hasHeader',
+            'hasMedia',
+            'hasBody',
+            'hasFooter',
+            'handleCardClick',
+            'getComponentClasses',
+            'handleClick',
+            'handleKeydown'
           ]
         },
         output: {

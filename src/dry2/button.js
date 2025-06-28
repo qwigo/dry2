@@ -41,83 +41,80 @@ class DryButton extends BaseElement {
     const linkProps = isLink ? `href="${validatedHref}" ${sanitizedTarget ? `target="${sanitizedTarget}"` : ''}` : '';
     const buttonProps = !isLink ? `type="${this._escapeHtml(this.type)}"` : '';
 
-    // Use secure Alpine data creation instead of unsafe string concatenation
-    const alpineDataObject = {
-      content: this._componentData.content,
-      variant: this.variant,
-      size: this.size,
-      disabled: this.disabled,
-      loading: this.loading,
-      icon: this.icon,
-      
-      getButtonClasses() {
-        let classes = 'inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border ';
-        
-        // Size classes
-        if (this.size === 'sm') {
-          classes += 'px-3 py-1.5 text-xs rounded ';
-        } else if (this.size === 'lg') {
-          classes += 'px-6 py-3 text-base rounded-lg ';
-        } else if (this.size === 'xl') {
-          classes += 'px-8 py-4 text-lg rounded-lg ';
-        } else {
-          // md or default
-          classes += 'px-4 py-2 text-sm rounded-md ';
-        }
-        
-        // Variant classes
-        if (this.variant === 'secondary') {
-          classes += 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200 focus:ring-gray-500 ';
-        } else if (this.variant === 'outline') {
-          classes += 'bg-transparent text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-500 ';
-        } else if (this.variant === 'text') {
-          classes += 'bg-transparent text-blue-600 border-transparent hover:bg-blue-50 focus:ring-blue-500 ';
-        } else if (this.variant === 'danger') {
-          classes += 'bg-red-600 text-white border-red-600 hover:bg-red-700 focus:ring-red-500 ';
-        } else if (this.variant === 'success') {
-          classes += 'bg-green-600 text-white border-green-600 hover:bg-green-700 focus:ring-green-500 ';
-        } else if (this.variant === 'warning') {
-          classes += 'bg-yellow-500 text-yellow-900 border-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 ';
-        } else {
-          // primary or default
-          classes += 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 focus:ring-blue-500 ';
-        }
-        
-        // State classes
-        if (this.disabled || this.loading) {
-          classes += 'opacity-50 cursor-not-allowed ';
-        }
-        
-        return classes.trim();
-      }
-    };
+    // Get current values
+    const content = this._componentData.content;
+    const variant = this.variant;
+    const size = this.size;
+    const disabled = this.disabled;
+    const loading = this.loading;
+    const icon = this.icon;
 
-    const alpineData = this._createSecureAlpineDataString(alpineDataObject);
+    // Create button classes directly
+    const buttonClasses = this._getButtonClasses(variant, size, disabled, loading);
 
     this.innerHTML = `
-      <div x-data="${alpineData}" class="inline-block">
-        
+      <div class="inline-block">
         <${tagName} 
-          :class="getButtonClasses()"
+          class="${buttonClasses}"
           ${linkProps}
           ${buttonProps}
-          :disabled="disabled || loading"
-          :aria-busy="loading"
-          :aria-disabled="disabled || loading">
+          ${disabled || loading ? 'disabled' : ''}
+          ${loading ? 'aria-busy="true"' : ''}
+          ${disabled || loading ? 'aria-disabled="true"' : ''}>
           
           <!-- Loading Spinner -->
-          <i x-show="loading" class="fas fa-spinner fa-spin mr-2"></i>
+          ${loading ? '<i class="fas fa-spinner fa-spin mr-2"></i>' : ''}
           
           <!-- Icon -->
-          <i x-show="icon && !loading" :class="icon + (content ? ' mr-2' : '')"></i>
+          ${icon && !loading ? `<i class="${icon}${content ? ' mr-2' : ''}"></i>` : ''}
           
           <!-- Text Content -->
-          <span x-show="content" x-text="content"></span>
+          ${content ? `<span>${this._escapeHtml(content)}</span>` : ''}
           
         </${tagName}>
-        
       </div>
     `;
+  }
+
+  _getButtonClasses(variant, size, disabled, loading) {
+    let classes = 'inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border ';
+    
+    // Size classes
+    if (size === 'sm') {
+      classes += 'px-3 py-1.5 text-xs rounded ';
+    } else if (size === 'lg') {
+      classes += 'px-6 py-3 text-base rounded-lg ';
+    } else if (size === 'xl') {
+      classes += 'px-8 py-4 text-lg rounded-lg ';
+    } else {
+      // md or default
+      classes += 'px-4 py-2 text-sm rounded-md ';
+    }
+    
+    // Variant classes
+    if (variant === 'secondary') {
+      classes += 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200 focus:ring-gray-500 ';
+    } else if (variant === 'outline') {
+      classes += 'bg-transparent text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-500 ';
+    } else if (variant === 'text') {
+      classes += 'bg-transparent text-blue-600 border-transparent hover:bg-blue-50 focus:ring-blue-500 ';
+    } else if (variant === 'danger') {
+      classes += 'bg-red-600 text-white border-red-600 hover:bg-red-700 focus:ring-red-500 ';
+    } else if (variant === 'success') {
+      classes += 'bg-green-600 text-white border-green-600 hover:bg-green-700 focus:ring-green-500 ';
+    } else if (variant === 'warning') {
+      classes += 'bg-yellow-500 text-yellow-900 border-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 ';
+    } else {
+      // primary or default
+      classes += 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 focus:ring-blue-500 ';
+    }
+    
+    // State classes
+    if (disabled || loading) {
+      classes += 'opacity-50 cursor-not-allowed ';
+    }
+    
+    return classes.trim();
   }
 
   // Input validation methods

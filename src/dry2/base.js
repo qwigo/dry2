@@ -297,11 +297,17 @@ class BaseElement extends HTMLElement {
         const funcString = value.toString();
         
         // Check if it's an ES6 method syntax (starts with method name followed by parentheses)
+        // e.g., "methodName() { ... }" vs "function methodName() { ... }"
         if (funcString.startsWith(key + '(')) {
           // It's ES6 method syntax, use it directly
           return funcString;
+        } else if (funcString.startsWith('function ')) {
+          // It's a regular function declaration, convert to ES6 method syntax
+          // Remove "function " and the function name if it matches the key
+          const methodBody = funcString.replace(/^function\s+\w*\s*/, '');
+          return `${key}${methodBody}`;
         } else {
-          // It's a regular function, convert to method syntax
+          // It's already a method or arrow function, use as-is with key
           return `${key}: ${funcString}`;
         }
       } else if (Array.isArray(value)) {

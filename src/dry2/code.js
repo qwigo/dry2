@@ -51,7 +51,7 @@ class DryCode extends BaseElement {
   _render() {
     try {
       const container = document.createElement('div');
-      container.className = 'code-block';
+      container.className = 'relative mt-6 rounded-lg bg-slate-900 border border-slate-700 overflow-hidden shadow-lg';
       
       if (this.showHeader) {
         container.appendChild(this._createHeader());
@@ -72,10 +72,10 @@ class DryCode extends BaseElement {
 
   _createHeader() {
     const header = document.createElement('div');
-    header.className = 'code-header';
+    header.className = 'flex justify-between items-center px-4 py-3 bg-slate-800 border-b border-slate-700';
     
     const languageSpan = document.createElement('span');
-    languageSpan.className = 'code-language';
+    languageSpan.className = 'text-xs font-semibold text-slate-400 uppercase tracking-wider';
     languageSpan.textContent = this._escapeHtml(this.language);
     header.appendChild(languageSpan);
     
@@ -88,10 +88,13 @@ class DryCode extends BaseElement {
 
   _createCodeContent() {
     const contentDiv = document.createElement('div');
-    contentDiv.className = 'code-content';
+    contentDiv.className = 'relative p-4 font-mono text-sm text-slate-200 overflow-x-auto';
     
     const pre = document.createElement('pre');
+    pre.className = 'm-0 whitespace-pre overflow-x-auto';
+    
     const code = document.createElement('code');
+    code.className = 'text-inherit text-sm font-mono break-words max-w-full';
     
     // Safely set highlighted code content
     code.innerHTML = this._highlightCode(this._componentData.code, this.language);
@@ -110,7 +113,7 @@ class DryCode extends BaseElement {
 
   _createCopyButton() {
     const button = document.createElement('button');
-    button.className = 'copy-button';
+    button.className = 'flex items-center gap-2 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded text-blue-400 text-xs font-medium hover:bg-blue-500/30 hover:border-blue-500/40 hover:text-blue-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50';
     button.setAttribute('data-copy-btn', '');
     button.setAttribute('aria-label', 'Copy code to clipboard');
     
@@ -368,6 +371,9 @@ class DryCode extends BaseElement {
     copyText.textContent = 'Copied!';
     copyBtn.disabled = true;
     
+    // Update button styling for success state
+    copyBtn.className = 'flex items-center gap-2 px-3 py-1 bg-green-500/20 border border-green-500/30 rounded text-green-400 text-xs font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500/50';
+    
     // Clear any existing timeout
     if (this._successTimeout) {
       clearTimeout(this._successTimeout);
@@ -376,6 +382,8 @@ class DryCode extends BaseElement {
     this._successTimeout = setTimeout(() => {
       copyText.textContent = originalText;
       copyBtn.disabled = false;
+      // Restore original button styling
+      copyBtn.className = 'flex items-center gap-2 px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded text-blue-400 text-xs font-medium hover:bg-blue-500/30 hover:border-blue-500/40 hover:text-blue-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50';
     }, 2000);
   }
 

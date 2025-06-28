@@ -3,3 +3,8 @@
 /dist/
 /screenshots/
 /coverage/tmp/
+all-components-showcase.html
+.idea/
+/.cursor/
+/cursor-instructions/
+/.vscode/
