@@ -53,13 +53,13 @@ class DryBreadcrumbs extends BaseElement {
   getSeparatorHTML() {
     const separatorType = this.separator;
     const separators = {
-      'chevron': '<svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>',
-      'slash': '<span class="text-gray-400 mx-2">/</span>',
-      'bullet': '<span class="text-gray-400 mx-2">•</span>',
-      'arrow': '<span class="text-gray-400 mx-2">→</span>'
+      'chevron': '<svg class="w-4 h-4 text-gray-400 dark:text-gray-500 mx-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>',
+      'slash': '<span class="text-gray-400 dark:text-gray-500 mx-2">/</span>',
+      'bullet': '<span class="text-gray-400 dark:text-gray-500 mx-2">•</span>',
+      'arrow': '<span class="text-gray-400 dark:text-gray-500 mx-2">→</span>'
     };
 
-    return separators[separatorType] || `<span class="text-gray-400 mx-2">${separatorType}</span>`;
+    return separators[separatorType] || `<span class="text-gray-400 dark:text-gray-500 mx-2">${separatorType}</span>`;
   }
 
   render() {
@@ -86,9 +86,9 @@ class DryBreadcrumbs extends BaseElement {
 
       // Build item HTML
       if (href && !isLast) {
-        breadcrumbHTML += `<a href="${href}" class="flex items-center text-blue-600 hover:text-blue-800 transition-colors ${itemClass}">`;
+        breadcrumbHTML += `<a href="${href}" class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors ${itemClass}">`;
       } else {
-        breadcrumbHTML += `<span class="flex items-center text-gray-500 ${itemClass}">`;
+        breadcrumbHTML += `<span class="flex items-center text-gray-500 dark:text-gray-400 ${itemClass}">`;
       }
 
       // Add icon if present

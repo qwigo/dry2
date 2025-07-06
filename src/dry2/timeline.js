@@ -124,19 +124,19 @@ class TimelineItem extends BaseElement {
     const itemClasses = this._getItemClasses();
     const marker = this._createMarker();
 
-    const dateDisplay = date ? `<div class="text-sm text-gray-500 mb-1">${this._escapeHtml(date)}</div>` : '';
-    const titleDisplay = title ? `<div class="font-semibold text-gray-800 mb-2">${this._escapeHtml(title)}</div>` : '';
+    const dateDisplay = date ? `<div class="text-sm text-gray-500 dark:text-gray-400 mb-1">${this._escapeHtml(date)}</div>` : '';
+    const titleDisplay = title ? `<div class="font-semibold text-gray-800 dark:text-gray-200 mb-2">${this._escapeHtml(title)}</div>` : '';
 
     return `
       <div class="${itemClasses}">
         <div class="flex-shrink-0 mr-4">
           ${marker}
-          ${!this._isLast ? '<div class="w-0.5 h-16 bg-gray-300 ml-4 mt-2"></div>' : ''}
+          ${!this._isLast ? '<div class="w-0.5 h-16 bg-gray-300 dark:bg-gray-600 ml-4 mt-2"></div>' : ''}
         </div>
         <div class="flex-grow">
           ${dateDisplay}
           ${titleDisplay}
-          <div class="text-gray-600">${originalContent}</div>
+          <div class="text-gray-600 dark:text-gray-300">${originalContent}</div>
         </div>
       </div>
     `;
@@ -169,9 +169,9 @@ class TimelineItem extends BaseElement {
     }
 
     if (this.icon) {
-      return `<div class="w-8 h-8 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">${this.icon}</div>`;
+      return `<div class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center">${this.icon}</div>`;
     } else {
-      return `<div class="w-8 h-8 rounded-full ${markerColorClass} border-2 border-white"></div>`;
+      return `<div class="w-8 h-8 rounded-full ${markerColorClass} border-2 border-white dark:border-gray-800"></div>`;
     }
   }
 

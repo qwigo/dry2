@@ -14,9 +14,9 @@ class DrySelect extends BaseElement {
     const placeholder = this.getAttribute('placeholder') || 'Select an option';
     const searchPlaceholder = this.getAttribute('search-placeholder') || 'Search options...';
     const buttonClass = this.getAttribute('button-class') ||
-        'w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all';
+        'w-full flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all';
     const dropdownClass = this.getAttribute('dropdown-class') ||
-        'absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg overflow-auto';
+        'absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg overflow-auto';
     const maxHeight = this.getAttribute('max-height') || '15rem';
     const name = this.getAttribute('name') || '';
 
@@ -148,12 +148,12 @@ class DrySelect extends BaseElement {
                 <template x-if="isMultiple && selectedValues.length > 0">
                     <div class="flex flex-wrap gap-1 mr-2">
                         <template x-for="value in selectedValues" :key="value">
-                            <div class="inline-flex items-center bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-md">
+                            <div class="inline-flex items-center bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-300 text-sm px-2 py-1 rounded-md">
                                 <span x-text="options.find(opt => opt.value === value)?.text || value"></span>
                                 <button 
                                     type="button" 
                                     @click.stop="removeOption(value)"
-                                    class="ml-1 text-blue-600 hover:text-blue-800 focus:outline-none">
+                                    class="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-100 focus:outline-none">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -173,7 +173,7 @@ class DrySelect extends BaseElement {
                     @click.stop
                     @input="focusedIndex = -1; isOpen = true"
                     :disabled="isDisabled"
-                    class="flex-1 border-none outline-none bg-transparent text-gray-700 placeholder-gray-400 min-w-0">
+                    class="flex-1 border-none outline-none bg-transparent text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 min-w-0">
             </div>
             
             <!-- Clear button -->
@@ -212,7 +212,7 @@ class DrySelect extends BaseElement {
             style="max-height: ${maxHeight}">
             
             <template x-if="availableOptions.length === 0">
-                <div class="px-3 py-2 text-gray-500 text-sm">
+                <div class="px-3 py-2 text-gray-500 dark:text-gray-400 text-sm">
                     <template x-if="searchValue">
                         <span>No options found for "<span x-text="searchValue"></span>"</span>
                     </template>
@@ -227,14 +227,14 @@ class DrySelect extends BaseElement {
             
             <template x-for="(option, index) in availableOptions" :key="option.value">
                 <div 
-                    class="px-3 py-2 cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between"
+                    class="px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-150 flex items-center justify-between"
                     :class="{
-                        'bg-blue-50': index === focusedIndex,
-                        'bg-blue-100 text-blue-700': !isMultiple && selectedValues.includes(option.value)
+                        'bg-blue-50 dark:bg-blue-900': index === focusedIndex,
+                        'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-300': !isMultiple && selectedValues.includes(option.value)
                     }"
                     @click="selectOption(option.value)">
                     
-                    <span class="text-gray-700" x-text="option.text"></span>
+                    <span class="text-gray-700 dark:text-gray-200" x-text="option.text"></span>
                     
                     <template x-if="!isMultiple && selectedValues.includes(option.value)">
                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

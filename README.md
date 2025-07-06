@@ -118,10 +118,9 @@ pnpm add dry2-web-components
 - **[`<collapse-component>`](docs/components/collapse.md)** - Smooth height-based collapse animations
 - **[`<drawer-component>`](docs/components/drawer.md)** - Side panel/drawer with HTMX support
 
-### 🎠 Interactive Components
-- **[`<carousel-component>`](docs/components/carousel.md)** - Touch-enabled carousel with autoplay
-- **[`<swap-component>`](docs/components/swap.md)** - Icon/state swapping with transitions
-- **[`<countdown-component>`](docs/components/countdown.md)** - Flexible countdown timers
+  ### 🎠 Interactive Components
+  - **[`<carousel-component>`](docs/components/carousel.md)** - Touch-enabled carousel with autoplay
+  - **[`<countdown-component>`](docs/components/countdown.md)** - Flexible countdown timers
 
 ### 💬 Communication Components
 - **[`<chat-bubble>`](docs/components/chat-bubble.md)** - Chat message bubbles with status indicators

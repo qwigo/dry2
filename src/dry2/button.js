@@ -93,20 +93,20 @@ class DryButton extends BaseElement {
     
     // Variant classes
     if (variant === 'secondary') {
-      classes += 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200 focus:ring-gray-500 ';
+      classes += 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500 ';
     } else if (variant === 'outline') {
-      classes += 'bg-transparent text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-500 ';
+      classes += 'bg-transparent text-blue-600 dark:text-blue-500 border-blue-600 dark:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 focus:ring-blue-500 ';
     } else if (variant === 'text') {
-      classes += 'bg-transparent text-blue-600 border-transparent hover:bg-blue-50 focus:ring-blue-500 ';
+      classes += 'bg-transparent text-blue-600 dark:text-blue-500 border-transparent hover:bg-blue-50 dark:hover:bg-blue-900 focus:ring-blue-500 ';
     } else if (variant === 'danger') {
       classes += 'bg-red-600 text-white border-red-600 hover:bg-red-700 focus:ring-red-500 ';
     } else if (variant === 'success') {
       classes += 'bg-green-600 text-white border-green-600 hover:bg-green-700 focus:ring-green-500 ';
     } else if (variant === 'warning') {
-      classes += 'bg-yellow-500 text-yellow-900 border-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500 ';
+      classes += 'bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-white border-yellow-500 dark:border-yellow-600 hover:bg-yellow-600 dark:hover:bg-yellow-700 focus:ring-yellow-500 ';
     } else {
       // primary or default
-      classes += 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 focus:ring-blue-500 ';
+      classes += 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 focus:ring-blue-500 ';
     }
     
     // State classes

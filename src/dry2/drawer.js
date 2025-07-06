@@ -105,10 +105,10 @@ class DryDrawer extends BaseElement {
 
   _createDrawerHeader() {
     const header = document.createElement('div');
-    header.className = `drawer-header flex items-center justify-between p-4 border-b ${this.headerClass}`;
+    header.className = `drawer-header flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-50 ${this.headerClass}`;
     
     const title = document.createElement('div');
-    title.className = 'drawer-title';
+    title.className = 'drawer-title text-gray-900 dark:text-gray-50';
     
     const headerContent = this.querySelector('[slot="header"]')?.textContent || this.headerContent;
     title.textContent = this._escapeHtml(headerContent);
@@ -124,7 +124,7 @@ class DryDrawer extends BaseElement {
   _createCloseButton() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('class', 'drawer-close cursor-pointer h-6 w-6 text-gray-500 hover:text-gray-700');
+    svg.setAttribute('class', 'drawer-close cursor-pointer h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300');
     svg.setAttribute('role', 'button');
     svg.setAttribute('aria-label', 'Close drawer');
     
@@ -138,7 +138,7 @@ class DryDrawer extends BaseElement {
 
   _createDrawerContent() {
     const content = document.createElement('div');
-    content.className = 'drawer-content p-4';
+    content.className = 'drawer-content p-4 text-gray-800 dark:text-gray-200';
     
     const contentSlot = this.querySelector('[slot="content"]');
     if (contentSlot) {
@@ -309,7 +309,7 @@ class DryDrawer extends BaseElement {
   }
 
   get drawerClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('drawer-class', 'bg-white w-80'));
+    return this._escapeHtml(this._getAttributeWithDefault('drawer-class', 'bg-white dark:bg-gray-800 w-80'));
   }
 
   get headerClass() {
@@ -321,7 +321,7 @@ class DryDrawer extends BaseElement {
   }
 
   get buttonClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'));
+    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 dark:hover:bg-blue-800'));
   }
 
   get triggerContent() {
@@ -495,10 +495,10 @@ class AjaxDrawer extends BaseElement {
 
   _createDrawerHeader() {
     const header = document.createElement('div');
-    header.className = `drawer-header flex items-center justify-between p-4 border-b ${this.headerClass}`;
+    header.className = `drawer-header flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-50 ${this.headerClass}`;
     
     const title = document.createElement('div');
-    title.className = 'drawer-title';
+    title.className = 'drawer-title text-gray-900 dark:text-gray-50';
     
     const headerContent = this.querySelector('[slot="header"]')?.textContent || this.headerContent;
     title.textContent = this._escapeHtml(headerContent);
@@ -514,7 +514,7 @@ class AjaxDrawer extends BaseElement {
   _createCloseButton() {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('class', 'drawer-close cursor-pointer h-6 w-6 text-gray-500 hover:text-gray-700');
+    svg.setAttribute('class', 'drawer-close cursor-pointer h-6 w-6 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300');
     svg.setAttribute('role', 'button');
     svg.setAttribute('aria-label', 'Close drawer');
     
@@ -528,7 +528,7 @@ class AjaxDrawer extends BaseElement {
 
   _createDrawerContent() {
     const content = document.createElement('div');
-    content.className = 'drawer-content p-4';
+    content.className = 'drawer-content p-4 text-gray-800 dark:text-gray-200';
     
     // Ajax content container
     const ajaxContent = document.createElement('div');
@@ -549,7 +549,7 @@ class AjaxDrawer extends BaseElement {
 
   _createLoadingIndicator() {
     const loading = document.createElement('div');
-    loading.className = 'drawer-loading hidden flex justify-center items-center p-8';
+    loading.className = 'drawer-loading hidden flex justify-center items-center p-8 text-gray-700 dark:text-gray-200';
     
     const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     spinner.setAttribute('class', 'animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500');
@@ -831,7 +831,7 @@ class AjaxDrawer extends BaseElement {
   }
 
   get drawerClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('drawer-class', 'bg-white w-80'));
+    return this._escapeHtml(this._getAttributeWithDefault('drawer-class', 'bg-white dark:bg-gray-800 w-80'));
   }
 
   get headerClass() {
@@ -843,7 +843,7 @@ class AjaxDrawer extends BaseElement {
   }
 
   get buttonClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'));
+    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 dark:hover:bg-blue-800'));
   }
 
   get triggerContent() {

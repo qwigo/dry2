@@ -172,7 +172,7 @@ class Dialog extends BaseElement {
     
     // Create dialog inner content
     const dialogInner = document.createElement('div');
-    dialogInner.className = 'dialog-inner pt-2';
+    dialogInner.className = 'dialog-inner pt-2 text-gray-800 dark:text-gray-200';
     dialogInner.id = this.dialogInnerId;
     dialog.appendChild(dialogInner);
     
@@ -184,7 +184,7 @@ class Dialog extends BaseElement {
     closeButton.setAttribute('viewBox', '0 0 100 100');
     closeButton.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     closeButton.id = 'closer';
-    closeButton.setAttribute('class', 'cursor-pointer h-6 absolute opacity-30 hover:opacity-80 transition-all duration-75 top-8 right-8');
+    closeButton.setAttribute('class', 'cursor-pointer h-6 absolute opacity-30 hover:opacity-80 transition-all duration-75 top-8 right-8 text-gray-700 dark:text-gray-300');
     closeButton.setAttribute('role', 'button');
     closeButton.setAttribute('aria-label', 'Close dialog');
     
@@ -342,7 +342,7 @@ class Dialog extends BaseElement {
   }
 
   get buttonClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'));
+    return this._escapeHtml(this._getAttributeWithDefault('button-class', 'bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 dark:hover:bg-blue-800'));
   }
 
   set buttonClass(value) {
@@ -350,7 +350,7 @@ class Dialog extends BaseElement {
   }
 
   get dialogClass() {
-    return this._escapeHtml(this._getAttributeWithDefault('dialog-class', 'bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto'));
+    return this._escapeHtml(this._getAttributeWithDefault('dialog-class', 'bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md mx-auto'));
   }
 
   set dialogClass(value) {

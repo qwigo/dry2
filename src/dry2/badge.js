@@ -152,11 +152,11 @@ class DryBadge extends BaseElement {
                  }
                  
                  // Variant classes
-                 variantClasses = this.variant === 'success' ? 'bg-green-500 text-white' :
-                                this.variant === 'danger' ? 'bg-red-500 text-white' :
-                                this.variant === 'warning' ? 'bg-yellow-500 text-yellow-900' :
-                                this.variant === 'info' ? 'bg-blue-500 text-white' :
-                                'bg-gray-800 text-white';
+                 variantClasses = this.variant === 'success' ? 'bg-green-500 dark:bg-green-600 text-white' :
+                                this.variant === 'danger' ? 'bg-red-500 dark:bg-red-600 text-white' :
+                                this.variant === 'warning' ? 'bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-white' :
+                                this.variant === 'info' ? 'bg-blue-500 dark:bg-blue-600 text-white' :
+                                'bg-gray-800 dark:bg-gray-700 text-white dark:text-gray-50';
                  
                  // Position classes
                  if (this.position !== 'standalone') {

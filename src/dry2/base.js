@@ -13,7 +13,48 @@ class BaseElement extends HTMLElement {
   connectedCallback() {
     if (!this._isInitialized) {
       this._waitForAlpineAndInitialize();
+      this._setupThemeChangeListener();
       this._isInitialized = true;
+    }
+  }
+
+  /**
+   * Set up theme change listener for components
+   */
+  _setupThemeChangeListener() {
+    // Listen for theme changes
+    this._themeChangeHandler = (event) => {
+      this._handleThemeChange(event.detail);
+    };
+    
+    document.addEventListener('themeChange', this._themeChangeHandler);
+  }
+
+  /**
+   * Handle theme change event
+   */
+  _handleThemeChange(themeData) {
+    // Re-render component when theme changes
+    if (this._isInitialized) {
+      setTimeout(() => {
+        this._reRenderForTheme();
+      }, 10);
+    }
+  }
+
+  /**
+   * Re-render component for theme change
+   */
+  _reRenderForTheme() {
+    // Try different render methods based on component type
+    if (typeof this.render === 'function') {
+      this.render();
+    } else if (typeof this._render === 'function') {
+      this._render();
+    } else if (typeof this._triggerUpdate === 'function') {
+      this._triggerUpdate();
+    } else if (typeof this._initializeComponent === 'function') {
+      this._initializeComponent();
     }
   }
 
@@ -478,7 +519,15 @@ class BaseElement extends HTMLElement {
    * Common cleanup method - override in child classes if needed
    */
   disconnectedCallback() {
-    // Cleanup logic can be added here
+    // Clean up theme change listener
+    if (this._themeChangeHandler) {
+      document.removeEventListener('themeChange', this._themeChangeHandler);
+      this._themeChangeHandler = null;
+    }
+    
+    // Clean up any intervals, timeouts, or event listeners
+    // Override in child classes if needed
+    this._isInitialized = false;
   }
 }
 

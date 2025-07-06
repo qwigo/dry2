@@ -35,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Avatar Component** (`avatar-component`): User avatars with image fallbacks and initials  
 - **Badge Component** (`badge-component`): Status indicators and notification badges
 - **Accordion Component** (`dry-accordion`): Collapsible content sections
-- **Swap Component** (`swap-component`): Icon/state swapping with transitions
 - **Card Component** (`card-component`): Flexible content containers
 - **Carousel Component** (`carousel-component`): Touch-enabled carousel with autoplay
 - **Chat Bubble Component** (`chat-bubble`): Chat message bubbles with status indicators

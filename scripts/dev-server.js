@@ -490,10 +490,9 @@ class DevServer {
       'avatar': 'User avatars with image fallbacks and initials',
       'badge': 'Status indicators and notification badges',
       'accordion': 'Collapsible content sections',
-      'toast': 'Notification toasts with global API',
-      'carousel': 'Touch-enabled carousel with autoplay',
-      'swap': 'Icon/state swapping with transitions',
-      'countdown': 'Flexible countdown timers',
+              'toast': 'Notification toasts with global API',
+        'carousel': 'Touch-enabled carousel with autoplay',
+        'countdown': 'Flexible countdown timers',
       'tabs': 'Tabbed interface with multiple variants',
       'select': 'Advanced select with search and multi-selection'
     };

@@ -149,15 +149,15 @@ class DryStat extends BaseElement {
 
   getTrendIcon() {
     if (this.trend === 'up') {
-      return `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      return `<svg class="w-4 h-4 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>`;
     } else if (this.trend === 'down') {
-      return `<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      return `<svg class="w-4 h-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
                 </svg>`;
     } else if (this.trend === 'neutral') {
-      return `<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      return `<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                 </svg>`;
     } else {
@@ -167,11 +167,11 @@ class DryStat extends BaseElement {
 
   getTrendColor() {
     if (this.trend === 'up') {
-      return 'text-green-600';
+      return 'text-green-600 dark:text-green-400';
     } else if (this.trend === 'down') {
-      return 'text-red-600';
+      return 'text-red-600 dark:text-red-400';
     } else if (this.trend === 'neutral') {
-      return 'text-gray-600';
+      return 'text-gray-600 dark:text-gray-400';
     } else {
       return '';
     }
@@ -193,8 +193,8 @@ class DryStat extends BaseElement {
                     <div class="flex items-center space-x-3">
                         ${this.icon ? `<div class="flex-shrink-0">${this.icon}</div>` : ''}
                         <div>
-                            <div class="text-sm font-medium text-gray-600">${this.label}</div>
-                            <div class="text-2xl font-bold text-gray-900">${formattedValue}</div>
+                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">${this.label}</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">${formattedValue}</div>
                         </div>
                     </div>
                     <div class="text-right">
@@ -205,7 +205,7 @@ class DryStat extends BaseElement {
                             </div>
                         ` : ''}
                         ${this.comparison ? `
-                             <div class="text-xs text-gray-500 mt-1">${this.comparison}</div>
+                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${this.comparison}</div>
                          ` : ''}
                      </div>
                  </div>
@@ -215,8 +215,8 @@ class DryStat extends BaseElement {
        html = `
                  <div class="${customClass}">
                      ${this.icon ? `<div class="mb-3">${this.icon}</div>` : ''}
-                     <div class="text-2xl font-bold text-gray-900 mb-1">${formattedValue}</div>
-                     <div class="text-sm font-medium text-gray-600 mb-2">${this.label}</div>
+                     <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">${formattedValue}</div>
+                     <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">${this.label}</div>
                      ${this.trend && this.trendValue ? `
                          <div class="flex items-center ${trendColor}">
                              ${trendIcon}
@@ -224,7 +224,7 @@ class DryStat extends BaseElement {
                          </div>
                      ` : ''}
                      ${this.comparison ? `
-                         <div class="text-xs text-gray-500 mt-1">${this.comparison}</div>
+                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${this.comparison}</div>
                      ` : ''}
                  </div>
              `;

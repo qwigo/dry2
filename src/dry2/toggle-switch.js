@@ -96,9 +96,9 @@ class ToggleSwitch extends BaseElement {
                         @keydown.space.prevent="toggle()">
                         <div :class="getThumbClasses()"></div>
                     </div>
-                    ${labelText ? `<span class="toggle-label ml-3 text-sm font-medium text-gray-700">${this._escapeHtml(labelText)}</span>` : ''}
+                    ${labelText ? `<span class="toggle-label ml-3 text-sm font-medium text-gray-700 dark:text-gray-200">${this._escapeHtml(labelText)}</span>` : ''}
                 </div>
-                ${originalContent ? `<div class="toggle-content mt-2">${originalContent}</div>` : ''}
+                ${originalContent ? `<div class="toggle-content mt-2 text-gray-800 dark:text-gray-200">${originalContent}</div>` : ''}
             </div>
         `;
   }
@@ -297,7 +297,7 @@ class ToggleSwitch extends BaseElement {
   }
 
   get activeBg() {
-    return this._getAttributeWithDefault('active-bg', 'bg-blue-500');
+    return this._getAttributeWithDefault('active-bg', 'bg-blue-500 dark:bg-blue-700');
   }
 
   set activeBg(value) {
@@ -305,7 +305,7 @@ class ToggleSwitch extends BaseElement {
   }
 
   get inactiveBg() {
-    return this._getAttributeWithDefault('inactive-bg', 'bg-gray-300');
+    return this._getAttributeWithDefault('inactive-bg', 'bg-gray-300 dark:bg-gray-600');
   }
 
   set inactiveBg(value) {
@@ -313,7 +313,7 @@ class ToggleSwitch extends BaseElement {
   }
 
   get switchColor() {
-    return this._getAttributeWithDefault('switch-color', 'bg-white');
+    return this._getAttributeWithDefault('switch-color', 'bg-white dark:bg-gray-50');
   }
 
   set switchColor(value) {

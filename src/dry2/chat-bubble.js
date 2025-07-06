@@ -101,10 +101,10 @@ class DryChatBubble extends BaseElement {
                 getBubbleClasses() {
                     let classes = 'chat-bubble max-w-xs lg:max-w-md px-4 py-2 rounded-lg shadow-sm ';
                     if (this.type === 'sent') {
-                        classes += 'bg-blue-600 text-white ';
+                        classes += 'bg-blue-600 dark:bg-blue-700 text-white ';
                         if (!this.groupEnd) classes += 'rounded-br-sm ';
                     } else {
-                        classes += 'bg-gray-200 text-gray-900 ';
+                        classes += 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 ';
                         if (!this.groupEnd) classes += 'rounded-bl-sm ';
                     }
                     return classes;
@@ -171,7 +171,7 @@ class DryChatBubble extends BaseElement {
                         
                         <!-- Name -->
                         <div x-show="shouldShowName()" 
-                             class="text-xs text-gray-500 mb-1 font-medium"
+                             class="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium"
                              x-text="name"></div>
                         
                         <!-- Bubble -->
@@ -181,7 +181,7 @@ class DryChatBubble extends BaseElement {
                         
                         <!-- Timestamp -->
                         <div x-show="shouldShowTimestamp()" 
-                             class="text-xs mt-1 text-gray-500"
+                             class="text-xs mt-1 text-gray-500 dark:text-gray-400"
                              x-text="formatTimestamp()"></div>
                         
                     </div>
@@ -207,12 +207,12 @@ class DryChatBubble extends BaseElement {
                             
                             <!-- Timestamp -->
                             <div x-show="shouldShowTimestamp()" 
-                                 class="text-xs text-blue-200"
+                                 class="text-xs text-blue-200 dark:text-blue-300"
                                  x-text="formatTimestamp()"></div>
                             
                             <!-- Status -->
                             <div x-show="shouldShowStatus()" 
-                                 class="text-xs text-blue-200"
+                                 class="text-xs text-blue-200 dark:text-blue-300"
                                  x-text="getStatusIcon()"></div>
                             
                         </div>

@@ -233,9 +233,7 @@
                 
                 <div>
                     <h3 class="text-sm font-medium text-gray-900 uppercase tracking-wider mb-3">Interaction Components</h3>
-                    <ul class="space-y-1 text-sm">
-    
-                        <li><a href="#swap" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Swap</a></li>
+                                        <ul class="space-y-1 text-sm">
                         <li><a href="#toast" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Toast</a></li>
                     </ul>
                 </div>
@@ -1847,82 +1845,7 @@ greet('World');
 
                 <!-- INTERACTION COMPONENTS -->
 
-                <!-- Swap Component -->
-                <section id="swap" class="mb-12">
-                    <div class="component-header">
-                        <h2 class="text-2xl font-bold text-gray-900">Swap Component</h2>
-                        <p class="text-gray-600 mt-2">Tag: <code class="bg-white px-2 py-1 rounded">swap-component</code> | <a href="../examples/swap-showcase.html" class="text-blue-600 hover:text-blue-800">View Demo →</a></p>
-                    </div>
 
-                    <p class="text-gray-600 mb-6">Toggle between two states with smooth transitions, custom events, and accessibility support.</p>
-
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <dry-code language="html" show-header="true">
-&lt;swap-component size="md"&gt;
-    &lt;i slot="off" class="fas fa-play"&gt;&lt;/i&gt;
-    &lt;i slot="on" class="fas fa-pause"&gt;&lt;/i&gt;
-&lt;/swap-component&gt;
-
-&lt;swap-component size="lg" active&gt;
-    &lt;span slot="off"&gt;Show&lt;/span&gt;
-    &lt;span slot="on"&gt;Hide&lt;/span&gt;
-&lt;/swap-component&gt;
-                    </dry-code>
-
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
-                    <table class="attribute-table mb-6">
-                        <thead>
-                            <tr>
-                                <th>Attribute</th>
-                                <th>Type</th>
-                                <th>Default</th>
-                                <th>Options</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>active</code></td>
-                                <td>boolean</td>
-                                <td>false</td>
-                                <td>true, false</td>
-                                <td>Initial state (true shows "on" slot)</td>
-                            </tr>
-                            <tr>
-                                <td><code>size</code></td>
-                                <td>string</td>
-                                <td>md</td>
-                                <td>sm, md, lg</td>
-                                <td>Component size</td>
-                            </tr>
-                            <tr>
-                                <td><code>disabled</code></td>
-                                <td>boolean</td>
-                                <td>false</td>
-                                <td>true, false</td>
-                                <td>Disable interaction</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Events</h3>
-                    <table class="attribute-table mb-6">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Detail</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>swap:change</code></td>
-                                <td>{ active: boolean }</td>
-                                <td>Fired when swap state changes</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
 
                 <!-- Toast Component -->
                 <section id="toast" class="mb-12">

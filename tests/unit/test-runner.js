@@ -18,10 +18,9 @@ class TestRunner {
     this.testDir = __dirname;
     this.rootDir = join(__dirname, '../..');
     this.components = [
-      'base',
-      'button',
-      'swap',
-      'accordion',
+              'base',
+        'button',
+        'accordion',
       'avatar',
       'badge',
       'breadcrumbs',

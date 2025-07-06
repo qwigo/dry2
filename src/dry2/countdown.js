@@ -244,11 +244,11 @@ class DryCountdown extends BaseElement {
           innerDiv.className = 'text-center';
           
           const valueDiv = document.createElement('div');
-          valueDiv.className = 'text-2xl font-bold';
+          valueDiv.className = 'text-2xl font-bold text-gray-900 dark:text-gray-100';
           valueDiv.textContent = this._formatValue(value);
           
           const labelDiv = document.createElement('div');
-          labelDiv.className = 'text-sm text-gray-600';
+          labelDiv.className = 'text-sm text-gray-600 dark:text-gray-400';
           labelDiv.textContent = this.getLabel(unit, value);
           
           innerDiv.appendChild(valueDiv);

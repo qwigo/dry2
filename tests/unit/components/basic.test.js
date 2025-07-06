@@ -107,10 +107,9 @@ describe('DRY2 Basic Tests', () => {
   describe('Component Loading', () => {
     it('should be able to import component files', async() => {
       // Test that component files can be imported without errors
-      const componentFiles = [
-        '../../../src/dry2/button.js',
-        '../../../src/dry2/swap.js',
-        '../../../src/dry2/avatar.js',
+              const componentFiles = [
+            '../../../src/dry2/button.js',
+            '../../../src/dry2/avatar.js',
         '../../../src/dry2/badge.js'
       ];
 
