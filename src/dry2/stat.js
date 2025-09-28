@@ -177,12 +177,29 @@ class DryStat extends BaseElement {
     }
   }
 
+  // Helper method to process icons
+  processIcon(icon) {
+    if (!icon) return '';
+    
+    // Check if it's a FontAwesome class name (starts with common FA prefixes)
+    const fontAwesomePattern = /^(fas|far|fab|fal|fad|fat|fass|fasr|fasl|fad|fa-)\s/;
+    
+    if (fontAwesomePattern.test(icon.trim())) {
+      // It's a FontAwesome class, wrap it in an <i> tag
+      return `<i class="${icon}"></i>`;
+    } else {
+      // It's raw HTML (SVG, etc.), return as-is for backward compatibility
+      return icon;
+    }
+  }
+
   render() {
     const formattedValue = this.formatValue(this.value);
     const trendIcon = this.getTrendIcon();
     const trendColor = this.getTrendColor();
     const isHorizontal = this.layout === 'horizontal';
     const customClass = this.getAttribute('class') || '';
+    const processedIcon = this.processIcon(this.icon);
 
     let html = '';
 
@@ -191,7 +208,7 @@ class DryStat extends BaseElement {
       html = `
                 <div class="flex items-center justify-between ${customClass}">
                     <div class="flex items-center space-x-3">
-                        ${this.icon ? `<div class="flex-shrink-0">${this.icon}</div>` : ''}
+                        ${processedIcon ? `<div class="flex-shrink-0">${processedIcon}</div>` : ''}
                         <div>
                             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">${this.label}</div>
                             <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">${formattedValue}</div>
@@ -214,7 +231,7 @@ class DryStat extends BaseElement {
        // Vertical layout (default)
        html = `
                  <div class="${customClass}">
-                     ${this.icon ? `<div class="mb-3">${this.icon}</div>` : ''}
+                     ${processedIcon ? `<div class="mb-3">${processedIcon}</div>` : ''}
                      <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">${formattedValue}</div>
                      <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">${this.label}</div>
                      ${this.trend && this.trendValue ? `

@@ -1,5 +1,6 @@
 class Dialog extends BaseElement {
   // Web component for creating a dialog that fetches content via AJAX
+  // Supports both traditional dialog and drawer modes
 
   constructor() {
     super();
@@ -96,6 +97,15 @@ class Dialog extends BaseElement {
       return false;
     }
     
+    // Validate drawer direction if in drawer mode
+    if (this.mode === 'drawer') {
+      const validDirections = ['left', 'right', 'top', 'bottom'];
+      if (!validDirections.includes(this.direction)) {
+        this._handleError(`Invalid drawer direction: ${this.direction}. Valid directions: ${validDirections.join(', ')}`);
+        return false;
+      }
+    }
+    
     return true;
   }
 
@@ -161,6 +171,14 @@ class Dialog extends BaseElement {
   }
 
   _createDialog() {
+    if (this.mode === 'drawer') {
+      return this._createDrawer();
+    } else {
+      return this._createTraditionalDialog();
+    }
+  }
+
+  _createTraditionalDialog() {
     const dialog = document.createElement('dialog');
     dialog.className = `${this.dialogClass} ajax-modal`;
     dialog.setAttribute('aria-modal', 'true');
@@ -177,6 +195,183 @@ class Dialog extends BaseElement {
     dialog.appendChild(dialogInner);
     
     return dialog;
+  }
+
+  _createDrawer() {
+    // Create dialog element (same as traditional dialog)
+    const dialog = document.createElement('dialog');
+    dialog.className = `${this.drawerClass} drawer-container bg-white dark:bg-gray-800 shadow-xl transition-transform duration-300 transform`;
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('role', 'dialog');
+    
+    // Add direction-specific class and data attribute
+    dialog.classList.add(`drawer-${this.direction}`);
+    dialog.setAttribute('data-direction', this.direction);
+    
+    // Create comprehensive drawer styles
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Reset all dialog defaults with highest specificity */
+      dialog.drawer-container {
+        position: fixed !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        max-width: none !important;
+        max-height: none !important;
+        inset: auto !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        width: auto !important;
+        height: auto !important;
+        transform: translateX(100%) !important;
+        transition: transform 0.3s ease !important;
+      }
+      
+      /* Direction-specific positioning */
+      dialog.drawer-container[data-direction="right"] {
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 480px !important;
+        max-width: 90vw !important;
+        transform: translateX(100%) !important;
+      }
+      
+      dialog.drawer-container[data-direction="left"] {
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 480px !important;
+        max-width: 90vw !important;
+        transform: translateX(-100%) !important;
+      }
+      
+      dialog.drawer-container[data-direction="top"] {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 400px !important;
+        max-height: 80vh !important;
+        transform: translateY(-100%) !important;
+      }
+      
+      dialog.drawer-container[data-direction="bottom"] {
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 400px !important;
+        max-height: 80vh !important;
+        transform: translateY(100%) !important;
+      }
+      
+      /* Open state */
+      dialog.drawer-container[data-direction="right"][open] {
+        transform: translateX(0) !important;
+      }
+      
+      dialog.drawer-container[data-direction="left"][open] {
+        transform: translateX(0) !important;
+      }
+      
+      dialog.drawer-container[data-direction="top"][open] {
+        transform: translateY(0) !important;
+      }
+      
+      dialog.drawer-container[data-direction="bottom"][open] {
+        transform: translateY(0) !important;
+      }
+      
+      /* Closing state */
+      dialog.drawer-container.drawer-closing[data-direction="right"] {
+        transform: translateX(100%) !important;
+      }
+      
+      dialog.drawer-container.drawer-closing[data-direction="left"] {
+        transform: translateX(-100%) !important;
+      }
+      
+      dialog.drawer-container.drawer-closing[data-direction="top"] {
+        transform: translateY(-100%) !important;
+      }
+      
+      dialog.drawer-container.drawer-closing[data-direction="bottom"] {
+        transform: translateY(100%) !important;
+      }
+      
+      /* Backdrop */
+      dialog.drawer-container::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      dialog.drawer-container[open]::backdrop {
+        opacity: 1;
+      }
+    `;
+    if (!document.head.querySelector('style[data-drawer-styles]')) {
+      style.setAttribute('data-drawer-styles', '');
+      document.head.appendChild(style);
+    }
+    
+    // Create close button
+    const closeButton = this._createCloseButton();
+    dialog.appendChild(closeButton);
+    
+    // Create drawer inner content
+    const drawerInner = document.createElement('div');
+    drawerInner.className = 'drawer-inner p-4 text-gray-800 dark:text-gray-200';
+    drawerInner.id = this.dialogInnerId;
+    dialog.appendChild(drawerInner);
+    
+    return dialog;
+  }
+
+  _getDrawerStyles() {
+    const direction = this.direction;
+    let position = {};
+    let transform = {};
+    
+    switch (direction) {
+      case 'right':
+        position = { top: '0', right: '0', bottom: '0', width: '320px', maxWidth: '80vw' };
+        transform = { 
+          closed: 'translateX(100%)', 
+          open: 'translateX(0)' 
+        };
+        break;
+      case 'left':
+        position = { top: '0', left: '0', bottom: '0', width: '320px', maxWidth: '80vw' };
+        transform = { 
+          closed: 'translateX(-100%)', 
+          open: 'translateX(0)' 
+        };
+        break;
+      case 'top':
+        position = { top: '0', left: '0', right: '0', height: '320px', maxHeight: '80vh' };
+        transform = { 
+          closed: 'translateY(-100%)', 
+          open: 'translateY(0)' 
+        };
+        break;
+      case 'bottom':
+        position = { bottom: '0', left: '0', right: '0', height: '320px', maxHeight: '80vh' };
+        transform = { 
+          closed: 'translateY(100%)', 
+          open: 'translateY(0)' 
+        };
+        break;
+      default:
+        position = { top: '0', right: '0', bottom: '0', width: '320px', maxWidth: '80vw' };
+        transform = { 
+          closed: 'translateX(100%)', 
+          open: 'translateX(0)' 
+        };
+    }
+    
+    return { position, transform };
   }
 
   _createCloseButton() {
@@ -222,9 +417,9 @@ class Dialog extends BaseElement {
     if (this._isDestroyed || !this._cachedElements) return;
     
     try {
-      const { dialog, trigger, closer } = this._cachedElements;
+      const { trigger, closer } = this._cachedElements;
       
-      if (!dialog || !trigger || !closer) {
+      if (!trigger || !closer) {
         this._handleError('Required elements not found for event binding');
         return;
       }
@@ -244,7 +439,7 @@ class Dialog extends BaseElement {
       };
 
       const escapeHandler = (event) => {
-        if (event.key === 'Escape' && dialog.open) {
+        if (event.key === 'Escape' && this.isOpen()) {
           this._closeDialog();
         }
       };
@@ -267,12 +462,21 @@ class Dialog extends BaseElement {
   }
 
   _openDialog() {
-    if (this._isDestroyed || !this._cachedElements?.dialog) return;
+    if (this._isDestroyed) return;
     
     try {
       const { dialog, trigger } = this._cachedElements;
       
+      if (!dialog) return;
+      
+      // Open the dialog using native showModal
       dialog.showModal();
+      
+      // For drawer mode, the CSS handles the animation automatically via [open] attribute
+      // Force reflow to ensure styles are applied
+      if (this.mode === 'drawer') {
+        dialog.offsetHeight;
+      }
       
       // Focus management
       const firstFocusable = dialog.querySelector('input, button, select, textarea, [tabindex]:not([tabindex="-1"])');
@@ -288,18 +492,37 @@ class Dialog extends BaseElement {
         });
       }
       
-      this._dispatchEvent('dialog:opened', { url: this.url });
+      this._dispatchEvent('dialog:opened', { url: this.url, mode: this.mode });
     } catch (error) {
       this._handleError('Failed to open dialog', error);
     }
   }
 
   _closeDialog() {
-    if (this._isDestroyed || !this._cachedElements?.dialog) return;
+    if (this._isDestroyed) return;
     
     try {
-      this._cachedElements.dialog.close();
-      this._dispatchEvent('dialog:closed');
+      const { dialog } = this._cachedElements;
+      
+      if (!dialog) return;
+      
+      if (this.mode === 'drawer') {
+        // Add closing class to trigger animation
+        dialog.classList.add('drawer-closing');
+        
+        // Close dialog after animation completes
+        setTimeout(() => {
+          if (dialog) {
+            dialog.classList.remove('drawer-closing');
+            dialog.close();
+          }
+        }, 300); // Match transition duration
+      } else {
+        // Close dialog immediately for traditional mode
+        dialog.close();
+      }
+      
+      this._dispatchEvent('dialog:closed', { mode: this.mode });
     } catch (error) {
       this._handleError('Failed to close dialog', error);
     }
@@ -396,6 +619,45 @@ class Dialog extends BaseElement {
     } else {
       this._handleError(`Invalid trigger type: ${value}. Valid types: ${validTypes.join(', ')}`);
     }
+  }
+
+  // New getters and setters for drawer functionality
+  get mode() {
+    const mode = this._getAttributeWithDefault('mode', 'dialog');
+    const validModes = ['dialog', 'drawer'];
+    return validModes.includes(mode) ? mode : 'dialog';
+  }
+
+  set mode(value) {
+    const validModes = ['dialog', 'drawer'];
+    if (validModes.includes(value)) {
+      this._setAttribute('mode', value);
+    } else {
+      this._handleError(`Invalid mode: ${value}. Valid modes: ${validModes.join(', ')}`);
+    }
+  }
+
+  get direction() {
+    const direction = this._getAttributeWithDefault('direction', 'right');
+    const validDirections = ['left', 'right', 'top', 'bottom'];
+    return validDirections.includes(direction) ? direction : 'right';
+  }
+
+  set direction(value) {
+    const validDirections = ['left', 'right', 'top', 'bottom'];
+    if (validDirections.includes(value)) {
+      this._setAttribute('direction', value);
+    } else {
+      this._handleError(`Invalid direction: ${value}. Valid directions: ${validDirections.join(', ')}`);
+    }
+  }
+
+  get drawerClass() {
+    return this._escapeHtml(this._getAttributeWithDefault('drawer-class', 'p-6'));
+  }
+
+  set drawerClass(value) {
+    this._setAttribute('drawer-class', value);
   }
 
   // Public API

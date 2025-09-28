@@ -17,6 +17,16 @@
     
     <!-- Common CSS for showcase pages -->
     <link rel="stylesheet" href="static/css/base.css">
+    
+    <!-- Drawer-specific CSS -->
+    <style>
+        .drawer-container {
+            overflow-y: auto;
+        }
+        .drawer-inner {
+            min-height: 100px;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- Include Navigation -->
@@ -36,22 +46,26 @@
     <div class="p-8">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Dialog Component Showcase</h1>
-            <p class="text-gray-600 mb-8">Interactive dialog component with AJAX content loading capabilities using HTMX integration.</p>
+            <p class="text-gray-600 mb-8">Interactive dialog component with AJAX content loading capabilities using HTMX integration. Supports both modal dialogs and slide-out drawers.</p>
 
             <!-- Introduction -->
             <div class="demo-section">
                 <div class="demo-container">
                     <p class="text-gray-700 mb-4">
-                        The <code class="bg-gray-200 px-2 py-1 rounded text-sm">dry-dialog</code> component creates modal dialogs that can load content dynamically via AJAX. 
-                        It integrates seamlessly with HTMX for server-side content fetching and provides a clean, accessible dialog interface.
+                        The <code class="bg-gray-200 px-2 py-1 rounded text-sm">dry-dialog</code> component creates modal dialogs and slide-out drawers that can load content dynamically via AJAX. 
+                        It integrates seamlessly with HTMX for server-side content fetching and provides a clean, accessible interface for both traditional dialogs and modern drawer UIs.
                     </p>
                     <div class="bg-blue-50 border border-blue-200 rounded p-4">
                         <h4 class="font-semibold text-blue-900 mb-2">Key Features:</h4>
                         <ul class="text-blue-800 text-sm space-y-1">
+                            <li>• Dual mode support: traditional modal dialogs and slide-out drawers</li>
+                            <li>• Four drawer directions: left, right, top, bottom</li>
                             <li>• HTMX integration for dynamic content loading</li>
                             <li>• Customizable styling via attributes</li>
-                            <li>• Automatic dialog management (open/close)</li>
+                            <li>• Automatic dialog/drawer management (open/close)</li>
                             <li>• Server-controlled closing via HX-CloseDialog header</li>
+                            <li>• Backdrop click and ESC key support</li>
+                            <li>• Smooth CSS animations and transitions</li>
                             <li>• Accessible with keyboard navigation and proper ARIA attributes</li>
                             <li>• Built on standard Web Components for consistent behavior</li>
                         </ul>
@@ -134,6 +148,172 @@
                 </div>
             </div>
 
+            <!-- Drawer Examples -->
+            <div class="demo-section">
+                <h2 class="demo-title">Drawer Mode Examples</h2>
+                <div class="demo-description">
+                    Slide-out drawer panels that can be positioned on different sides of the screen.
+                </div>
+
+                <!-- Right Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Right Side Drawer</h3>
+                    <p class="text-gray-600 mb-4">Default drawer that slides in from the right edge of the screen.</p>
+
+                    <dry-dialog
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="right"
+                        button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+                        trigger-id="right-drawer-trigger"
+                        dialog-inner-id="right-drawer-content">
+                        Open Right Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="drawer-example-content.html"
+    mode="drawer"
+    direction="right"
+    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+    trigger-id="right-drawer-trigger"
+    dialog-inner-id="right-drawer-content"&gt;
+    Open Right Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+
+                <!-- Left Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Left Side Drawer</h3>
+                    <p class="text-gray-600 mb-4">Drawer that slides in from the left edge of the screen.</p>
+
+                    <dry-dialog
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="left"
+                        button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-colors"
+                        trigger-id="left-drawer-trigger"
+                        dialog-inner-id="left-drawer-content">
+                        Open Left Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="drawer-example-content.html"
+    mode="drawer"
+    direction="left"
+    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"&gt;
+    Open Left Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+
+                <!-- Top Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Top Drawer</h3>
+                    <p class="text-gray-600 mb-4">Drawer that slides down from the top of the screen.</p>
+
+                    <dry-dialog
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="top"
+                        button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
+                        trigger-id="top-drawer-trigger"
+                        dialog-inner-id="top-drawer-content">
+                        Open Top Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="drawer-example-content.html"
+    mode="drawer"
+    direction="top"
+    button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded"&gt;
+    Open Top Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+
+                <!-- Bottom Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Bottom Drawer</h3>
+                    <p class="text-gray-600 mb-4">Drawer that slides up from the bottom of the screen.</p>
+
+                    <dry-dialog
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="bottom"
+                        button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
+                        trigger-id="bottom-drawer-trigger"
+                        dialog-inner-id="bottom-drawer-content">
+                        Open Bottom Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="drawer-example-content.html"
+    mode="drawer"
+    direction="bottom"
+    button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"&gt;
+    Open Bottom Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+            </div>
+
+            <!-- Custom Drawer Styling -->
+            <div class="demo-section">
+                <h2 class="demo-title">Custom Drawer Styling</h2>
+                <div class="demo-description">
+                    Examples showing different styling options for drawer components.
+                </div>
+
+                <!-- Custom Styled Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Custom Styled Drawer</h3>
+                    <p class="text-gray-600 mb-4">Drawer with custom styling including gradients and borders.</p>
+
+                    <dry-dialog
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="right"
+                        drawer-class="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
+                        button-class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                        trigger-id="custom-drawer-trigger"
+                        dialog-inner-id="custom-drawer-content">
+                        🎨 Custom Styled Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="drawer-example-content.html"
+    mode="drawer"
+    direction="right"
+    drawer-class="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
+    button-class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold"&gt;
+    🎨 Custom Styled Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+
+                <!-- Wide Drawer -->
+                <div class="demo-container">
+                    <h3 class="text-lg font-semibold mb-3">Wide Drawer</h3>
+                    <p class="text-gray-600 mb-4">Drawer with custom width and dark theme styling.</p>
+
+                    <dry-dialog
+                        url="dialog-form-example.html"
+                        mode="drawer"
+                        direction="right"
+                        drawer-class="p-6 bg-gray-900 text-white border-l-2 border-gray-700"
+                        button-class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors border border-gray-600"
+                        trigger-id="wide-drawer-trigger"
+                        dialog-inner-id="wide-drawer-content">
+                        Open Wide Dark Drawer
+                    </dry-dialog>
+
+                    <dry-code language="HTML">&lt;dry-dialog
+    url="dialog-form-example.html"
+    mode="drawer"
+    direction="right"
+    drawer-class="p-6 bg-gray-900 text-white border-l-2 border-gray-700"
+    button-class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded"&gt;
+    Open Wide Dark Drawer
+&lt;/dry-dialog&gt;</dry-code>
+                </div>
+            </div>
+
             <!-- Static Content Examples -->
             <div class="demo-section">
                 <h2 class="demo-title">Static Content Examples</h2>
@@ -194,14 +374,20 @@
                 
                 <div class="demo-container">
                     <h3 class="text-lg font-semibold mb-4">JavaScript API</h3>
-                    <p class="text-gray-600 mb-4">You can also control dialogs programmatically:</p>
+                    <p class="text-gray-600 mb-4">You can also control dialogs and drawers programmatically:</p>
                     
                     <div class="flex gap-2 mb-4">
                         <button id="open-programmatic" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded">
-                            Open via JavaScript
+                            Open Dialog via JavaScript
                         </button>
                         <button id="close-programmatic" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                            Close via JavaScript
+                            Close Dialog via JavaScript
+                        </button>
+                        <button id="open-drawer-programmatic" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                            Open Drawer via JavaScript
+                        </button>
+                        <button id="close-drawer-programmatic" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
+                            Close Drawer via JavaScript
                         </button>
                     </div>
 
@@ -215,19 +401,49 @@
                         Hidden Trigger
                     </dry-dialog>
 
-                    <dry-code language="JavaScript">// Get reference to dialog component
+                    <!-- Hidden drawer for programmatic control -->
+                    <dry-dialog 
+                        id="programmatic-drawer"
+                        url="drawer-example-content.html"
+                        mode="drawer"
+                        direction="left"
+                        button-class="hidden"
+                        drawer-class="p-6 bg-white shadow-xl"
+                        dialog-inner-id="programmatic-drawer-content">
+                        Hidden Drawer Trigger
+                    </dry-dialog>
+
+                    <dry-code language="JavaScript">// Get references to dialog and drawer components
 const dialog = document.getElementById('programmatic-dialog');
+const drawer = document.getElementById('programmatic-drawer');
 
 // Open the dialog programmatically
 document.getElementById('open-programmatic').addEventListener('click', () => {
-    const dialogElement = dialog.querySelector('dialog');
-    dialogElement.showModal();
+    dialog.open(); // Use the component's public API
 });
 
 // Close the dialog programmatically  
 document.getElementById('close-programmatic').addEventListener('click', () => {
-    const dialogElement = dialog.querySelector('dialog');
-    dialogElement.close();
+    dialog.close(); // Use the component's public API
+});
+
+// Open the drawer programmatically
+document.getElementById('open-drawer-programmatic').addEventListener('click', () => {
+    drawer.open(); // Same API works for both modes
+});
+
+// Close the drawer programmatically
+document.getElementById('close-drawer-programmatic').addEventListener('click', () => {
+    drawer.close(); // Same API works for both modes
+});
+
+// Listen for events
+document.addEventListener('dialog:opened', (event) => {
+    console.log('Opened:', event.detail.mode, event.detail.url);
+});
+
+document.addEventListener('dialog:closed', (event) => {
+    console.log('Closed:', event.detail.mode);
 });</dry-code>
                 </div>
             </div>
@@ -280,6 +496,21 @@ document.getElementById('close-programmatic').addEventListener('click', () => {
                                     <td class="border border-gray-300 px-4 py-2"><code>trigger-type</code></td>
                                     <td class="border border-gray-300 px-4 py-2">HTMX trigger event type</td>
                                     <td class="border border-gray-300 px-4 py-2">"click"</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2"><code>mode</code></td>
+                                    <td class="border border-gray-300 px-4 py-2">Component mode: "dialog" for modal or "drawer" for slide-out panel</td>
+                                    <td class="border border-gray-300 px-4 py-2">"dialog"</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-2"><code>direction</code></td>
+                                    <td class="border border-gray-300 px-4 py-2">Drawer direction: "left", "right", "top", or "bottom" (drawer mode only)</td>
+                                    <td class="border border-gray-300 px-4 py-2">"right"</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2"><code>drawer-class</code></td>
+                                    <td class="border border-gray-300 px-4 py-2">CSS classes for the drawer container (drawer mode only)</td>
+                                    <td class="border border-gray-300 px-4 py-2">"p-6"</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -347,19 +578,41 @@ HX-CloseDialog: close</dry-code>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const dialog = document.getElementById('programmatic-dialog');
+                const drawer = document.getElementById('programmatic-drawer');
                 
+                // Dialog controls
                 document.getElementById('open-programmatic').addEventListener('click', () => {
-                    const dialogElement = dialog.querySelector('dialog');
-                    if (dialogElement) {
-                        dialogElement.showModal();
+                    if (dialog) {
+                        dialog.open();
                     }
                 });
                 
                 document.getElementById('close-programmatic').addEventListener('click', () => {
-                    const dialogElement = dialog.querySelector('dialog');
-                    if (dialogElement) {
-                        dialogElement.close();
+                    if (dialog) {
+                        dialog.close();
                     }
+                });
+                
+                // Drawer controls
+                document.getElementById('open-drawer-programmatic').addEventListener('click', () => {
+                    if (drawer) {
+                        drawer.open();
+                    }
+                });
+                
+                document.getElementById('close-drawer-programmatic').addEventListener('click', () => {
+                    if (drawer) {
+                        drawer.close();
+                    }
+                });
+                
+                // Listen for component events
+                document.addEventListener('dialog:opened', (event) => {
+                    console.log('Dialog/Drawer opened:', event.detail);
+                });
+                
+                document.addEventListener('dialog:closed', (event) => {
+                    console.log('Dialog/Drawer closed:', event.detail);
                 });
 
                 // Initialize Component Builder
@@ -375,6 +628,28 @@ HX-CloseDialog: close</dry-code>
                             label: 'Content URL',
                             default: 'dialog-content-example.html'
                         },
+                        mode: {
+                            type: 'select',
+                            label: 'Mode',
+                            options: [
+                                { value: 'dialog', label: 'Modal Dialog' },
+                                { value: 'drawer', label: 'Slide-out Drawer' }
+                            ],
+                            default: 'dialog'
+                        },
+                        direction: {
+                            type: 'select',
+                            label: 'Drawer Direction',
+                            options: [
+                                { value: 'right', label: 'Right' },
+                                { value: 'left', label: 'Left' },
+                                { value: 'top', label: 'Top' },
+                                { value: 'bottom', label: 'Bottom' }
+                            ],
+                            default: 'right',
+                            depends: 'mode',
+                            dependsValue: 'drawer'
+                        },
                         'button-class': {
                             type: 'text',
                             label: 'Button CSS Classes',
@@ -383,11 +658,20 @@ HX-CloseDialog: close</dry-code>
                         'dialog-class': {
                             type: 'text',
                             label: 'Dialog CSS Classes',
-                            default: 'bg-white p-6 rounded-lg shadow-xl max-w-md w-full'
+                            default: 'bg-white p-6 rounded-lg shadow-xl max-w-md w-full',
+                            depends: 'mode',
+                            dependsValue: 'dialog'
+                        },
+                        'drawer-class': {
+                            type: 'text',
+                            label: 'Drawer CSS Classes',
+                            default: 'p-6 bg-white shadow-xl',
+                            depends: 'mode',
+                            dependsValue: 'drawer'
                         },
                         'dialog-inner-id': {
                             type: 'text',
-                            label: 'Dialog Inner ID',
+                            label: 'Content Container ID',
                             default: 'dialog-inner-generated'
                         },
                         'trigger-id': {
@@ -409,14 +693,20 @@ HX-CloseDialog: close</dry-code>
                     
                     defaults: {
                         url: 'dialog-content-example.html',
+                        mode: 'dialog',
+                        direction: 'right',
                         'button-class': 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded',
                         'dialog-class': 'bg-white p-6 rounded-lg shadow-xl max-w-md w-full',
+                        'drawer-class': 'p-6 bg-white shadow-xl',
                         'dialog-inner-id': 'dialog-inner-generated',
                         'trigger-id': 'trigger-generated',
                         'trigger-type': 'click'
                     },
                     
                     contentGenerator: function(values) {
+                        if (values.mode === 'drawer') {
+                            return `Open ${values.direction.charAt(0).toUpperCase() + values.direction.slice(1)} Drawer`;
+                        }
                         return 'Open Dialog';
                     }
                 });

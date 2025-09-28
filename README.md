@@ -125,7 +125,7 @@ pnpm add dry2-web-components
 ### 💬 Communication Components
 - **[`<chat-bubble>`](docs/components/chat-bubble.md)** - Chat message bubbles with status indicators
 - **[`<toast-component>`](docs/components/toast.md)** - Notification toasts with global API
-- **[`<dialog-component>`](docs/components/dialog.md)** - Modal dialogs with HTMX integration
+- **[`<dry-dialog>`](docs/components/dialog.md)** - Modal dialogs and slide-out drawers with HTMX integration
 
 ### 📊 Data Components
 - **[`<timeline-component>`](docs/components/timeline.md)** - Event timelines with custom styling
@@ -166,6 +166,36 @@ DRY2 components are built with Tailwind CSS and support extensive customization:
     name="Jane Doe"
     style="--avatar-bg: #8b5cf6; --avatar-text: white;">
 </avatar-component>
+
+<!-- Dialog Component with traditional modal -->
+<dry-dialog 
+    url="/api/dialog-content.html"
+    mode="dialog"
+    trigger-id="modal-trigger"
+    dialog-inner-id="modal-content">
+    Open Modal Dialog
+</dry-dialog>
+
+<!-- Drawer Component sliding from right -->
+<dry-dialog 
+    url="/api/drawer-content.html"
+    mode="drawer"
+    direction="right"
+    trigger-id="drawer-trigger"
+    dialog-inner-id="drawer-content"
+    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+    Open Drawer
+</dry-dialog>
+
+<!-- Drawer from different directions -->
+<dry-dialog 
+    url="/api/left-drawer.html"
+    mode="drawer"
+    direction="left"
+    trigger-id="left-drawer-trigger"
+    dialog-inner-id="left-drawer-content">
+    Left Drawer
+</dry-dialog>
 ```
 
 ### CSS Custom Properties

@@ -3,540 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drawer Component Showcase - DRY2</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>DRY2 - Drawer Component Showcase</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <script src="../src/dry2/base.js"></script>
-    <script src="../src/dry2/drawer.js"></script>
-    <script src="../src/dry2/breadcrumbs.js"></script>
-    <script src="../src/dry2/code.js"></script>
-    <script src="../src/dry2/component-builder.js"></script>
-    
-    <!-- Common CSS for showcase pages -->
-    <link rel="stylesheet" href="static/css/base.css">
+    <script src="../src/dry2/dialog.js"></script>
+    <style>
+        .drawer-container {
+            overflow-y: auto;
+        }
+        .drawer-inner {
+            min-height: 100px;
+        }
+        .demo-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+        .demo-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+        .demo-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Include Navigation -->
-    <div id="navigation" hx-get="nav.inc.html" hx-trigger="load"></div>
-    
-    <!-- Breadcrumbs -->
-    <div class="bg-white border-b">
-        <div class="max-w-6xl mx-auto px-4 xl:px-0 py-4">
-            <dry-breadcrumbs>
-                <breadcrumb-item href="../index.html">Home</breadcrumb-item>
-                <breadcrumb-item href="./index.html">Examples</breadcrumb-item>
-                <breadcrumb-item active>Drawer Component</breadcrumb-item>
-            </dry-breadcrumbs>
+<body class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">DRY2 Dialog/Drawer Component</h1>
+            <p class="text-gray-600">Showcasing both traditional dialog and drawer modes</p>
+        </div>
+
+        <!-- Traditional Dialog Examples -->
+        <div class="demo-section">
+            <h2 class="demo-title">Traditional Dialog Mode</h2>
+            <p class="demo-description">Uses the native HTML dialog element with modal behavior</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/dialog-content-example.html" 
+                    mode="dialog"
+                    trigger-id="dialog-trigger-1"
+                    dialog-inner-id="dialog-inner-1">
+                    Open Dialog
+                </dry-dialog>
+                
+                <dry-dialog 
+                    url="/examples/dialog-form-example.html" 
+                    mode="dialog"
+                    trigger-id="dialog-trigger-2"
+                    dialog-inner-id="dialog-inner-2"
+                    button-class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    Open Form Dialog
+                </dry-dialog>
+            </div>
+        </div>
+
+        <!-- Drawer Examples -->
+        <div class="demo-section">
+            <h2 class="demo-title">Drawer Mode - Right Side</h2>
+            <p class="demo-description">Slides in from the right edge of the screen</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/drawer-example-content.html" 
+                    mode="drawer"
+                    direction="right"
+                    trigger-id="drawer-right-trigger"
+                    dialog-inner-id="drawer-right-inner">
+                    Open Right Drawer
+                </dry-dialog>
+                
+                <dry-dialog 
+                    url="/examples/dialog-form-example.html" 
+                    mode="drawer"
+                    direction="right"
+                    trigger-id="drawer-right-form-trigger"
+                    dialog-inner-id="drawer-right-form-inner"
+                    button-class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    Right Drawer Form
+                </dry-dialog>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">Drawer Mode - Left Side</h2>
+            <p class="demo-description">Slides in from the left edge of the screen</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/drawer-example-content.html" 
+                    mode="drawer"
+                    direction="left"
+                    trigger-id="drawer-left-trigger"
+                    dialog-inner-id="drawer-left-inner"
+                    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+                    Open Left Drawer
+                </dry-dialog>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">Drawer Mode - Top</h2>
+            <p class="demo-description">Slides down from the top of the screen</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/drawer-example-content.html" 
+                    mode="drawer"
+                    direction="top"
+                    trigger-id="drawer-top-trigger"
+                    dialog-inner-id="drawer-top-inner"
+                    button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+                    Open Top Drawer
+                </dry-dialog>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2 class="demo-title">Drawer Mode - Bottom</h2>
+            <p class="demo-description">Slides up from the bottom of the screen</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/drawer-example-content.html" 
+                    mode="drawer"
+                    direction="bottom"
+                    trigger-id="drawer-bottom-trigger"
+                    dialog-inner-id="drawer-bottom-inner"
+                    button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                    Open Bottom Drawer
+                </dry-dialog>
+            </div>
+        </div>
+
+        <!-- Custom Styling Examples -->
+        <div class="demo-section">
+            <h2 class="demo-title">Custom Drawer Styling</h2>
+            <p class="demo-description">Demonstrating custom drawer classes and wider drawer</p>
+            <div class="demo-controls">
+                <dry-dialog 
+                    url="/examples/drawer-example-content.html" 
+                    mode="drawer"
+                    direction="right"
+                    trigger-id="drawer-custom-trigger"
+                    dialog-inner-id="drawer-custom-inner"
+                    drawer-class="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
+                    button-class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold">
+                    Custom Styled Drawer
+                </dry-dialog>
+            </div>
+        </div>
+
+        <!-- API Documentation -->
+        <div class="demo-section">
+            <h2 class="demo-title">Component API</h2>
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <h3 class="font-semibold mb-2">Attributes:</h3>
+                <ul class="text-sm space-y-1 text-gray-700">
+                    <li><strong>url</strong> - The URL to fetch content from (required)</li>
+                    <li><strong>mode</strong> - "dialog" (default) or "drawer"</li>
+                    <li><strong>direction</strong> - "right" (default), "left", "top", or "bottom" (drawer mode only)</li>
+                    <li><strong>trigger-id</strong> - ID for the trigger button (required)</li>
+                    <li><strong>dialog-inner-id</strong> - ID for the content container (required)</li>
+                    <li><strong>button-class</strong> - CSS classes for the trigger button</li>
+                    <li><strong>dialog-class</strong> - CSS classes for the dialog (dialog mode)</li>
+                    <li><strong>drawer-class</strong> - CSS classes for the drawer (drawer mode)</li>
+                    <li><strong>trigger-type</strong> - "click" (default), "mouseenter", "focus", or "load"</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- JavaScript API -->
+        <div class="demo-section">
+            <h2 class="demo-title">JavaScript API</h2>
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <h3 class="font-semibold mb-2">Methods:</h3>
+                <ul class="text-sm space-y-1 text-gray-700">
+                    <li><strong>open()</strong> - Open the dialog/drawer</li>
+                    <li><strong>close()</strong> - Close the dialog/drawer</li>
+                    <li><strong>isOpen()</strong> - Check if the dialog/drawer is open</li>
+                    <li><strong>setContent(content)</strong> - Set the content directly</li>
+                </ul>
+                <h3 class="font-semibold mb-2 mt-4">Events:</h3>
+                <ul class="text-sm space-y-1 text-gray-700">
+                    <li><strong>dialog:opened</strong> - Fired when dialog/drawer opens</li>
+                    <li><strong>dialog:closed</strong> - Fired when dialog/drawer closes</li>
+                    <li><strong>dialog:error</strong> - Fired when an error occurs</li>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <div class="p-8">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Drawer Component Showcase</h1>
-            <p class="text-gray-600 mb-8">Slide-out drawer components with AJAX content loading for enhanced user interfaces.</p>
-
-            <!-- Introduction -->
-            <div class="demo-section">
-                <div class="demo-container">
-                    <p class="text-gray-700 mb-4">
-                        The drawer components provide slide-out panels that can be positioned on either side of the screen. 
-                        Available as <code class="bg-gray-200 px-2 py-1 rounded text-sm">dry-drawer</code> for basic functionality 
-                        and <code class="bg-gray-200 px-2 py-1 rounded text-sm">ajax-drawer</code> for dynamic content loading.
-                    </p>
-                    <div class="bg-blue-50 border border-blue-200 rounded p-4">
-                        <h4 class="font-semibold text-blue-900 mb-2">Key Features:</h4>
-                        <ul class="text-blue-800 text-sm space-y-1">
-                            <li>• Left or right positioning</li>
-                            <li>• AJAX content loading with HTMX integration</li>
-                            <li>• Customizable styling via attributes</li>
-                            <li>• Backdrop click and ESC key support</li>
-                            <li>• Smooth animations and transitions</li>
-                            <li>• Programmatic control via JavaScript API</li>
-                            <li>• Built-in event system</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Basic Drawer Examples -->
-            <div class="demo-section">
-                <h2 class="demo-title">Basic Drawer (dry-drawer)</h2>
-                <div class="demo-description">
-                    Basic drawer components with static content and different positioning options.
-                </div>
-
-                <div class="demo-container">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <!-- Right Side Drawer -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Right Side Drawer (Default)</h3>
-                            <dry-drawer
-                                    position="right"
-                                    drawer-class="bg-white w-80"
-                                    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                                    backdrop-class="bg-black/40"
-                                    trigger-content="Open Right Drawer">
-                                <span slot="header">Right Drawer Example</span>
-                                <div slot="content">
-                                    <p class="mb-4">This is a basic drawer that slides in from the right side of the screen.</p>
-                                    <p class="mb-4">Features:</p>
-                                    <ul class="list-disc ml-6">
-                                        <li>Custom styling via attributes</li>
-                                        <li>Backdrop click to close</li>
-                                        <li>ESC key to close</li>
-                                        <li>Smooth animations</li>
-                                    </ul>
-                                </div>
-                            </dry-drawer>
-                        </div>
-
-                        <!-- Left Side Drawer -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Left Side Drawer</h3>
-                            <dry-drawer
-                                    position="left"
-                                    drawer-class="bg-gray-100 w-80"
-                                    button-class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                                    trigger-content="Open Left Drawer">
-                                <span slot="header">Left Drawer Example</span>
-                                <div slot="content">
-                                    <p class="mb-4">This drawer slides in from the left side of the screen.</p>
-                                    <p>You can customize:</p>
-                                    <ul class="list-disc ml-6 mb-4">
-                                        <li>Width</li>
-                                        <li>Background color</li>
-                                        <li>Header content</li>
-                                        <li>Trigger button style</li>
-                                    </ul>
-                                    <button class="px-3 py-1 bg-red-500 text-white rounded">Example Button</button>
-                                </div>
-                            </dry-drawer>
-                        </div>
-                    </div>
-
-                    <dry-code language="HTML">&lt;dry-drawer
-    position="right"
-    drawer-class="bg-white w-80"
-    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-    trigger-content="Open Right Drawer"&gt;
-    &lt;span slot="header"&gt;Right Drawer Example&lt;/span&gt;
-    &lt;div slot="content"&gt;
-        &lt;p&gt;This is a basic drawer that slides in from the right side.&lt;/p&gt;
-        &lt;!-- More content here --&gt;
-    &lt;/div&gt;
-&lt;/dry-drawer&gt;</dry-code>
-                </div>
-            </div>
-
-            <!-- AJAX Drawer Examples -->
-            <div class="demo-section">
-                <h2 class="demo-title">AJAX Drawer (ajax-drawer)</h2>
-                <div class="demo-description">
-                    Advanced drawer components with dynamic content loading via AJAX.
-                </div>
-
-                <div class="demo-container">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <!-- Standard AJAX Drawer -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">AJAX Content Drawer</h3>
-                            <ajax-drawer
-                                    url="drawer-example-content.html"
-                                    position="right"
-                                    drawer-class="bg-white w-96"
-                                    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
-                                    content-id="example-content"
-                                    trigger-content="Load AJAX Content">
-                                <span slot="header">Dynamic Content Drawer</span>
-                            </ajax-drawer>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <p>Note: This will attempt to load content from "drawer-example-content.html" which may not exist in this demo environment.</p>
-                            </div>
-                        </div>
-
-                        <!-- Custom AJAX Drawer -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Customized AJAX Drawer</h3>
-                            <ajax-drawer
-                                    url="drawer-example-content.html"
-                                    position="left"
-                                    drawer-class="bg-gray-100 w-80 max-w-full"
-                                    header-class="bg-gray-200"
-                                    button-class="border border-indigo-500 text-indigo-500 hover:bg-indigo-50 px-4 py-2 rounded-full"
-                                    trigger-content="View User Profile"
-                                    content-id="user-profile-content">
-                                <span slot="header">User Profile</span>
-                            </ajax-drawer>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <p>This drawer demonstrates custom styling and a unique content ID.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <dry-code language="HTML">&lt;ajax-drawer
-    url="/api/drawer-content.html"
-    position="right"
-    drawer-class="bg-white w-96"
-    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
-    trigger-content="Load AJAX Content"&gt;
-    &lt;span slot="header"&gt;Dynamic Content Drawer&lt;/span&gt;
-&lt;/ajax-drawer&gt;</dry-code>
-                </div>
-            </div>
-
-            <!-- Component Builder Section -->
-            <div id="drawer-component-builder"></div>
-
-            <!-- Advanced Examples -->
-            <div class="demo-section">
-                <h2 class="demo-title">Advanced Examples</h2>
-                <div class="demo-description">
-                    Sophisticated drawer implementations with custom styling and content.
-                </div>
-
-                <div class="demo-container">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <!-- Customized Drawer -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Highly Customized Drawer</h3>
-                            <dry-drawer
-                                    position="right"
-                                    drawer-class="bg-gradient-to-br from-indigo-500 to-purple-600 w-80 text-white"
-                                    header-class="border-b border-white/20 bg-black/20"
-                                    backdrop-class="bg-indigo-900/30 backdrop-blur-sm"
-                                    button-class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-                                    trigger-content="Open Custom Drawer">
-                                <span slot="header" class="font-bold">Custom Styled Drawer</span>
-                                <div slot="content">
-                                    <p class="mb-4">This drawer demonstrates extensive styling customization.</p>
-                                    <div class="p-4 bg-white/10 rounded-lg backdrop-blur-sm mb-4">
-                                        <p class="text-sm">You can apply gradients, shadows, and other advanced Tailwind CSS styles to your drawers.</p>
-                                    </div>
-                                    <button class="w-full py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
-                                        Action Button
-                                    </button>
-                                </div>
-                            </dry-drawer>
-                        </div>
-
-                        <!-- Nested Content Example -->
-                        <div>
-                            <h3 class="text-lg font-medium mb-3">Form in Drawer</h3>
-                            <dry-drawer
-                                    position="left"
-                                    drawer-class="bg-gray-50 w-96"
-                                    header-class="bg-gray-200"
-                                    button-class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded"
-                                    trigger-content="Open Form Drawer">
-                                <span slot="header">Contact Form</span>
-                                <div slot="content">
-                                    <form class="p-2">
-                                        <div class="mb-4">
-                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-                                                Name
-                                            </label>
-                                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Your name">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-                                                Email
-                                            </label>
-                                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Your email">
-                                        </div>
-                                        <div class="mb-6">
-                                            <label class="block text-gray-700 text-sm font-bold mb-2" for="message">
-                                                Message
-                                            </label>
-                                            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="message" rows="4" placeholder="Your message"></textarea>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
-                                                Send
-                                            </button>
-                                            <button class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" type="button">
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </dry-drawer>
-                        </div>
-                    </div>
-
-                    <dry-code language="HTML">&lt;dry-drawer
-    position="right"
-    drawer-class="bg-gradient-to-br from-indigo-500 to-purple-600 w-80 text-white"
-    header-class="border-b border-white/20 bg-black/20"
-    backdrop-class="bg-indigo-900/30 backdrop-blur-sm"
-    button-class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-    trigger-content="Open Custom Drawer"&gt;
-    &lt;span slot="header" class="font-bold"&gt;Custom Styled Drawer&lt;/span&gt;
-    &lt;div slot="content"&gt;
-        &lt;p class="mb-4"&gt;This drawer demonstrates extensive styling customization.&lt;/p&gt;
-        &lt;!-- Additional content here --&gt;
-    &lt;/div&gt;
-&lt;/dry-drawer&gt;</dry-code>
-                </div>
-            </div>
-
-            <!-- API Reference -->
-            <div class="demo-section">
-                <h2 class="demo-title">API Reference</h2>
-
-                <div class="demo-container">
-                    <h3 class="text-lg font-semibold mb-4">Common Attributes</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Attribute</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Default</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>position</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Drawer position, either "left" or "right"</td>
-                                    <td class="border border-gray-300 px-4 py-2">"right"</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>drawer-class</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">CSS classes for the drawer element</td>
-                                    <td class="border border-gray-300 px-4 py-2">"bg-white w-80"</td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>header-class</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">CSS classes for the header</td>
-                                    <td class="border border-gray-300 px-4 py-2">""</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>backdrop-class</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">CSS classes for the backdrop</td>
-                                    <td class="border border-gray-300 px-4 py-2">""</td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>button-class</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">CSS classes for the trigger button</td>
-                                    <td class="border border-gray-300 px-4 py-2">"bg-blue-500 text-white px-4 py-2 rounded"</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>trigger-content</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Text for the trigger button</td>
-                                    <td class="border border-gray-300 px-4 py-2">"Open Drawer" / "Load Content"</td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>header-content</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Text for the drawer header (alternative to slot)</td>
-                                    <td class="border border-gray-300 px-4 py-2">"Drawer"</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="demo-container">
-                    <h3 class="text-lg font-semibold mb-4">AJAX Drawer Specific Attributes</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Attribute</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Default</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>url</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">URL to fetch content from</td>
-                                    <td class="border border-gray-300 px-4 py-2">""</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>trigger-type</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">HTMX trigger type</td>
-                                    <td class="border border-gray-300 px-4 py-2">"click"</td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>content-id</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">ID for the content container (should be unique)</td>
-                                    <td class="border border-gray-300 px-4 py-2">Auto-generated random ID</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="demo-container">
-                    <h3 class="text-lg font-semibold mb-4">Events</h3>
-                    <p class="text-gray-600 mb-2">Both drawer components emit the following custom events:</p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Event</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>drawer:opened</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Fired when the drawer is opened</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>drawer:closed</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Fired when the drawer is closed</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="demo-container">
-                    <h3 class="text-lg font-semibold mb-4">Slots</h3>
-                    <p class="text-gray-600 mb-2">Both drawer components support the following slots for content customization:</p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Slot</th>
-                                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="border border-gray-300 px-4 py-2"><code>header</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Content for the drawer header</td>
-                                </tr>
-                                <tr class="bg-gray-50">
-                                    <td class="border border-gray-300 px-4 py-2"><code>content</code></td>
-                                    <td class="border border-gray-300 px-4 py-2">Main content for the drawer (only used in dry-drawer)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HTMX Integration -->
-            <div class="demo-section">
-                <h2 class="demo-title">HTMX Integration Notes</h2>
-                <div class="demo-description">
-                    Information about how the AJAX drawer integrates with HTMX for dynamic content loading.
-                </div>
-
-                <div class="demo-container">
-                    <p class="text-gray-600 mb-4">The AJAX drawer component integrates with HTMX for content loading. Here are some key features:</p>
-
-                    <ul class="list-disc ml-6 mb-4">
-                        <li class="mb-2">Content is loaded using HTMX's <code>hx-get</code> attribute</li>
-                        <li class="mb-2">You can control when the request is triggered with the <code>trigger-type</code> attribute</li>
-                        <li class="mb-2">The drawer automatically opens when the request starts</li>
-                        <li class="mb-2">Loading and error states are handled automatically</li>
-                        <li class="mb-2">You can close the drawer programmatically by returning the <code>HX-CloseDrawer: close</code> header in your response</li>
-                    </ul>
-
-                    <dry-code language="JavaScript">// Server-side example (Node.js/Express)
-app.get('/api/drawer-content.html', (req, res) => {
-  // Do some processing...
-
-  // Optionally close the drawer after processing
-  res.setHeader('HX-CloseDrawer', 'close');
-
-  // Send the response
-  res.send('&lt;div&gt;This content was loaded via AJAX&lt;/div&gt;');
-});</dry-code>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                // Initialize Component Builder
-                new ComponentBuilder({
-                    elementId: 'drawer-component-builder',
-                    componentTag: 'dry-drawer',
-                    title: 'Drawer Component Builder',
-                    description: 'Try changing the drawer properties dynamically and see the results in real-time.',
-                    
-                    properties: {
-                        position: {
-                            type: 'select',
-                            label: 'Position',
-                            options: [
-                                { value: 'left', label: 'Left' },
-                                { value: 'right', label: 'Right' }
-                            ],
-                            default: 'right'
-                        },
-                        'drawer-class': {
-                            type: 'text',
-                            label: 'Drawer CSS Classes',
-                            default: 'bg-white w-80'
-                        },
-                        'header-class': {
-                            type: 'text',
-                            label: 'Header CSS Classes',
-                            default: ''
-                        },
-                        'backdrop-class': {
-                            type: 'text',
-                            label: 'Backdrop CSS Classes',
-                            default: ''
-                        },
-                        'button-class': {
-                            type: 'text',
-                            label: 'Button CSS Classes',
-                            default: 'bg-blue-500 text-white px-4 py-2 rounded'
-                        },
-                        'trigger-content': {
-                            type: 'text',
-                            label: 'Trigger Button Text',
-                            default: 'Open Drawer'
-                        },
-                        'header-content': {
-                            type: 'text',
-                            label: 'Header Content',
-                            default: 'Drawer Title'
-                        }
-                    },
-                    
-                    defaults: {
-                        position: 'right',
-                        'drawer-class': 'bg-white w-80',
-                        'header-class': '',
-                        'backdrop-class': '',
-                        'button-class': 'bg-blue-500 text-white px-4 py-2 rounded',
-                        'trigger-content': 'Open Drawer',
-                        'header-content': 'Drawer Title'
-                    },
-                    
-                    previewWrapper: function(componentHTML) {
-                        return `
-                            <div class="w-full">
-                                ${componentHTML}
-                                    <div slot="content">
-                                        <p class="mb-4">This is sample content for the drawer.</p>
-                                        <button class="px-4 py-2 bg-gray-500 text-white rounded">Sample Button</button>
-                                    </div>
-                                </dry-drawer>
-                            </div>
-                        `;
-                    },
-                    
-                    contentGenerator: function(values) {
-                        return '';
-                    }
-                });
+    <script>
+        // Demo script to show JavaScript API usage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for dialog events
+            document.addEventListener('dialog:opened', function(event) {
+                console.log('Dialog opened:', event.detail);
             });
-        </script>
-        
-        
-    </div>
-    <div id="footer" hx-get="footer.inc.html" hx-trigger="load"></div>
+            
+            document.addEventListener('dialog:closed', function(event) {
+                console.log('Dialog closed:', event.detail);
+            });
+            
+            document.addEventListener('dialog:error', function(event) {
+                console.error('Dialog error:', event.detail);
+            });
+        });
+    </script>
 </body>
 </html>

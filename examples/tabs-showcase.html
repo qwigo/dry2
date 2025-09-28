@@ -21,7 +21,7 @@
 <body class="bg-gray-50">
     <!-- Include Navigation -->
 
-    <div id="navigation" hx-get="nav.inc.html" hx-trigger="load"></div>
+    <div id="navigation" hx-get="partials/nav.inc.html" hx-trigger="load"></div>
     
     <!-- Breadcrumbs -->
     <div class="bg-white border-b">
@@ -451,7 +451,7 @@
 
 
 </div>
-<div id="footer" hx-get="footer.inc.html" hx-trigger="load"></div>
+
 
 <script>
     // Initialize the Component Builder when the page loads
@@ -584,5 +584,6 @@
         });
     });
 </script>
+<div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
 </body>
 </html>
