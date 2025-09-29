@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{COMPONENT_NAME}} Component Showcase - DRY2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../src/dry2/base.js"></script>
+    <script src="../src/dry2/{{COMPONENT_TAG}}.js"></script>
+    <script src="../src/dry2/breadcrumbs.js"></script>
+    <script src="../src/dry2/code.js"></script>
+    <script src="../src/dry2/component-builder.js"></script>
+    
+    <!-- Common CSS for showcase pages -->
+    <link rel="stylesheet" href="static/css/base.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Include Navigation -->
+    <div id="navigation" hx-get="partials/nav.inc.html" hx-trigger="load"></div>
+    
+    <!-- Breadcrumbs -->
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 xl:px-0 py-4">
+            <dry-breadcrumbs>
+                <breadcrumb-item href="../index.html">Home</breadcrumb-item>
+                <breadcrumb-item href="./index.html">Examples</breadcrumb-item>
+                <breadcrumb-item active>{{COMPONENT_NAME}} Component</breadcrumb-item>
+            </dry-breadcrumbs>
+        </div>
+    </div>
+
+    <div class="p-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{COMPONENT_NAME}} Component</h1>
+            <p class="text-gray-600 mb-8">{{COMPONENT_DESCRIPTION}}</p>
+
+            <main>
+                <!-- Basic Examples Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Basic Examples</h2>
+                    <p class="demo-description">{{BASIC_DESCRIPTION}}</p>
+                    
+                    <div class="demo-container">
+                        {{BASIC_EXAMPLES}}
+                    </div>
+                    
+                    <dry-code language="HTML">{{BASIC_CODE}}</dry-code>
+                </section>
+
+                <!-- Variants Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Variants</h2>
+                    <p class="demo-description">{{VARIANTS_DESCRIPTION}}</p>
+                    
+                    <div class="demo-container">
+                        {{VARIANTS_EXAMPLES}}
+                    </div>
+                    
+                    <dry-code language="HTML">{{VARIANTS_CODE}}</dry-code>
+                </section>
+
+                <!-- Interactive Demo Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Interactive Demo</h2>
+                    <p class="demo-description">Try changing the component properties dynamically and see the results in real-time.</p>
+
+                    <div class="demo-container">
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                                    {{INTERACTIVE_PREVIEW}}
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 space-y-4">
+                                {{INTERACTIVE_CONTROLS}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <dry-code language="HTML">{{INTERACTIVE_CODE}}</dry-code>
+                </section>
+
+                <!-- Component Builder Section -->
+                <div id="{{COMPONENT_TAG}}-component-builder"></div>
+
+                <!-- JavaScript API Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">JavaScript API</h2>
+                    <p class="demo-description">Control the component programmatically using JavaScript methods.</p>
+                    
+                    <div class="demo-container">
+                        {{API_DEMO}}
+                    </div>
+                    
+                    <dry-code language="JavaScript">{{API_CODE}}</dry-code>
+                </section>
+
+                <!-- API Reference -->
+                <section class="demo-section">
+                    <h2 class="demo-title">API Reference</h2>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">{{COMPONENT_NAME}} Properties</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Property</th>
+                                <th class="px-4 py-2 text-left">Type</th>
+                                <th class="px-4 py-2 text-left">Default</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{PROPERTIES_TABLE}}
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Method</th>
+                                <th class="px-4 py-2 text-left">Parameters</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{METHODS_TABLE}}
+                        </tbody>
+                    </table>
+                    
+                    {{ADDITIONAL_API_SECTIONS}}
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Interactive demo functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            {{INTERACTIVE_JAVASCRIPT}}
+
+            // Initialize Component Builder
+            new ComponentBuilder({
+                elementId: '{{COMPONENT_TAG}}-component-builder',
+                componentTag: 'dry-{{COMPONENT_TAG}}',
+                title: '{{COMPONENT_NAME}} Component Builder',
+                description: 'Try changing the {{COMPONENT_NAME}} properties dynamically and see the results in real-time.',
+                
+                properties: {{COMPONENT_BUILDER_PROPERTIES}},
+                
+                defaults: {{COMPONENT_BUILDER_DEFAULTS}},
+                
+                contentGenerator: function(values) {
+                    return {{COMPONENT_BUILDER_CONTENT}};
+                }
+            });
+        });
+    </script>
+    
+    <div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
+</body>
+</html>

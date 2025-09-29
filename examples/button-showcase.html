@@ -20,7 +20,6 @@
 </head>
 <body class="bg-gray-50">
     <!-- Include Navigation -->
-
     <div id="navigation" hx-get="partials/nav.inc.html" hx-trigger="load"></div>
     
     <!-- Breadcrumbs -->
@@ -33,108 +32,143 @@
             </dry-breadcrumbs>
         </div>
     </div>
-    
+
     <div class="p-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Button Component</h1>
-        <p class="text-gray-600 mb-8">Simple button component with variants, sizes, and Font Awesome icons.</p>
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Button Component</h1>
+            <p class="text-gray-600 mb-8">Simple button component with variants, sizes, and Font Awesome icons.</p>
 
-    <main>
-        <!-- Variants -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Variants</h2>
-            <div class="flex flex-wrap gap-4">
-                <dry-button variant="primary">Primary</dry-button>
-                <dry-button variant="secondary">Secondary</dry-button>
-                <dry-button variant="outline">Outline</dry-button>
-                <dry-button variant="text">Text</dry-button>
-                <dry-button variant="danger">Danger</dry-button>
-                <dry-button variant="success">Success</dry-button>
-                <dry-button variant="warning">Warning</dry-button>
-            </div>
-            <dry-code language="HTML">&lt;dry-button variant="primary"&gt;Primary&lt;/dry-button&gt;
-&lt;dry-button variant="secondary"&gt;Secondary&lt;/dry-button&gt;
-&lt;dry-button variant="outline"&gt;Outline&lt;/dry-button&gt;
-&lt;dry-button variant="text"&gt;Text&lt;/dry-button&gt;
-&lt;dry-button variant="danger"&gt;Danger&lt;/dry-button&gt;
-&lt;dry-button variant="success"&gt;Success&lt;/dry-button&gt;
-&lt;dry-button variant="warning"&gt;Warning&lt;/dry-button&gt;</dry-code>
-        </section>
+            <main>
+                <!-- Basic Examples Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Basic Examples</h2>
+                    <p class="demo-description">Standard button variants for different use cases.</p>
+                    
+                    <div class="demo-container">
+                        <div class="flex flex-wrap gap-4">
+                            <dry-button variant="primary">Primary</dry-button>
+                            <dry-button variant="secondary">Secondary</dry-button>
+                            <dry-button variant="outline">Outline</dry-button>
+                            <dry-button variant="text">Text</dry-button>
+                            <dry-button variant="danger">Danger</dry-button>
+                            <dry-button variant="success">Success</dry-button>
+                            <dry-button variant="warning">Warning</dry-button>
+                        </div>
+                    </div>
+                    
+                    <dry-code language="HTML"><dry-button variant="primary">Primary</dry-button>
+<dry-button variant="secondary">Secondary</dry-button>
+<dry-button variant="outline">Outline</dry-button>
+<dry-button variant="text">Text</dry-button>
+<dry-button variant="danger">Danger</dry-button>
+<dry-button variant="success">Success</dry-button>
+<dry-button variant="warning">Warning</dry-button></dry-code>
+                </section>
 
-        <!-- Sizes -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Sizes</h2>
-            <div class="flex items-center gap-4">
-                <dry-button size="sm">Small</dry-button>
-                <dry-button size="md">Medium</dry-button>
-                <dry-button size="lg">Large</dry-button>
-                <dry-button size="xl">Extra Large</dry-button>
-            </div>
-            <dry-code language="HTML">&lt;dry-button size="sm"&gt;Small&lt;/dry-button&gt;
-&lt;dry-button size="md"&gt;Medium&lt;/dry-button&gt;
-&lt;dry-button size="lg"&gt;Large&lt;/dry-button&gt;
-&lt;dry-button size="xl"&gt;Extra Large&lt;/dry-button&gt;</dry-code>
-        </section>
+                <!-- Variants Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Variants</h2>
+                    <p class="demo-description">Different button sizes for various interface needs.</p>
+                    
+                    <div class="demo-container">
+                        <div class="flex items-center gap-4">
+                            <dry-button size="sm">Small</dry-button>
+                            <dry-button size="md">Medium</dry-button>
+                            <dry-button size="lg">Large</dry-button>
+                            <dry-button size="xl">Extra Large</dry-button>
+                        </div>
+                    </div>
+                    
+                    <dry-code language="HTML"><dry-button size="sm">Small</dry-button>
+<dry-button size="md">Medium</dry-button>
+<dry-button size="lg">Large</dry-button>
+<dry-button size="xl">Extra Large</dry-button></dry-code>
+                </section>
 
-        <!-- States -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">States</h2>
-            <div class="flex flex-wrap gap-4">
-                <dry-button>Normal</dry-button>
-                <dry-button disabled>Disabled</dry-button>
-                <dry-button loading>Loading</dry-button>
-            </div>
-            <dry-code language="HTML">&lt;dry-button&gt;Normal&lt;/dry-button&gt;
-&lt;dry-button disabled&gt;Disabled&lt;/dry-button&gt;
-&lt;dry-button loading&gt;Loading&lt;/dry-button&gt;</dry-code>
-        </section>
+                <!-- Interactive Demo Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Interactive Demo</h2>
+                    <p class="demo-description">Try changing the component properties dynamically and see the results in real-time.</p>
 
-        <!-- With Icons -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">With Icons</h2>
-            <div class="flex flex-wrap gap-4">
-                <dry-button icon="fas fa-plus">Add Item</dry-button>
-                <dry-button variant="outline" icon="fas fa-arrow-right">Continue</dry-button>
-                <dry-button variant="danger" icon="fas fa-trash">Delete</dry-button>
-                <dry-button variant="success" icon="fas fa-check">Save</dry-button>
-                <dry-button icon="fas fa-download"></dry-button>
-            </div>
-            <dry-code language="HTML">&lt;dry-button icon="fas fa-plus"&gt;Add Item&lt;/dry-button&gt;
-&lt;dry-button variant="outline" icon="fas fa-arrow-right"&gt;Continue&lt;/dry-button&gt;
-&lt;dry-button variant="danger" icon="fas fa-trash"&gt;Delete&lt;/dry-button&gt;
-&lt;dry-button variant="success" icon="fas fa-check"&gt;Save&lt;/dry-button&gt;
-&lt;dry-button icon="fas fa-download"&gt;&lt;/dry-button&gt;</dry-code>
-        </section>
+                    <div class="demo-container">
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                                    <dry-button id="interactive-btn" variant="primary" size="md">Interactive Button</dry-button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
+                                    <select id="variant-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="primary" selected>Primary</option>
+                                        <option value="secondary">Secondary</option>
+                                        <option value="outline">Outline</option>
+                                        <option value="text">Text</option>
+                                        <option value="danger">Danger</option>
+                                        <option value="success">Success</option>
+                                        <option value="warning">Warning</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                                    <select id="size-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="sm">Small</option>
+                                        <option value="md" selected>Medium</option>
+                                        <option value="lg">Large</option>
+                                        <option value="xl">Extra Large</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+                                    <select id="icon-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="" selected>No Icon</option>
+                                        <option value="fas fa-star">Star</option>
+                                        <option value="fas fa-heart">Heart</option>
+                                        <option value="fas fa-plus">Plus</option>
+                                        <option value="fas fa-check">Check</option>
+                                        <option value="fas fa-download">Download</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="disabled-checkbox" class="mr-2">
+                                        <span class="text-sm text-gray-700">Disabled</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="loading-checkbox" class="mr-2">
+                                        <span class="text-sm text-gray-700">Loading</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- As Links -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">As Links</h2>
-            <div class="flex flex-wrap gap-4">
-                <dry-button href="#" variant="primary">Link Button</dry-button>
-                <dry-button href="#" target="_blank" variant="outline" icon="fas fa-external-link-alt">External Link</dry-button>
-            </div>
-            <dry-code language="HTML">&lt;dry-button href="#" variant="primary"&gt;Link Button&lt;/dry-button&gt;
-&lt;dry-button href="#" target="_blank" variant="outline" icon="fas fa-external-link-alt"&gt;External Link&lt;/dry-button&gt;</dry-code>
-        </section>
+                    <dry-code language="HTML" id="interactive-code"><dry-button variant="primary" size="md">Interactive Button</dry-button></dry-code>
+                </section>
 
-        <!-- Component Builder Section -->
-        <div id="button-component-builder"></div>
+                <!-- Component Builder Section -->
+                <div id="button-component-builder"></div>
 
-        <!-- API Examples -->
-        <section class="demo-section">
-            <h2 class="demo-title">JavaScript API</h2>
-            <p class="demo-description">Control button behavior programmatically using JavaScript methods.</p>
-            
-            <div class="demo-container">
-                <div class="flex gap-4 mb-4">
-                    <dry-button id="api-demo-btn" variant="primary" icon="fas fa-cog">Demo Button</dry-button>
-                    <button onclick="toggleLoading()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Loading</button>
-                    <button onclick="toggleDisabled()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Disabled</button>
-                    <button onclick="changeText()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Change Text</button>
-                </div>
-            </div>
-
-            <dry-code language="JavaScript">const button = document.getElementById('api-demo-btn');
+                <!-- JavaScript API Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">JavaScript API</h2>
+                    <p class="demo-description">Control the component programmatically using JavaScript methods.</p>
+                    
+                    <div class="demo-container">
+                        <div class="flex gap-4 mb-4">
+                            <dry-button id="api-demo-btn" variant="primary" icon="fas fa-cog">Demo Button</dry-button>
+                            <button onclick="toggleLoading()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Loading</button>
+                            <button onclick="toggleDisabled()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Disabled</button>
+                            <button onclick="changeText()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Change Text</button>
+                        </div>
+                    </div>
+                    
+                    <dry-code language="JavaScript">const button = document.getElementById('api-demo-btn');
 
 // Toggle loading state
 button.setLoading(!button.loading);
@@ -147,142 +181,204 @@ button.setText('New Text');
 
 // Programmatically click
 button.click();</dry-code>
-        </section>
+                </section>
 
-        <!-- API Reference -->
-        <section class="demo-section">
-            <h2 class="demo-title">API Reference</h2>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Button Properties</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Property</th>
-                        <th class="px-4 py-2 text-left">Type</th>
-                        <th class="px-4 py-2 text-left">Default</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">variant</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'primary'</td>
-                        <td class="px-4 py-2">Visual style: 'primary', 'secondary', 'outline', 'text', 'danger', 'success', 'warning'</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">size</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'md'</td>
-                        <td class="px-4 py-2">Button size: 'sm', 'md', 'lg', 'xl'</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">icon</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">''</td>
-                        <td class="px-4 py-2">Font Awesome icon classes</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">disabled</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">false</td>
-                        <td class="px-4 py-2">Whether the button is disabled</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">loading</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">false</td>
-                        <td class="px-4 py-2">Whether the button shows loading state</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">href</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">''</td>
-                        <td class="px-4 py-2">Render as link with this URL</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">target</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">''</td>
-                        <td class="px-4 py-2">Link target attribute</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">type</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'button'</td>
-                        <td class="px-4 py-2">Button type: 'button', 'submit', 'reset'</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Method</th>
-                        <th class="px-4 py-2 text-left">Parameters</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setLoading(loading)</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">Set loading state</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setDisabled(disabled)</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">Set disabled state</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setText(text)</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">Change button text</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setIcon(iconClasses)</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">Change icon classes</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">click()</td>
-                        <td class="px-4 py-2">none</td>
-                        <td class="px-4 py-2">Programmatically click the button</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-    </main>
-    </div>
+                <!-- API Reference -->
+                <section class="demo-section">
+                    <h2 class="demo-title">API Reference</h2>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Button Properties</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Property</th>
+                                <th class="px-4 py-2 text-left">Type</th>
+                                <th class="px-4 py-2 text-left">Default</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">variant</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'primary'</td>
+                                <td class="px-4 py-2">Visual style: 'primary', 'secondary', 'outline', 'text', 'danger', 'success', 'warning'</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">size</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'md'</td>
+                                <td class="px-4 py-2">Button size: 'sm', 'md', 'lg', 'xl'</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">icon</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">''</td>
+                                <td class="px-4 py-2">Font Awesome icon classes</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">disabled</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">false</td>
+                                <td class="px-4 py-2">Whether the button is disabled</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">loading</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">false</td>
+                                <td class="px-4 py-2">Whether the button shows loading state</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">href</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">''</td>
+                                <td class="px-4 py-2">Render as link with this URL</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">target</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">''</td>
+                                <td class="px-4 py-2">Link target attribute</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">type</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'button'</td>
+                                <td class="px-4 py-2">Button type: 'button', 'submit', 'reset'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Method</th>
+                                <th class="px-4 py-2 text-left">Parameters</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setLoading(loading)</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">Set loading state</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setDisabled(disabled)</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">Set disabled state</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setText(text)</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">Change button text</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setIcon(iconClasses)</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">Change icon classes</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">click()</td>
+                                <td class="px-4 py-2">none</td>
+                                <td class="px-4 py-2">Programmatically click the button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </main>
+        </div>
     </div>
 
     <script>
-        let isLoading = false;
-        let isDisabled = false;
-        let textCounter = 0;
-
-        function toggleLoading() {
-            const button = document.getElementById('api-demo-btn');
-            isLoading = !isLoading;
-            button.setLoading(isLoading);
-        }
-
-        function toggleDisabled() {
-            const button = document.getElementById('api-demo-btn');
-            isDisabled = !isDisabled;
-            button.setDisabled(isDisabled);
-        }
-
-        function changeText() {
-            const button = document.getElementById('api-demo-btn');
-            const texts = ['Demo Button', 'Changed!', 'Hello World', 'Click Me'];
-            textCounter = (textCounter + 1) % texts.length;
-            button.setText(texts[textCounter]);
-        }
-
-        // Initialize Component Builder
+        // Interactive demo functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const interactiveBtn = document.getElementById('interactive-btn');
+            const variantSelect = document.getElementById('variant-select');
+            const sizeSelect = document.getElementById('size-select');
+            const iconSelect = document.getElementById('icon-select');
+            const disabledCheckbox = document.getElementById('disabled-checkbox');
+            const loadingCheckbox = document.getElementById('loading-checkbox');
+            const interactiveCode = document.getElementById('interactive-code');
+
+            function updateInteractiveCode() {
+                let code = '<dry-button';
+                
+                if (variantSelect.value !== 'primary') {
+                    code += ` variant="${variantSelect.value}"`;
+                }
+                
+                if (sizeSelect.value !== 'md') {
+                    code += ` size="${sizeSelect.value}"`;
+                }
+                
+                if (iconSelect.value) {
+                    code += ` icon="${iconSelect.value}"`;
+                }
+                
+                if (disabledCheckbox.checked) {
+                    code += ' disabled';
+                }
+                
+                if (loadingCheckbox.checked) {
+                    code += ' loading';
+                }
+                
+                code += '>Interactive Button</dry-button>';
+                interactiveCode.textContent = code;
+            }
+
+            // Event listeners for interactive controls
+            variantSelect.addEventListener('change', function() {
+                interactiveBtn.variant = this.value;
+                updateInteractiveCode();
+            });
+
+            sizeSelect.addEventListener('change', function() {
+                interactiveBtn.size = this.value;
+                updateInteractiveCode();
+            });
+
+            iconSelect.addEventListener('change', function() {
+                interactiveBtn.icon = this.value;
+                updateInteractiveCode();
+            });
+
+            disabledCheckbox.addEventListener('change', function() {
+                interactiveBtn.disabled = this.checked;
+                updateInteractiveCode();
+            });
+
+            loadingCheckbox.addEventListener('change', function() {
+                interactiveBtn.loading = this.checked;
+                updateInteractiveCode();
+            });
+
+            let isLoading = false;
+            let isDisabled = false;
+            let textCounter = 0;
+
+            function toggleLoading() {
+                const button = document.getElementById('api-demo-btn');
+                isLoading = !isLoading;
+                button.setLoading(isLoading);
+            }
+
+            function toggleDisabled() {
+                const button = document.getElementById('api-demo-btn');
+                isDisabled = !isDisabled;
+                button.setDisabled(isDisabled);
+            }
+
+            function changeText() {
+                const button = document.getElementById('api-demo-btn');
+                const texts = ['Demo Button', 'Changed!', 'Hello World', 'Click Me'];
+                textCounter = (textCounter + 1) % texts.length;
+                button.setText(texts[textCounter]);
+            }
+
+            // Initialize Component Builder
             new ComponentBuilder({
                 elementId: 'button-component-builder',
                 componentTag: 'dry-button',

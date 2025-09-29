@@ -34,588 +34,418 @@
     </div>
     
     <div class="p-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Card Component</h1>
-        <p class="text-gray-600 mb-8">Flexible container for displaying related content with consistent styling.</p>
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Card Component</h1>
+            <p class="text-gray-600 mb-8">Flexible container for displaying related content with consistent styling.</p>
 
-        <!-- Basic Cards -->
-        <section class="demo-section">
-            <h2 class="demo-title">Basic Cards</h2>
-            <div class="demo-container">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <dry-card>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Simple Card</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">This is a basic card with header and body content. Perfect for displaying simple information.</p>
-                        </div>
-                    </dry-card>
+            <main>
+                <!-- Basic Examples Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Basic Examples</h2>
+                    <p class="demo-description">Standard card layouts with header, body, and footer sections.</p>
+                    
+                    <div class="demo-container">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <dry-card>
+                                <div slot="header">
+                                    <h3 class="text-lg font-semibold text-gray-900">Simple Card</h3>
+                                </div>
+                                <div slot="body">
+                                    <p class="text-gray-600">This is a basic card with header and body content. Perfect for displaying simple information.</p>
+                                </div>
+                            </dry-card>
 
-                    <dry-card>
-                        <div slot="body">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Body Only</h3>
-                            <p class="text-gray-600">This card contains only body content without a separate header section.</p>
-                        </div>
-                        <div slot="footer">
-                            <div class="flex justify-end">
-                                <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Action</button>
-                            </div>
-                        </div>
-                    </dry-card>
+                            <dry-card>
+                                <div slot="body">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Body Only</h3>
+                                    <p class="text-gray-600">This card contains only body content without a separate header section.</p>
+                                </div>
+                                <div slot="footer">
+                                    <div class="flex justify-end">
+                                        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Action</button>
+                                    </div>
+                                </div>
+                            </dry-card>
 
-                    <dry-card>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Complete Card</h3>
-                            <p class="text-sm text-gray-500">With all sections</p>
+                            <dry-card>
+                                <div slot="header">
+                                    <h3 class="text-lg font-semibold text-gray-900">Complete Card</h3>
+                                    <p class="text-sm text-gray-500">With all sections</p>
+                                </div>
+                                <div slot="body">
+                                    <p class="text-gray-600">This card demonstrates all available slots: header, body, and footer.</p>
+                                </div>
+                                <div slot="footer">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Last updated: Today</span>
+                                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">More</button>
+                                    </div>
+                                </div>
+                            </dry-card>
                         </div>
-                        <div slot="body">
-                            <p class="text-gray-600">This card demonstrates all available slots: header, body, and footer.</p>
-                        </div>
-                        <div slot="footer">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">Last updated: Today</span>
-                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">More</button>
-                            </div>
-                        </div>
-                    </dry-card>
-                </div>
-            </div>
-
-            <dry-code language="HTML">&lt;!-- Basic card structure --&gt;
-&lt;dry-card&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Simple Card&lt;/h3&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;This is a basic card with header and body content.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;!-- Card with footer --&gt;
-&lt;dry-card&gt;
-    &lt;div slot="body"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900 mb-2"&gt;Body Only&lt;/h3&gt;
-        &lt;p class="text-gray-600"&gt;This card contains only body content.&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;div slot="footer"&gt;
-        &lt;div class="flex justify-end"&gt;
-            &lt;button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"&gt;Action&lt;/button&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-        </section>
-
-        <!-- Variants -->
-        <section class="demo-section">
-            <h2 class="demo-title">Variants</h2>
-            <div class="demo-container">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <dry-card variant="filled">
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Filled (Default)</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">Standard filled card with background and shadow.</p>
-                        </div>
-                    </dry-card>
-
-                    <dry-card variant="outlined" bordered>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Outlined</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">Outlined card with border and no shadow.</p>
-                        </div>
-                    </dry-card>
-
-                    <dry-card variant="elevated" elevation="xl">
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Elevated</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">Elevated card with enhanced shadow.</p>
-                        </div>
-                    </dry-card>
-                </div>
-            </div>
-            <dry-code language="HTML">&lt;!-- Card variants --&gt;
-&lt;dry-card variant="filled"&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Filled (Default)&lt;/h3&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;Standard filled card with background and shadow.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;dry-card variant="outlined" bordered&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Outlined&lt;/h3&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;Outlined card with border and no shadow.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;dry-card variant="elevated" elevation="xl"&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Elevated&lt;/h3&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;Elevated card with enhanced shadow.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-        </section>
-
-        <!-- Elevation Levels -->
-        <section class="demo-section">
-            <h2 class="demo-title">Elevation Levels</h2>
-            <div class="demo-container">
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <dry-card elevation="none">
-                        <div slot="body" class="text-center">
-                            <h4 class="font-medium text-gray-900">None</h4>
-                            <p class="text-sm text-gray-600">No shadow</p>
-                        </div>
-                    </dry-card>
-                    <dry-card elevation="sm">
-                        <div slot="body" class="text-center">
-                            <h4 class="font-medium text-gray-900">Small</h4>
-                            <p class="text-sm text-gray-600">Light shadow</p>
-                        </div>
-                    </dry-card>
-                    <dry-card elevation="md">
-                        <div slot="body" class="text-center">
-                            <h4 class="font-medium text-gray-900">Medium</h4>
-                            <p class="text-sm text-gray-600">Default shadow</p>
-                        </div>
-                    </dry-card>
-                    <dry-card elevation="lg">
-                        <div slot="body" class="text-center">
-                            <h4 class="font-medium text-gray-900">Large</h4>
-                            <p class="text-sm text-gray-600">Strong shadow</p>
-                        </div>
-                    </dry-card>
-                    <dry-card elevation="xl">
-                        <div slot="body" class="text-center">
-                            <h4 class="font-medium text-gray-900">Extra Large</h4>
-                            <p class="text-sm text-gray-600">Maximum shadow</p>
-                        </div>
-                    </dry-card>
-                </div>
-            </div>
-            <dry-code language="HTML">
-&lt;!-- Elevation levels --&gt;
-&lt;dry-card elevation="none"&gt;
-    &lt;div slot="body" class="text-center"&gt;
-        &lt;h4 class="font-medium text-gray-900"&gt;None&lt;/h4&gt;
-        &lt;p class="text-sm text-gray-600"&gt;No shadow&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;dry-card elevation="sm"&gt;
-    &lt;div slot="body" class="text-center"&gt;
-        &lt;h4 class="font-medium text-gray-900"&gt;Small&lt;/h4&gt;
-        &lt;p class="text-sm text-gray-600"&gt;Light shadow&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;dry-card elevation="lg"&gt;
-    &lt;div slot="body" class="text-center"&gt;
-        &lt;h4 class="font-medium text-gray-900"&gt;Large&lt;/h4&gt;
-        &lt;p class="text-sm text-gray-600"&gt;Strong shadow&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-            
-        </section>
-
-        <!-- With Media -->
-        <section class="demo-section">
-            <h2 class="demo-title">Cards with Media</h2>
-            <div class="demo-container">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <dry-card>
-                        <div slot="media">
-                            <img src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=400&h=200&fit=crop" alt="Food" class="w-full h-48 object-cover">
-                        </div>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Delicious Food</h3>
-                            <p class="text-sm text-gray-500">Recipe of the day</p>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">A mouth-watering dish that will satisfy your taste buds and leave you wanting more.</p>
-                        </div>
-                        <div slot="footer">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">5 min read</span>
-                                <button class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">View Recipe</button>
-                            </div>
-                        </div>
-                    </dry-card>
-
-                    <dry-card>
-                        <div slot="media">
-                            <div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
-                                <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Music Playlist</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">Discover new music with our curated playlist featuring the latest hits and hidden gems.</p>
-                        </div>
-                        <div slot="footer">
-                            <button class="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Play Now</button>
-                        </div>
-                    </dry-card>
-                </div>
-            
-            <dry-code language="HTML">
-&lt;!-- Card with media --&gt;
-&lt;dry-card&gt;
-    &lt;div slot="media"&gt;
-        &lt;img src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=400&h=200&fit=crop" alt="Food" class="w-full h-48 object-cover"&gt;
-    &lt;/div&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Delicious Food&lt;/h3&gt;
-        &lt;p class="text-sm text-gray-500"&gt;Recipe of the day&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;A mouth-watering dish that will satisfy your taste buds.&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;div slot="footer"&gt;
-        &lt;div class="flex justify-between items-center"&gt;
-            &lt;span class="text-sm text-gray-500"&gt;5 min read&lt;/span&gt;
-            &lt;button class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"&gt;View Recipe&lt;/button&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-            
-        </section>
-
-        <!-- Horizontal Layout -->
-        <section class="demo-section">
-            <h2 class="demo-title">Horizontal Layout</h2>
-            <div class="demo-container">
-                <div class="space-y-6">
-                    <dry-card orientation="horizontal">
-                        <div slot="media">
-                            <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=200&h=200&fit=crop" alt="Landscape" class="w-full h-full object-cover">
-                        </div>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Mountain Adventure</h3>
-                            <p class="text-sm text-gray-500">Travel & Nature</p>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">Experience breathtaking views and challenging trails in the heart of the mountains. Perfect for adventure seekers and nature lovers.</p>
-                        </div>
-                        <div slot="footer">
-                            <div class="flex gap-2">
-                                <button class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700">Book Now</button>
-                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">Learn More</button>
-                            </div>
-                        </div>
-                    </dry-card>
-
-                    <dry-card orientation="horizontal">
-                        <div slot="media">
-                            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div slot="body">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Quick Start Guide</h3>
-                            <p class="text-gray-600">Get up and running in minutes with our comprehensive quick start guide and helpful resources.</p>
-                        </div>
-                    </dry-card>
-                </div>
-            
-            <dry-code language="HTML">
-&lt;!-- Horizontal card layout --&gt;
-&lt;dry-card orientation="horizontal"&gt;
-    &lt;div slot="media"&gt;
-        &lt;img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=200&h=200&fit=crop" alt="Landscape" class="w-full h-full object-cover"&gt;
-    &lt;/div&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Mountain Adventure&lt;/h3&gt;
-        &lt;p class="text-sm text-gray-500"&gt;Travel &amp; Nature&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;Experience breathtaking views and challenging trails in the heart of the mountains.&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;div slot="footer"&gt;
-        &lt;div class="flex gap-2"&gt;
-            &lt;button class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"&gt;Book Now&lt;/button&gt;
-            &lt;button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"&gt;Learn More&lt;/button&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-            
-        </section>
-
-        <!-- Interactive Cards -->
-        <section class="demo-section">
-            <h2 class="demo-title">Interactive Cards</h2>
-            <div class="demo-container">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <dry-card interactive>
-                        <div slot="header">
-                            <h3 class="text-lg font-semibold text-gray-900">Click Me!</h3>
-                        </div>
-                        <div slot="body">
-                            <p class="text-gray-600">This card has hover effects and can be clicked. Try hovering over it!</p>
-                        </div>
-                    </dry-card>
-
-                    <dry-card interactive>
-                        <div slot="body" class="text-center">
-                            <svg class="w-12 h-12 text-blue-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">Documentation</h3>
-                            <p class="text-gray-600">Access comprehensive guides and API references.</p>
-                        </div>
-                    </dry-card>
-
-                    <dry-card interactive>
-                        <div slot="body" class="text-center">
-                            <svg class="w-12 h-12 text-green-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <h3 class="text-lg font-semibold text-gray-900">All Set!</h3>
-                            <p class="text-gray-600">Your setup is complete and ready to go.</p>
-                        </div>
-                    </dry-card>
-                </div>
-            
-            <dry-code language="HTML">
-&lt;!-- Interactive cards --&gt;
-&lt;dry-card interactive&gt;
-    &lt;div slot="header"&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Click Me!&lt;/h3&gt;
-    &lt;/div&gt;
-    &lt;div slot="body"&gt;
-        &lt;p class="text-gray-600"&gt;This card has hover effects and can be clicked.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;
-
-&lt;dry-card interactive&gt;
-    &lt;div slot="body" class="text-center"&gt;
-        &lt;svg class="w-12 h-12 text-blue-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
-            &lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"&gt;&lt;/path&gt;
-        &lt;/svg&gt;
-        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Documentation&lt;/h3&gt;
-        &lt;p class="text-gray-600"&gt;Access comprehensive guides and API references.&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-card&gt;</dry-code>
-            
-        </section>
-
-        <!-- Component Builder Section -->
-        <div id="card-component-builder"></div>
-
-        <!-- JavaScript API -->
-        <section class="demo-section">
-            <h2 class="demo-title">JavaScript API</h2>
-            <div class="demo-container">
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
-                    <div class="flex gap-4 mb-4">
-                        <dry-card id="api-demo-card" interactive>
-                            <div slot="header">
-                                <h3 class="text-lg font-semibold text-gray-900">API Demo Card</h3>
-                            </div>
-                            <div slot="body">
-                                <p class="text-gray-600">This card can be controlled via JavaScript API.</p>
-                            </div>
-                        </dry-card>
                     </div>
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="toggleInteractive()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Toggle Interactive</button>
-                        <button onclick="changeElevation()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Change Elevation</button>
-                        <button onclick="changeVariant()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Change Variant</button>
+                    
+                    <dry-code language="HTML"><!-- Basic card structure -->
+<dry-card>
+    <div slot="header">
+        <h3 class="text-lg font-semibold text-gray-900">Simple Card</h3>
+    </div>
+    <div slot="body">
+        <p class="text-gray-600">This is a basic card with header and body content.</p>
+    </div>
+</dry-card>
+
+<!-- Card with footer -->
+<dry-card>
+    <div slot="body">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Body Only</h3>
+        <p class="text-gray-600">This card contains only body content.</p>
+    </div>
+    <div slot="footer">
+        <div class="flex justify-end">
+            <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Action</button>
+        </div>
+    </div>
+</dry-card></dry-code>
+                </section>
+
+                <!-- Variants Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Variants</h2>
+                    <p class="demo-description">Different visual styles for cards including filled, outlined, and elevated.</p>
+                    
+                    <div class="demo-container">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <dry-card variant="filled">
+                                <div slot="header">
+                                    <h3 class="text-lg font-semibold text-gray-900">Filled (Default)</h3>
+                                </div>
+                                <div slot="body">
+                                    <p class="text-gray-600">Standard filled card with background and shadow.</p>
+                                </div>
+                            </dry-card>
+
+                            <dry-card variant="outlined" bordered>
+                                <div slot="header">
+                                    <h3 class="text-lg font-semibold text-gray-900">Outlined</h3>
+                                </div>
+                                <div slot="body">
+                                    <p class="text-gray-600">Outlined card with border and no shadow.</p>
+                                </div>
+                            </dry-card>
+
+                            <dry-card variant="elevated" elevation="xl">
+                                <div slot="header">
+                                    <h3 class="text-lg font-semibold text-gray-900">Elevated</h3>
+                                </div>
+                                <div slot="body">
+                                    <p class="text-gray-600">Elevated card with enhanced shadow.</p>
+                                </div>
+                            </dry-card>
+                        </div>
                     </div>
-                    <dry-code language="HTML">
-const card = document.getElementById('api-demo-card');
+                    
+                    <dry-code language="HTML"><!-- Card variants -->
+<dry-card variant="filled">
+    <div slot="header">
+        <h3 class="text-lg font-semibold text-gray-900">Filled (Default)</h3>
+    </div>
+    <div slot="body">
+        <p class="text-gray-600">Standard filled card with background and shadow.</p>
+    </div>
+</dry-card>
 
-// Toggle interactive state
-card.setInteractive(!card.interactive);
+<dry-card variant="outlined" bordered>
+    <div slot="header">
+        <h3 class="text-lg font-semibold text-gray-900">Outlined</h3>
+    </div>
+    <div slot="body">
+        <p class="text-gray-600">Outlined card with border and no shadow.</p>
+    </div>
+</dry-card>
 
-// Change elevation
-card.setElevation('xl');
+<dry-card variant="elevated" elevation="xl">
+    <div slot="header">
+        <h3 class="text-lg font-semibold text-gray-900">Elevated</h3>
+    </div>
+    <div slot="body">
+        <p class="text-gray-600">Elevated card with enhanced shadow.</p>
+    </div>
+</dry-card></dry-code>
+                </section>
 
-// Change variant
-card.setVariant('outlined');</dry-code>
+                <!-- Interactive Demo Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Interactive Demo</h2>
+                    <p class="demo-description">Try changing the card properties dynamically and see the results in real-time.</p>
+
+                    <div class="demo-container">
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                                    <dry-card id="interactive-card" variant="filled" elevation="md" interactive>
+                                        <div slot="header">
+                                            <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>
+                                        </div>
+                                        <div slot="body">
+                                            <p class="text-gray-600">This card can be controlled via the controls on the right.</p>
+                                        </div>
+                                    </dry-card>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Variant</label>
+                                    <select id="variant-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="filled" selected>Filled</option>
+                                        <option value="outlined">Outlined</option>
+                                        <option value="elevated">Elevated</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Elevation</label>
+                                    <select id="elevation-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="none">None</option>
+                                        <option value="sm">Small</option>
+                                        <option value="md" selected>Medium</option>
+                                        <option value="lg">Large</option>
+                                        <option value="xl">Extra Large</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Orientation</label>
+                                    <select id="orientation-select" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                        <option value="vertical" selected>Vertical</option>
+                                        <option value="horizontal">Horizontal</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="interactive-checkbox" class="mr-2" checked>
+                                        <span class="text-sm text-gray-700">Interactive</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="bordered-checkbox" class="mr-2">
+                                        <span class="text-sm text-gray-700">Bordered</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            
-        </section>
 
-        <!-- API Reference -->
-        <section class="demo-section">
-            <h2 class="demo-title">API Reference</h2>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Card Properties</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Property</th>
-                        <th class="px-4 py-2 text-left">Type</th>
-                        <th class="px-4 py-2 text-left">Default</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">variant</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'filled'</td>
-                        <td class="px-4 py-2">Visual style: 'filled', 'outlined', 'elevated'</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">elevation</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'md'</td>
-                        <td class="px-4 py-2">Shadow level: 'none', 'sm', 'md', 'lg', 'xl'</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">orientation</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">'vertical'</td>
-                        <td class="px-4 py-2">Layout direction: 'vertical', 'horizontal'</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">interactive</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">false</td>
-                        <td class="px-4 py-2">Whether the card has hover effects and can be clicked</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">bordered</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">false</td>
-                        <td class="px-4 py-2">Whether to show a border</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Card Slots</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Slot</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">media</td>
-                        <td class="px-4 py-2">Images, videos, or other media content</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">header</td>
-                        <td class="px-4 py-2">Card title and subtitle</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">body</td>
-                        <td class="px-4 py-2">Main card content</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">footer</td>
-                        <td class="px-4 py-2">Actions and metadata</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Method</th>
-                        <th class="px-4 py-2 text-left">Parameters</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setVariant(variant)</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">Change the card variant</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setElevation(elevation)</td>
-                        <td class="px-4 py-2">string</td>
-                        <td class="px-4 py-2">Change the card elevation/shadow</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setInteractive(interactive)</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">Enable/disable interactive behavior</td>
-                    </tr>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">setBordered(bordered)</td>
-                        <td class="px-4 py-2">boolean</td>
-                        <td class="px-4 py-2">Show/hide border</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h3 class="text-xl font-semibold mt-6 mb-3">Events</h3>
-            <table class="min-w-full border border-gray-300 rounded">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Event</th>
-                        <th class="px-4 py-2 text-left">Detail</th>
-                        <th class="px-4 py-2 text-left">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t">
-                        <td class="px-4 py-2 font-medium">card:click</td>
-                        <td class="px-4 py-2">{ element }</td>
-                        <td class="px-4 py-2">Fired when an interactive card is clicked</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+                    <dry-code language="HTML" id="interactive-code"><dry-card variant="filled" elevation="md" interactive>
+    <div slot="header">
+        <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>
+    </div>
+    <div slot="body">
+        <p class="text-gray-600">This card can be controlled via the controls on the right.</p>
+    </div>
+</dry-card></dry-code>
+                </section>
+
+                <!-- Component Builder Section -->
+                <div id="card-component-builder"></div>
+
+                <!-- API Reference -->
+                <section class="demo-section">
+                    <h2 class="demo-title">API Reference</h2>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Card Properties</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Property</th>
+                                <th class="px-4 py-2 text-left">Type</th>
+                                <th class="px-4 py-2 text-left">Default</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">variant</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'filled'</td>
+                                <td class="px-4 py-2">Visual style: 'filled', 'outlined', 'elevated'</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">elevation</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'md'</td>
+                                <td class="px-4 py-2">Shadow level: 'none', 'sm', 'md', 'lg', 'xl'</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">orientation</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">'vertical'</td>
+                                <td class="px-4 py-2">Layout direction: 'vertical', 'horizontal'</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">interactive</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">false</td>
+                                <td class="px-4 py-2">Whether the card has hover effects and can be clicked</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">bordered</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">false</td>
+                                <td class="px-4 py-2">Whether to show a border</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Card Slots</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Slot</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">media</td>
+                                <td class="px-4 py-2">Images, videos, or other media content</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">header</td>
+                                <td class="px-4 py-2">Card title and subtitle</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">body</td>
+                                <td class="px-4 py-2">Main card content</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">footer</td>
+                                <td class="px-4 py-2">Actions and metadata</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Method</th>
+                                <th class="px-4 py-2 text-left">Parameters</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setVariant(variant)</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">Change the card variant</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setElevation(elevation)</td>
+                                <td class="px-4 py-2">string</td>
+                                <td class="px-4 py-2">Change the card elevation/shadow</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setInteractive(interactive)</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">Enable/disable interactive behavior</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">setBordered(bordered)</td>
+                                <td class="px-4 py-2">boolean</td>
+                                <td class="px-4 py-2">Show/hide border</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-3">Events</h3>
+                    <table class="min-w-full border border-gray-300 rounded">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Event</th>
+                                <th class="px-4 py-2 text-left">Detail</th>
+                                <th class="px-4 py-2 text-left">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2 font-medium">card:click</td>
+                                <td class="px-4 py-2">{ element }</td>
+                                <td class="px-4 py-2">Fired when an interactive card is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+            </main>
+        </div>
     </div>
 
     <script>
-        let elevationIndex = 0;
-        let variantIndex = 0;
-        const elevations = ['none', 'sm', 'md', 'lg', 'xl'];
-        const variants = ['filled', 'outlined', 'elevated'];
-
-        function toggleInteractive() {
-            const card = document.getElementById('api-demo-card');
-            card.setInteractive(!card.interactive);
-        }
-
-        function changeElevation() {
-            const card = document.getElementById('api-demo-card');
-            elevationIndex = (elevationIndex + 1) % elevations.length;
-            card.setElevation(elevations[elevationIndex]);
-        }
-
-        function changeVariant() {
-            const card = document.getElementById('api-demo-card');
-            variantIndex = (variantIndex + 1) % variants.length;
-            card.setVariant(variants[variantIndex]);
-        }
-
-        // Event listeners
-        document.addEventListener('card:click', (event) => {
-            console.log('Card clicked:', event.detail);
-            alert('Card clicked! Check console for details.');
-        });
-
-        // Initialize Component Builder
+        // Interactive demo functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const interactiveCard = document.getElementById('interactive-card');
+            const variantSelect = document.getElementById('variant-select');
+            const elevationSelect = document.getElementById('elevation-select');
+            const orientationSelect = document.getElementById('orientation-select');
+            const interactiveCheckbox = document.getElementById('interactive-checkbox');
+            const borderedCheckbox = document.getElementById('bordered-checkbox');
+            const interactiveCode = document.getElementById('interactive-code');
+
+            function updateInteractiveCode() {
+                let code = '<dry-card';
+                
+                if (variantSelect.value !== 'filled') {
+                    code += ` variant="${variantSelect.value}"`;
+                }
+                
+                if (elevationSelect.value !== 'md') {
+                    code += ` elevation="${elevationSelect.value}"`;
+                }
+                
+                if (orientationSelect.value !== 'vertical') {
+                    code += ` orientation="${orientationSelect.value}"`;
+                }
+                
+                if (interactiveCheckbox.checked) {
+                    code += ' interactive';
+                }
+                
+                if (borderedCheckbox.checked) {
+                    code += ' bordered';
+                }
+                
+                code += '>\n    <div slot="header">\n        <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>\n    </div>\n    <div slot="body">\n        <p class="text-gray-600">This card can be controlled via the controls on the right.</p>\n    </div>\n</dry-card>';
+                interactiveCode.textContent = code;
+            }
+
+            // Event listeners for interactive controls
+            variantSelect.addEventListener('change', function() {
+                interactiveCard.variant = this.value;
+                updateInteractiveCode();
+            });
+
+            elevationSelect.addEventListener('change', function() {
+                interactiveCard.elevation = this.value;
+                updateInteractiveCode();
+            });
+
+            orientationSelect.addEventListener('change', function() {
+                interactiveCard.orientation = this.value;
+                updateInteractiveCode();
+            });
+
+            interactiveCheckbox.addEventListener('change', function() {
+                interactiveCard.interactive = this.checked;
+                updateInteractiveCode();
+            });
+
+            borderedCheckbox.addEventListener('change', function() {
+                interactiveCard.bordered = this.checked;
+                updateInteractiveCode();
+            });
+
+            // Initialize Component Builder
             new ComponentBuilder({
                 elementId: 'card-component-builder',
                 componentTag: 'dry-card',
@@ -694,8 +524,6 @@ card.setVariant('outlined');</dry-code>
         });
     </script>
     
-    
-</div>
-<div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
+    <div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
 </body>
 </html>
