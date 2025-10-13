@@ -6,6 +6,18 @@
 
 class DryButton extends BaseElement {
   /**
+   * Escape HTML to prevent XSS attacks
+   */
+  static _escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+  /**
    * Observe these attributes for changes
    */
   static get observedAttributes() {
@@ -16,29 +28,88 @@ class DryButton extends BaseElement {
     super();
     this._innerElement = null;
     this._originalContent = null;
+    this._contentObserver = null;
+    this._isCapturingContent = false;
   }
 
   /**
-   * Override connectedCallback to defer rendering until parser finishes
+   * Override connectedCallback to capture content using MutationObserver
    */
   connectedCallback() {
     if (!this.hasAttribute('data-rendered')) {
-      // Use double requestAnimationFrame to ensure parser has completely finished
-      // The first RAF runs too early for the first element, so we need a second one
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (this._originalContent === null) {
-            this._originalContent = this.textContent.trim() || 'Button';
-          }
+      // Set display style once on first connection
+      if (!this.style.display) {
+        this.style.display = 'inline-block';
+      }
 
-          // Now call parent's connectedCallback which will trigger rendering
-          super.connectedCallback();
+      // Try to capture content immediately (for dynamically created elements)
+      const immediateContent = this.textContent.trim();
+
+      if (immediateContent && !this._isCapturingContent) {
+        // Content already exists, render immediately
+        this._originalContent = immediateContent;
+        super.connectedCallback();
+      } else if (!this._isCapturingContent) {
+        // Content not yet available, wait for parser to add it
+        this._isCapturingContent = true;
+
+        // Set up MutationObserver to watch for child nodes being added
+        this._contentObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              // Child nodes were added by the parser
+              const textContent = this.textContent.trim();
+              if (textContent && this._originalContent === null) {
+                this._originalContent = textContent;
+                this._contentObserver.disconnect();
+                this._contentObserver = null;
+
+                // Now render the component
+                super.connectedCallback();
+                break;
+              }
+            }
+          }
         });
-      });
+
+        // Start observing - only watch childList changes, not attributes
+        this._contentObserver.observe(this, {
+          childList: true,
+          subtree: true
+        });
+
+        // Fallback: If no content is added within 100ms, render with default
+        setTimeout(() => {
+          if (this._contentObserver && !this.hasAttribute('data-rendered')) {
+            this._contentObserver.disconnect();
+            this._contentObserver = null;
+
+            if (this._originalContent === null) {
+              this._originalContent = this.textContent.trim() || 'Button';
+            }
+
+            super.connectedCallback();
+          }
+        }, 100);
+      }
     } else {
       // Already rendered, just reattach listeners
       super.connectedCallback();
     }
+  }
+
+  /**
+   * Override disconnectedCallback to clean up observer
+   */
+  disconnectedCallback() {
+    // Disconnect the MutationObserver if it exists
+    if (this._contentObserver) {
+      this._contentObserver.disconnect();
+      this._contentObserver = null;
+    }
+
+    // Call parent's disconnectedCallback
+    super.disconnectedCallback();
   }
 
   /**
@@ -71,18 +142,19 @@ class DryButton extends BaseElement {
     const isLink = href && !disabled && !loading;
     const tag = isLink ? 'a' : 'button';
 
-    // Build attributes
+    // Build attributes (escaped for security)
     const attributes = [];
     if (!isLink) {
-      attributes.push(`type="${type}"`);
+      attributes.push(`type="${DryButton._escapeHtml(type)}"`);
     }
     if (disabled || loading) {
       attributes.push('disabled');
+      attributes.push('aria-busy="true"');
     }
     if (isLink) {
-      attributes.push(`href="${href}"`);
+      attributes.push(`href="${DryButton._escapeHtml(href)}"`);
       if (target) {
-        attributes.push(`target="${target}"`);
+        attributes.push(`target="${DryButton._escapeHtml(target)}"`);
       }
     }
     attributes.push(`class="w-full h-full block ${allClasses}"`);
@@ -95,18 +167,20 @@ class DryButton extends BaseElement {
       content += this._getSpinnerHTML();
     }
 
-    // Add icon
+    // Add icon (escaped for security)
     if (icon && !loading) {
-      content += `<i class="${icon} mr-2"></i>`;
+      content += `<i class="${DryButton._escapeHtml(icon)} mr-2"></i>`;
     }
 
-    // Add text content
-    content += `<span class="button-text">${this._originalContent}</span>`;
+    // Add text content (escaped for security)
+    content += `<span class="button-text">${DryButton._escapeHtml(this._originalContent)}</span>`;
 
     // Render the button/link inside the custom element
-    // CRITICAL: Physically remove ALL child nodes to prevent text duplication
-    while (this.firstChild) {
-      this.removeChild(this.firstChild);
+    // Use replaceChildren() for efficient DOM clearing (or textContent for older browsers)
+    if (typeof this.replaceChildren === 'function') {
+      this.replaceChildren();
+    } else {
+      this.textContent = '';
     }
 
     // Now set the new content
@@ -114,9 +188,6 @@ class DryButton extends BaseElement {
 
     // Store reference to inner element
     this._innerElement = this.querySelector(tag);
-
-    // Make the custom element inline
-    this.style.display = 'inline-block';
   }
 
   /**
@@ -215,9 +286,8 @@ class DryButton extends BaseElement {
    */
   setText(text) {
     this._originalContent = text;
-    const textElement = this.querySelector('.button-text');
-    if (textElement) {
-      textElement.textContent = text;
+    if (this.hasAttribute('data-rendered')) {
+      this.reRender();
     }
   }
 

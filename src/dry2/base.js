@@ -6,6 +6,7 @@ class BaseElement extends HTMLElement {
   constructor() {
     super();
     this._rendered = false;
+    this._rendering = false;
     this._eventListeners = [];
   }
 
@@ -160,9 +161,17 @@ class BaseElement extends HTMLElement {
    * Helper: Re-render the component (preserves event listeners)
    */
   reRender() {
-    this.removeEventListeners();
-    this.render();
-    this.attachEventListeners();
+    // Prevent infinite loops from attributes changing during render
+    if (this._rendering) return;
+
+    this._rendering = true;
+    try {
+      this.removeEventListeners();
+      this.render();
+      this.attachEventListeners();
+    } finally {
+      this._rendering = false;
+    }
   }
 
   /**
