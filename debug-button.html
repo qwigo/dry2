@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Button Issue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="src/dry2/vanilla-state.js"></script>
+    <script src="src/dry2/base.js"></script>
+    <script src="src/dry2/button.js"></script>
+    <style>
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .component-wrapper {
+            border: 2px solid red;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Debug Button Component Issue</h1>
+        
+        <div class="component-wrapper">
+            <h2>Test Case:</h2>
+            <dry-button variant="primary">Primary</dry-button>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            Debug info will appear here...
+        </div>
+        
+        <button onclick="runDebug()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Run Debug Analysis
+        </button>
+    </div>
+
+    <script>
+        function runDebug() {
+            const button = document.querySelector('dry-button');
+            const debugInfo = document.getElementById('debug-info');
+            
+            // Check the current state
+            const outerHTML = button.outerHTML;
+            const innerHTML = button.innerHTML;
+            const textContent = button.textContent;
+            
+            // Check if the button element exists inside
+            const innerButton = button.querySelector('button, a');
+            const innerButtonText = innerButton ? innerButton.textContent : 'NO BUTTON FOUND';
+            
+            debugInfo.innerHTML = `
+                <strong>Outer HTML:</strong><br>
+                ${outerHTML.replace(/</g, '<').replace(/>/g, '>')}<br><br>
+                
+                <strong>Inner HTML:</strong><br>
+                ${innerHTML.replace(/</g, '<').replace(/>/g, '>')}<br><br>
+                
+                <strong>Text Content:</strong> "${textContent}"<br><br>
+                
+                <strong>Inner Button Text:</strong> "${innerButtonText}"<br><br>
+                
+                <strong>Issue Analysis:</strong><br>
+                ${textContent.includes('Primary') && !innerButtonText.includes('Primary') ? 
+                    '❌ ISSUE: Text appears outside button element' : 
+                    '✅ Text appears to be properly contained'}
+            `;
+            
+            console.log('Debug Info:', {
+                outerHTML,
+                innerHTML,
+                textContent,
+                innerButtonText,
+                innerButton
+            });
+        }
+        
+        // Run debug after component loads
+        setTimeout(runDebug, 1000);
+    </script>
+</body>
+</html>

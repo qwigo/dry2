@@ -1,226 +1,169 @@
-import { JSDOM } from 'jsdom';
-import { expect } from 'chai';
+// Test setup for DRY2 Web Components
+// Sets up the testing environment with vanilla JavaScript (no Alpine.js)
 
-// Setup JSDOM environment
-const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>', {
+const { JSDOM } = require('jsdom');
+
+// Create a JSDOM instance with a proper DOM environment
+const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
   url: 'http://localhost',
   pretendToBeVisual: true,
   resources: 'usable'
 });
 
-// Make DOM available globally
+// Set up global DOM
 global.window = dom.window;
-global.document = dom.window.document;
-global.navigator = dom.window.navigator;
-global.HTMLElement = dom.window.HTMLElement;
-global.customElements = dom.window.customElements;
-global.CustomEvent = dom.window.CustomEvent;
-global.Event = dom.window.Event;
-global.MutationObserver = dom.window.MutationObserver;
-global.requestAnimationFrame = dom.window.requestAnimationFrame;
-global.cancelAnimationFrame = dom.window.cancelAnimationFrame;
-global.Node = dom.window.Node;
+global.document = window.document;
+global.HTMLElement = window.HTMLElement;
+global.CustomEvent = window.CustomEvent;
+global.MutationObserver = window.MutationObserver;
 
-// Add Proxy support if not available
-if (!global.Proxy) {
-  global.Proxy = class Proxy {
-    constructor(target, handler) {
-      return new Proxy(target, handler);
-    }
-  };
-}
+// Mock CSS classes for testing
+global.window.getComputedStyle = () => ({
+  getPropertyValue: () => ''
+});
 
-// Mock Alpine.js for testing
-global.Alpine = {
-  data: () => ({}),
-  directive: () => {},
-  magic: () => {},
-  plugin: () => {},
-  start: () => {},
-  stop: () => {}
+// Mock IntersectionObserver for components that might use it
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 };
 
-// Mock localStorage
-const localStorageMock = {
+// Mock ResizeObserver for components that might use it
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock matchMedia for responsive components
+global.window.matchMedia = () => ({
+  matches: false,
+  addListener: () => {},
+  removeListener: () => {}
+});
+
+// Set up a simple event system for testing
+global.document.addEventListener = window.document.addEventListener.bind(window.document);
+global.document.removeEventListener = window.document.removeEventListener.bind(window.document);
+global.document.dispatchEvent = window.document.dispatchEvent.bind(window.document);
+
+// Mock localStorage for components that might use it
+global.localStorage = {
   getItem: () => null,
   setItem: () => {},
   removeItem: () => {},
-  clear: () => {},
-  length: 0,
-  key: () => null
-};
-global.localStorage = localStorageMock;
-global.sessionStorage = localStorageMock;
-
-// Mock performance API
-global.performance = {
-  now: () => Date.now(),
-  mark: () => {},
-  measure: () => {},
-  getEntriesByName: () => [],
-  getEntriesByType: () => []
+  clear: () => {}
 };
 
-// Add CSS support for testing
-const mockCSS = {
-  supports: () => true,
-  escape: (str) => str
+// Mock sessionStorage for components that might use it
+global.sessionStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {}
 };
-global.CSS = mockCSS;
+
+// Set up console for debugging
+global.console = console;
+
+// Load the vanilla state management system
+require('../../src/dry2/vanilla-state.js');
+
+// Load the base component class
+require('../../src/dry2/base.js');
 
 // Helper function to wait for component initialization
-global.waitForComponent = (element, timeout = 1000) => {
+global.waitForComponent = async (element, timeout = 1000) => {
   return new Promise((resolve, reject) => {
-    const start = Date.now();
-    const check = () => {
-      if (element._isInitialized || element.shadowRoot || element.innerHTML.trim()) {
-        resolve(element);
-      } else if (Date.now() - start > timeout) {
+    const startTime = Date.now();
+    
+    const checkInitialized = () => {
+      if (element._isInitialized) {
+        resolve();
+      } else if (Date.now() - startTime > timeout) {
         reject(new Error('Component initialization timeout'));
       } else {
-        setTimeout(check, 10);
+        setTimeout(checkInitialized, 10);
       }
     };
-    check();
+    
+    checkInitialized();
+  });
+};
+
+// Helper function to create a test component
+global.createTestComponent = (tagName, attributes = {}, innerHTML = '') => {
+  const element = document.createElement(tagName);
+  
+  // Set attributes
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      element.setAttribute(key, value);
+    }
+  });
+  
+  // Set innerHTML
+  if (innerHTML) {
+    element.innerHTML = innerHTML;
+  }
+  
+  // Add to DOM
+  document.body.appendChild(element);
+  
+  return element;
+};
+
+// Helper function to clean up test components
+global.cleanupTestComponents = () => {
+  const testComponents = document.querySelectorAll('[data-test]');
+  testComponents.forEach(component => {
+    if (component.parentNode) {
+      component.parentNode.removeChild(component);
+    }
   });
 };
 
 // Helper function to trigger events
-global.triggerEvent = (element, eventType, options = {}) => {
-  if (!element || typeof element.dispatchEvent !== 'function') {
-    console.warn('triggerEvent: Invalid element provided');
-    return null;
-  }
+global.triggerEvent = (element, eventType, eventData = {}) => {
   const event = new CustomEvent(eventType, {
+    detail: eventData,
     bubbles: true,
-    cancelable: true,
-    ...options
+    cancelable: true
   });
   element.dispatchEvent(event);
-  return event;
 };
 
-// Helper function to simulate user interactions
-global.simulateClick = (element) => {
-  if (!element) {
-    console.warn('simulateClick: No element provided');
-    return;
-  }
-  triggerEvent(element, 'mousedown');
-  triggerEvent(element, 'mouseup');
-  triggerEvent(element, 'click');
-};
-
-global.simulateKeydown = (element, key, options = {}) => {
-  triggerEvent(element, 'keydown', {
-    detail: { key, ...options }
+// Helper function to wait for a specific event
+global.waitForEvent = (element, eventType, timeout = 1000) => {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`Event ${eventType} timeout`));
+    }, timeout);
+    
+    const handler = (event) => {
+      clearTimeout(timeoutId);
+      element.removeEventListener(eventType, handler);
+      resolve(event);
+    };
+    
+    element.addEventListener(eventType, handler);
   });
 };
 
-// Make expect available globally
-global.expect = expect;
+// Set up Chai for assertions
+const chai = require('chai');
+global.expect = chai.expect;
 
-// Cleanup function for tests
-global.cleanupDOM = () => {
-  document.body.innerHTML = '';
-  // Clear any timers or intervals that might be running
-  for (let i = 1; i < 1000; i++) {
-    clearTimeout(i);
-    clearInterval(i);
+// Export for use in tests
+module.exports = {
+  setupTestEnvironment: () => {
+    // Additional setup if needed
+    return {
+      window: global.window,
+      document: global.document
+    };
   }
 };
-
-// Setup BaseElement for component tests
-// Create BaseElement before any component imports
-class BaseElement extends HTMLElement {
-  constructor() {
-    super();
-    this._isInitialized = false;
-    this._componentData = {};
-    this._originalContent = null;
-  }
-
-  connectedCallback() {
-    if (!this._isInitialized) {
-      this._waitForAlpineAndInitialize();
-      this._isInitialized = true;
-    }
-  }
-
-  _waitForAlpineAndInitialize() {
-    // For testing, skip Alpine.js wait and initialize immediately
-    this._initializeComponent();
-  }
-
-  _waitForChildrenAndInitialize() {
-    // For testing, initialize immediately
-    this._initializeComponent();
-  }
-
-  _initializeComponent() {
-    // To be implemented by child classes
-  }
-
-  _extractContent() {
-    return this.textContent.trim();
-  }
-
-  _getAttribute(name, defaultValue) {
-    return this.getAttribute(name) || defaultValue;
-  }
-
-  _getAttributeWithDefault(name, defaultValue) {
-    return this.getAttribute(name) || defaultValue;
-  }
-
-  _setAttribute(name, value) {
-    if (value !== null && value !== undefined && value !== '') {
-      this.setAttribute(name, value);
-    } else {
-      this.removeAttribute(name);
-    }
-  }
-
-  _getBooleanAttribute(name) {
-    return this.hasAttribute(name);
-  }
-
-  _setBooleanAttribute(name, value) {
-    if (value) {
-      this.setAttribute(name, '');
-    } else {
-      this.removeAttribute(name);
-    }
-  }
-
-  _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      this._render && this._render();
-      this._attachEventListeners && this._attachEventListeners();
-    }
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    this._handleAttributeChange(name, oldValue, newValue);
-  }
-
-  _extractSlotContent(selector) {
-    // Mock slot content extraction
-    if (!selector) {
-      return this.innerHTML || '';
-    }
-    
-    const element = this.querySelector(selector);
-    return element ? element.innerHTML : '';
-  }
-
-  disconnectedCallback() {
-    // Cleanup logic
-  }
-}
-
-// Make BaseElement globally available
-global.BaseElement = BaseElement;
-global.window.BaseElement = BaseElement;
-
-console.log('Test environment setup complete');

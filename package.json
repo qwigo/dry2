@@ -1,7 +1,7 @@
 {
   "name": "dry2-web-components",
   "version": "1.0.0",
-  "description": "A comprehensive, accessible web components library built with modern web standards, Alpine.js, and Tailwind CSS",
+  "description": "A comprehensive, accessible web components library built with modern web standards and Tailwind CSS",
   "main": "dist/dry2.js",
   "module": "dist/index.js",
   "type": "module",
@@ -61,9 +61,6 @@
     "url": "https://github.com/yourusername/dry2-web-components/issues"
   },
   "homepage": "https://github.com/yourusername/dry2-web-components#readme",
-  "peerDependencies": {
-    "alpinejs": "^3.0.0"
-  },
   "devDependencies": {
     "c8": "^8.0.1",
     "chai": "^4.5.0",

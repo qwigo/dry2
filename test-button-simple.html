@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Component Simple Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Load components -->
+    <script src="src/dry2/base.js"></script>
+    <script src="src/dry2/button.js"></script>
+
+    <style>
+        body {
+            padding: 40px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .button-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 30px;">Button Component Test</h1>
+
+    <!-- Test 1: Basic Button Variants -->
+    <div class="test-section">
+        <h2>Test 1: Basic Button Variants</h2>
+        <div class="button-container">
+            <dry-button variant="primary">Primary</dry-button>
+            <dry-button variant="secondary">Secondary</dry-button>
+            <dry-button variant="danger">Danger</dry-button>
+            <dry-button variant="success">Success</dry-button>
+        </div>
+    </div>
+
+    <!-- Test 2: Button Sizes -->
+    <div class="test-section">
+        <h2>Test 2: Button Sizes</h2>
+        <div class="button-container">
+            <dry-button size="sm">Small</dry-button>
+            <dry-button size="md">Medium</dry-button>
+            <dry-button size="lg">Large</dry-button>
+            <dry-button size="xl">Extra Large</dry-button>
+        </div>
+    </div>
+
+    <!-- Test 3: Buttons with Icons -->
+    <div class="test-section">
+        <h2>Test 3: Buttons with Icons</h2>
+        <div class="button-container">
+            <dry-button variant="primary" icon="fas fa-star">With Icon</dry-button>
+            <dry-button variant="success" icon="fas fa-check">Success</dry-button>
+            <dry-button variant="danger" icon="fas fa-trash">Delete</dry-button>
+        </div>
+    </div>
+
+    <!-- Test 4: Button States -->
+    <div class="test-section">
+        <h2>Test 4: Button States</h2>
+        <div class="button-container">
+            <dry-button variant="primary">Normal</dry-button>
+            <dry-button variant="primary" disabled>Disabled</dry-button>
+            <dry-button variant="primary" loading>Loading</dry-button>
+        </div>
+    </div>
+
+    <!-- Test 5: Interactive Test -->
+    <div class="test-section">
+        <h2>Test 5: Interactive Test (Click Events)</h2>
+        <div class="button-container">
+            <dry-button id="test-btn" variant="primary">Click Me</dry-button>
+            <button onclick="changeVariant()" style="padding: 8px 16px; background: #e5e7eb; border-radius: 6px; cursor: pointer;">Change Variant</button>
+            <button onclick="toggleLoading()" style="padding: 8px 16px; background: #e5e7eb; border-radius: 6px; cursor: pointer;">Toggle Loading</button>
+        </div>
+        <p id="output" style="margin-top: 16px; padding: 12px; background: white; border-radius: 6px; font-family: monospace;">
+            Click the button to test!
+        </p>
+    </div>
+
+    <script>
+        // Test click handler
+        const testBtn = document.getElementById('test-btn');
+        const output = document.getElementById('output');
+        let clickCount = 0;
+
+        testBtn.addEventListener('click', function() {
+            clickCount++;
+            output.textContent = `Button clicked ${clickCount} time(s)!`;
+            console.log('Button clicked:', clickCount);
+        });
+
+        // Test variant change
+        const variants = ['primary', 'secondary', 'success', 'danger', 'warning', 'outline', 'text'];
+        let currentVariantIndex = 0;
+
+        function changeVariant() {
+            currentVariantIndex = (currentVariantIndex + 1) % variants.length;
+            testBtn.variant = variants[currentVariantIndex];
+            output.textContent = `Variant changed to: ${variants[currentVariantIndex]}`;
+            console.log('Variant changed to:', variants[currentVariantIndex]);
+        }
+
+        // Test loading state
+        let isLoading = false;
+        function toggleLoading() {
+            isLoading = !isLoading;
+            testBtn.setLoading(isLoading);
+            output.textContent = `Loading state: ${isLoading}`;
+            console.log('Loading state:', isLoading);
+        }
+
+        // Log when page loads
+        console.log('Button test page loaded');
+        console.log('Test button element:', testBtn);
+    </script>
+</body>
+</html>

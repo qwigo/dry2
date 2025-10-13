@@ -417,9 +417,6 @@ export const version = '${this.getVersion()}';
         url: 'https://github.com/yourusername/dry2-web-components/issues'
       },
       homepage: 'https://github.com/yourusername/dry2-web-components#readme',
-      peerDependencies: {
-        'alpinejs': '^3.0.0'
-      },
       optionalDependencies: {
         'qrious': '^4.0.2',
         'dompurify': '^3.0.5'

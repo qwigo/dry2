@@ -1,271 +1,343 @@
+/**
+ * DRY2 Button Component
+ * A customizable button component with variants, sizes, icons, and loading states
+ * Built with vanilla JavaScript using BaseElement
+ */
+
 class DryButton extends BaseElement {
+  /**
+   * Observe these attributes for changes
+   */
+  static get observedAttributes() {
+    return ['variant', 'size', 'icon', 'disabled', 'loading', 'href', 'target', 'type'];
+  }
+
   constructor() {
     super();
+    this._innerElement = null;
+    this._originalContent = null;
   }
 
-  static get observedAttributes() {
-    return ['variant', 'size', 'disabled', 'loading', 'type', 'href', 'target', 'icon'];
+  /**
+   * Override connectedCallback to defer rendering until parser finishes
+   */
+  connectedCallback() {
+    if (!this.hasAttribute('data-rendered')) {
+      // Use double requestAnimationFrame to ensure parser has completely finished
+      // The first RAF runs too early for the first element, so we need a second one
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (this._originalContent === null) {
+            this._originalContent = this.textContent.trim() || 'Button';
+          }
+
+          // Now call parent's connectedCallback which will trigger rendering
+          super.connectedCallback();
+        });
+      });
+    } else {
+      // Already rendered, just reattach listeners
+      super.connectedCallback();
+    }
   }
 
-  _initializeComponent() {
-    // Store original content and setup component data
-    const originalContent = this._extractContent();
+  /**
+   * Main render method
+   */
+  render() {
+    const variant = this.getAttr('variant', 'primary');
+    const size = this.getAttr('size', 'md');
+    const icon = this.getAttr('icon', '');
+    const disabled = this.getBoolAttr('disabled', false);
+    const loading = this.getBoolAttr('loading', false);
+    const href = this.getAttr('href', '');
+    const target = this.getAttr('target', '');
+    const type = this.getAttr('type', 'button');
 
-    this._componentData = {
-      content: originalContent,
-      variant: this.variant,
-      size: this.size,
-      disabled: this.disabled,
-      loading: this.loading,
-      icon: this.icon
+    // Ensure we have content
+    if (this._originalContent === null) {
+      this._originalContent = 'Button';
+    }
+
+    // Get base classes
+    const baseClasses = this._getBaseClasses();
+    const variantClasses = this._getVariantClasses(variant);
+    const sizeClasses = this._getSizeClasses(size);
+    const stateClasses = this._getStateClasses(disabled, loading);
+
+    const allClasses = `${baseClasses} ${variantClasses} ${sizeClasses} ${stateClasses}`.trim();
+
+    // Determine if we should render as link or button
+    const isLink = href && !disabled && !loading;
+    const tag = isLink ? 'a' : 'button';
+
+    // Build attributes
+    const attributes = [];
+    if (!isLink) {
+      attributes.push(`type="${type}"`);
+    }
+    if (disabled || loading) {
+      attributes.push('disabled');
+    }
+    if (isLink) {
+      attributes.push(`href="${href}"`);
+      if (target) {
+        attributes.push(`target="${target}"`);
+      }
+    }
+    attributes.push(`class="w-full h-full block ${allClasses}"`);
+
+    // Build content
+    let content = '';
+
+    // Add loading spinner
+    if (loading) {
+      content += this._getSpinnerHTML();
+    }
+
+    // Add icon
+    if (icon && !loading) {
+      content += `<i class="${icon} mr-2"></i>`;
+    }
+
+    // Add text content
+    content += `<span class="button-text">${this._originalContent}</span>`;
+
+    // Render the button/link inside the custom element
+    // CRITICAL: Physically remove ALL child nodes to prevent text duplication
+    while (this.firstChild) {
+      this.removeChild(this.firstChild);
+    }
+
+    // Now set the new content
+    this.innerHTML = `<${tag} ${attributes.join(' ')}>${content}</${tag}>`;
+
+    // Store reference to inner element
+    this._innerElement = this.querySelector(tag);
+
+    // Make the custom element inline
+    this.style.display = 'inline-block';
+  }
+
+  /**
+   * Get base button classes
+   */
+  _getBaseClasses() {
+    return 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  }
+
+  /**
+   * Get variant-specific classes
+   */
+  _getVariantClasses(variant) {
+    const variants = {
+      primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+      secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+      outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+      text: 'text-blue-600 hover:bg-blue-50 focus:ring-blue-500',
+      danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+      success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
+      warning: 'bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500'
     };
-
-    // Create the component structure with Alpine.js
-    this._render();
-    
-    // Ensure Alpine processes this component
-    this._ensureAlpineProcessing();
+    return variants[variant] || variants.primary;
   }
 
-  _extractContent() {
-    // Extract the text content - escaping will be handled during render
-    const content = this.textContent.trim();
-    return content;
+  /**
+   * Get size-specific classes
+   */
+  _getSizeClasses(size) {
+    const sizes = {
+      sm: 'px-3 py-1.5 text-sm',
+      md: 'px-4 py-2 text-base',
+      lg: 'px-6 py-3 text-lg',
+      xl: 'px-8 py-4 text-xl'
+    };
+    return sizes[size] || sizes.md;
   }
 
-  _render() {
-    const isLink = !!this.href;
-    const tagName = isLink ? 'a' : 'button';
-    const validatedHref = this._validateUrl(this.href);
-    const sanitizedTarget = this._sanitizeAttribute(this.target, 'target');
-    const linkProps = isLink ? `href="${validatedHref}" ${sanitizedTarget ? `target="${sanitizedTarget}"` : ''}` : '';
-    const buttonProps = !isLink ? `type="${this._escapeHtml(this.type)}"` : '';
+  /**
+   * Get state-specific classes
+   */
+  _getStateClasses(disabled, loading) {
+    let classes = [];
+    if (disabled || loading) {
+      classes.push('opacity-60 cursor-not-allowed');
+    } else {
+      classes.push('cursor-pointer');
+    }
+    return classes.join(' ');
+  }
 
-    // Get current values
-    const content = this._componentData.content;
-    const variant = this.variant;
-    const size = this.size;
-    const disabled = this.disabled;
-    const loading = this.loading;
-    const icon = this.icon;
-
-    // Create button classes directly
-    const buttonClasses = this._getButtonClasses(variant, size, disabled, loading);
-
-    this.innerHTML = `
-      <div class="inline-block">
-        <${tagName} 
-          class="${buttonClasses}"
-          ${linkProps}
-          ${buttonProps}
-          ${disabled || loading ? 'disabled' : ''}
-          ${loading ? 'aria-busy="true"' : ''}
-          ${disabled || loading ? 'aria-disabled="true"' : ''}>
-          
-          <!-- Loading Spinner -->
-          ${loading ? '<i class="fas fa-spinner fa-spin mr-2"></i>' : ''}
-          
-          <!-- Icon -->
-          ${icon && !loading ? `<i class="${icon}${content ? ' mr-2' : ''}"></i>` : ''}
-          
-          <!-- Text Content -->
-          ${content ? `<span>${this._escapeHtml(content)}</span>` : ''}
-          
-        </${tagName}>
-      </div>
+  /**
+   * Get loading spinner HTML
+   */
+  _getSpinnerHTML() {
+    return `
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
     `;
   }
 
-  _getButtonClasses(variant, size, disabled, loading) {
-    let classes = 'inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border ';
-    
-    // Size classes
-    if (size === 'sm') {
-      classes += 'px-3 py-1.5 text-xs rounded ';
-    } else if (size === 'lg') {
-      classes += 'px-6 py-3 text-base rounded-lg ';
-    } else if (size === 'xl') {
-      classes += 'px-8 py-4 text-lg rounded-lg ';
-    } else {
-      // md or default
-      classes += 'px-4 py-2 text-sm rounded-md ';
-    }
-    
-    // Variant classes
-    if (variant === 'secondary') {
-      classes += 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500 ';
-    } else if (variant === 'outline') {
-      classes += 'bg-transparent text-blue-600 dark:text-blue-500 border-blue-600 dark:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 focus:ring-blue-500 ';
-    } else if (variant === 'text') {
-      classes += 'bg-transparent text-blue-600 dark:text-blue-500 border-transparent hover:bg-blue-50 dark:hover:bg-blue-900 focus:ring-blue-500 ';
-    } else if (variant === 'danger') {
-      classes += 'bg-red-600 text-white border-red-600 hover:bg-red-700 focus:ring-red-500 ';
-    } else if (variant === 'success') {
-      classes += 'bg-green-600 text-white border-green-600 hover:bg-green-700 focus:ring-green-500 ';
-    } else if (variant === 'warning') {
-      classes += 'bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-white border-yellow-500 dark:border-yellow-600 hover:bg-yellow-600 dark:hover:bg-yellow-700 focus:ring-yellow-500 ';
-    } else {
-      // primary or default
-      classes += 'bg-blue-600 dark:bg-blue-700 text-white border-blue-600 dark:border-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 focus:ring-blue-500 ';
-    }
-    
-    // State classes
-    if (disabled || loading) {
-      classes += 'opacity-50 cursor-not-allowed ';
-    }
-    
-    return classes.trim();
+  /**
+   * Handle attribute changes
+   */
+  onAttributeChange(name, oldValue, newValue) {
+    // Re-render on any attribute change
+    this.reRender();
   }
 
-  // Input validation methods
-  _validateSize(size) {
-    const allowedSizes = ['sm', 'md', 'lg', 'xl'];
-    return allowedSizes.includes(size) ? size : 'md';
-  }
-
-  _validateVariant(variant) {
-    const allowedVariants = ['primary', 'secondary', 'outline', 'text', 'danger', 'success', 'warning'];
-    return allowedVariants.includes(variant) ? variant : 'primary';
-  }
-
-  _validateType(type) {
-    const allowedTypes = ['button', 'submit', 'reset'];
-    return allowedTypes.includes(type) ? type : 'button';
-  }
-
-  _validateIcon(icon) {
-    if (!icon || typeof icon !== 'string') return '';
-    
-    // Allow only safe CSS class patterns (letters, numbers, hyphens, spaces)
-    // This prevents injection of malicious CSS or JavaScript
-    const safeIconPattern = /^[a-zA-Z0-9\s\-_]+$/;
-    
-    if (safeIconPattern.test(icon)) {
-      return icon.trim();
-    } else {
-      console.warn(`Invalid icon class rejected: ${icon}`);
-      return '';
-    }
-  }
-
-  // Public API methods
+  /**
+   * Public API: Set loading state
+   */
   setLoading(loading) {
-    this.loading = loading;
+    if (loading) {
+      this.setAttribute('loading', '');
+    } else {
+      this.removeAttribute('loading');
+    }
   }
 
+  /**
+   * Public API: Set disabled state
+   */
   setDisabled(disabled) {
-    this.disabled = disabled;
+    if (disabled) {
+      this.setAttribute('disabled', '');
+    } else {
+      this.removeAttribute('disabled');
+    }
   }
 
+  /**
+   * Public API: Set button text
+   */
   setText(text) {
-    // Validate and sanitize the text input
-    const sanitizedText = String(text || '');
-    
-    if (this._componentData) {
-      // Store the sanitized text in component data (will be escaped when rendering)
-      this._componentData.content = sanitizedText;
-    }
-    
-    // Set textContent directly - browser handles this safely without escaping
-    this.textContent = sanitizedText;
-    
-    // Trigger a refresh to update the Alpine.js data
-    this._refresh();
-  }
-
-  click() {
-    if (!this.disabled && !this.loading) {
-      const button = this.querySelector('button, a');
-      if (button) {
-        button.click();
-      }
+    this._originalContent = text;
+    const textElement = this.querySelector('.button-text');
+    if (textElement) {
+      textElement.textContent = text;
     }
   }
 
-  // Getters and setters using base class utilities
+  /**
+   * Public API: Set icon
+   */
+  setIcon(iconClasses) {
+    this.setAttribute('icon', iconClasses);
+  }
+
+  /**
+   * Get/Set variant property
+   */
   get variant() {
-    const value = this._getAttributeWithDefault('variant', 'primary');
-    return this._validateVariant(value);
+    return this.getAttr('variant', 'primary');
   }
 
   set variant(value) {
-    const validatedValue = this._validateVariant(value);
-    this._setAttribute('variant', validatedValue);
+    this.setAttribute('variant', value);
   }
 
+  /**
+   * Get/Set size property
+   */
   get size() {
-    const value = this._getAttributeWithDefault('size', 'md');
-    return this._validateSize(value);
+    return this.getAttr('size', 'md');
   }
 
   set size(value) {
-    const validatedValue = this._validateSize(value);
-    this._setAttribute('size', validatedValue);
+    this.setAttribute('size', value);
   }
 
-  get disabled() {
-    return this._getBooleanAttribute('disabled');
-  }
-
-  set disabled(value) {
-    this._setBooleanAttribute('disabled', value);
-  }
-
-  get loading() {
-    return this._getBooleanAttribute('loading');
-  }
-
-  set loading(value) {
-    this._setBooleanAttribute('loading', value);
-  }
-
-  get type() {
-    const value = this._getAttributeWithDefault('type', 'button');
-    return this._validateType(value);
-  }
-
-  set type(value) {
-    const validatedValue = this._validateType(value);
-    this._setAttribute('type', validatedValue);
-  }
-
-  get href() {
-    return this.getAttribute('href') || '';
-  }
-
-  set href(value) {
-    this._setAttribute('href', value);
-  }
-
-  get target() {
-    return this.getAttribute('target') || '';
-  }
-
-  set target(value) {
-    this._setAttribute('target', value);
-  }
-
+  /**
+   * Get/Set icon property
+   */
   get icon() {
-    const value = this.getAttribute('icon') || '';
-    return this._validateIcon(value);
+    return this.getAttr('icon', '');
   }
 
   set icon(value) {
-    const validatedValue = this._validateIcon(value);
-    this._setAttribute('icon', validatedValue);
+    this.setAttribute('icon', value);
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      // Update component data if it exists
-      if (this._componentData && this._componentData.hasOwnProperty(name)) {
-        this._componentData[name] = newValue;
-      }
-      
-      // Single refresh call to update the component
-      this._refresh();
+  /**
+   * Get/Set disabled property
+   */
+  get disabled() {
+    return this.getBoolAttr('disabled', false);
+  }
+
+  set disabled(value) {
+    this.setDisabled(value);
+  }
+
+  /**
+   * Get/Set loading property
+   */
+  get loading() {
+    return this.getBoolAttr('loading', false);
+  }
+
+  set loading(value) {
+    this.setLoading(value);
+  }
+
+  /**
+   * Get/Set href property
+   */
+  get href() {
+    return this.getAttr('href', '');
+  }
+
+  set href(value) {
+    if (value) {
+      this.setAttribute('href', value);
+    } else {
+      this.removeAttribute('href');
+    }
+  }
+
+  /**
+   * Get/Set target property
+   */
+  get target() {
+    return this.getAttr('target', '');
+  }
+
+  set target(value) {
+    if (value) {
+      this.setAttribute('target', value);
+    } else {
+      this.removeAttribute('target');
+    }
+  }
+
+  /**
+   * Get/Set type property
+   */
+  get type() {
+    return this.getAttr('type', 'button');
+  }
+
+  set type(value) {
+    this.setAttribute('type', value);
+  }
+
+  /**
+   * Programmatically trigger click
+   */
+  click() {
+    if (this._innerElement && !this.disabled && !this.loading) {
+      this._innerElement.click();
     }
   }
 }
 
+// Register the custom element
 customElements.define('dry-button', DryButton);
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = DryButton;
+}

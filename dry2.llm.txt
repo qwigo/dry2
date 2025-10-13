@@ -1,0 +1,512 @@
+# DRY2 Web Components Library - LLM Documentation
+
+## Overview
+
+DRY2 is a comprehensive web components library built with modern web standards, designed for creating interactive and accessible user interfaces. The library leverages Web Components (Custom Elements) with vanilla JavaScript for reactivity and state management, Tailwind CSS for styling, HTMX for AJAX functionality, and Font Awesome for icons.
+
+## Core Dependencies
+
+- **Web Components**: Custom Elements API for component definition
+- **Vanilla JavaScript**: Native JavaScript with Proxy-based reactive state management
+- **Tailwind CSS**: Utility-first CSS framework for styling
+- **HTMX**: HTML-over-the-wire for AJAX interactions
+- **Font Awesome**: Icon library for visual elements
+
+## Components Overview
+
+### 1. Accordion Component (`<dry-accordion>`)
+
+Collapsible content sections with smooth animations and keyboard navigation.
+
+**Basic Usage:**
+```html
+<dry-accordion>
+    <accordion-item title="Section 1" open>
+        <p>Content for section 1</p>
+    </accordion-item>
+    <accordion-item title="Section 2">
+        <p>Content for section 2</p>
+    </accordion-item>
+</dry-accordion>
+```
+
+**Properties:**
+- `multiple` (boolean): Allow multiple sections open simultaneously
+- `open` (boolean): Initial open state for accordion-item
+- `title` (string): Title text for accordion-item
+- `icon` (string): Custom icon HTML for accordion-item
+
+**JavaScript API:**
+```javascript
+accordion.openAll();     // Open all sections (multiple mode only)
+accordion.closeAll();    // Close all sections
+accordion.openItem('id'); // Open specific section
+accordion.closeItem('id'); // Close specific section
+accordion.toggleItem('id'); // Toggle specific section
+```
+
+### 2. Avatar Component (`<dry-avatar>`)
+
+User profile images with fallback to initials when images are unavailable.
+
+**Basic Usage:**
+```html
+<dry-avatar name="John Doe" size="md" shape="circle"></dry-avatar>
+<dry-avatar name="Jane Smith" src="https://example.com/avatar.jpg"></dry-avatar>
+```
+
+**Properties:**
+- `name` (string): User name for auto-generating initials
+- `src` (string): Avatar image URL
+- `initials` (string): Manually set initials (overrides name)
+- `size` (string): 'xs', 'sm', 'md', 'lg', 'xl'
+- `shape` (string): 'circle', 'square', 'rounded'
+
+**Custom Content:**
+```html
+<dry-avatar name="John Doe" size="lg">
+    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full"></div>
+</dry-avatar>
+```
+
+### 3. Badge Component (`<dry-badge>`)
+
+Status indicators, counts, or labels with positioning and styling options.
+
+**Basic Usage:**
+```html
+<dry-badge variant="primary">New</dry-badge>
+<dry-badge variant="success">5</dry-badge>
+<dry-badge dot variant="danger"></dry-badge>
+```
+
+**Properties:**
+- `variant` (string): 'primary', 'success', 'danger', 'warning', 'info'
+- `size` (string): 'sm', 'md', 'lg'
+- `dot` (boolean): Display as dot without content
+- `position` (string): 'top-right', 'top-left', 'bottom-right', 'bottom-left'
+- `max` (number): Maximum value for numeric badges (shows "99+" format)
+
+**Positioning:**
+```html
+<div class="relative">
+    <button>Notifications</button>
+    <dry-badge position="top-right" variant="danger">5</dry-badge>
+</div>
+```
+
+### 4. Breadcrumbs Component (`<dry-breadcrumbs>`)
+
+Navigation hierarchy display with customizable separators.
+
+**Basic Usage:**
+```html
+<dry-breadcrumbs>
+    <breadcrumb-item href="/">Home</breadcrumb-item>
+    <breadcrumb-item href="/products">Products</breadcrumb-item>
+    <breadcrumb-item active>Current Page</breadcrumb-item>
+</dry-breadcrumbs>
+```
+
+**Properties:**
+- `href` (string): Link URL for breadcrumb-item
+- `active` (boolean): Mark as current page (no link)
+
+### 5. Button Component (`<dry-button>`)
+
+Interactive buttons with variants, sizes, icons, and states.
+
+**Basic Usage:**
+```html
+<dry-button variant="primary" size="md">Click me</dry-button>
+<dry-button variant="outline" icon="fas fa-plus">Add Item</dry-button>
+<dry-button href="/link" variant="primary">Link Button</dry-button>
+```
+
+**Properties:**
+- `variant` (string): 'primary', 'secondary', 'outline', 'text', 'danger', 'success', 'warning'
+- `size` (string): 'sm', 'md', 'lg', 'xl'
+- `icon` (string): Font Awesome icon classes
+- `disabled` (boolean): Disable button interaction
+- `loading` (boolean): Show loading state
+- `href` (string): Render as link instead of button
+- `target` (string): Link target attribute
+
+**JavaScript API:**
+```javascript
+button.setLoading(true);
+button.setDisabled(true);
+button.setText('New Text');
+```
+
+### 6. Card Component (`<dry-card>`)
+
+Flexible content containers with header, body, and footer slots.
+
+**Basic Usage:**
+```html
+<dry-card>
+    <div slot="header">
+        <h3>Card Title</h3>
+    </div>
+    <div slot="body">
+        <p>Card content goes here</p>
+    </div>
+    <div slot="footer">
+        <button>Action</button>
+    </div>
+</dry-card>
+```
+
+**Properties:**
+- `variant` (string): 'filled', 'outlined', 'elevated'
+- `elevation` (string): 'none', 'sm', 'md', 'lg', 'xl'
+- `bordered` (boolean): Add border styling
+
+### 7. Chat Bubble Component (`<dry-chat-bubble>`)
+
+Message display for chat interfaces with alignment and avatar support.
+
+**Basic Usage:**
+```html
+<dry-chat-bubble alignment="left" sender="John">
+    Hello, how are you?
+</dry-chat-bubble>
+<dry-chat-bubble alignment="right" sender="Me">
+    I'm doing great, thanks!
+</dry-chat-bubble>
+```
+
+**Properties:**
+- `alignment` (string): 'left', 'right'
+- `sender` (string): Message sender name
+- `avatar` (string): Avatar image URL
+- `timestamp` (string): Message timestamp
+
+### 8. Code Component (`<dry-code>`)
+
+Syntax-highlighted code blocks with copy-to-clipboard functionality.
+
+**Basic Usage:**
+```html
+<dry-code language="javascript">
+function greet(name) {
+    return `Hello, ${name}!`;
+}
+</dry-code>
+```
+
+**Properties:**
+- `language` (string): Programming language for syntax highlighting
+- `copy` (boolean): Enable copy-to-clipboard button
+
+### 9. Countdown Component (`<dry-countdown>`)
+
+Time-based countdown displays with customizable formats.
+
+**Basic Usage:**
+```html
+<dry-countdown target="2024-12-31T23:59:59"></dry-countdown>
+```
+
+**Properties:**
+- `target` (string): Target date/time in ISO format
+- `format` (string): Display format customization
+
+### 10. Dialog Component (`<dry-dialog>`)
+
+Modal dialogs and slide-out drawers with HTMX integration.
+
+**Basic Usage:**
+```html
+<!-- Modal Dialog -->
+<dry-dialog
+    url="content.html"
+    button-class="bg-blue-500 text-white px-4 py-2 rounded"
+    dialog-class="bg-white rounded-lg shadow-xl max-w-lg w-full">
+    Open Dialog
+</dry-dialog>
+
+<!-- Slide-out Drawer -->
+<dry-dialog
+    url="drawer-content.html"
+    mode="drawer"
+    direction="right"
+    button-class="bg-blue-500 text-white px-4 py-2 rounded">
+    Open Drawer
+</dry-dialog>
+```
+
+**Properties:**
+- `url` (string): AJAX content URL
+- `mode` (string): 'dialog' or 'drawer'
+- `direction` (string): 'left', 'right', 'top', 'bottom' (drawer only)
+- `button-class` (string): CSS classes for trigger button
+- `dialog-class` (string): CSS classes for dialog container
+- `trigger-id` (string): ID for trigger element
+- `dialog-inner-id` (string): ID for content container
+
+### 11. QR Component (`<dry-qr>`)
+
+QR code generation with customizable size and styling.
+
+**Basic Usage:**
+```html
+<dry-qr data="https://example.com" size="200"></dry-qr>
+```
+
+**Properties:**
+- `data` (string): Data to encode in QR code
+- `size` (number): QR code size in pixels
+
+### 12. Select Component (`<dry-select>`)
+
+Enhanced select dropdowns with search and multi-select functionality using native JavaScript.
+
+**Basic Usage:**
+```html
+<dry-select name="fruits" placeholder="Select a fruit...">
+    <option value="apple">Apple</option>
+    <option value="banana">Banana</option>
+    <option value="cherry">Cherry</option>
+</dry-select>
+
+<!-- Multi-select -->
+<dry-select multiple name="languages" placeholder="Select languages...">
+    <option value="javascript">JavaScript</option>
+    <option value="python">Python</option>
+    <option value="java">Java</option>
+</dry-select>
+```
+
+**Properties:**
+- `multiple` (boolean): Enable multi-select mode
+- `name` (string): Form field name
+- `placeholder` (string): Placeholder text
+- `search-placeholder` (string): Search input placeholder
+- `selected` (attribute): Mark option as pre-selected
+
+### 13. Stat Component (`<dry-stat>`)
+
+Metrics and statistics display with trend indicators and formatting.
+
+**Basic Usage:**
+```html
+<dry-stat value="1234" label="Total Users" type="number"></dry-stat>
+<dry-stat value="75.5" label="Completion Rate" type="percentage"></dry-stat>
+<dry-stat value="9875.42" label="Revenue" type="currency" currency="USD"></dry-stat>
+```
+
+**Properties:**
+- `value` (string/number): Stat value
+- `label` (string): Stat label/description
+- `type` (string): 'number', 'percentage', 'currency'
+- `trend` (string): 'up', 'down', 'neutral'
+- `trend-value` (string): Trend indicator text
+- `currency` (string): Currency code for currency type
+- `decimal-places` (number): Number of decimal places
+
+### 14. Tabs Component (`<dry-tabs>`)
+
+Tabbed content organization with multiple styling variants.
+
+**Basic Usage:**
+```html
+<dry-tabs>
+    <tab-item id="tab1" title="Overview">
+        <p>Overview content</p>
+    </tab-item>
+    <tab-item id="tab2" title="Details">
+        <p>Details content</p>
+    </tab-item>
+</dry-tabs>
+```
+
+**Properties:**
+- `variant` (string): 'boxed', 'pills', 'underline'
+- `id` (string): Unique identifier for tab-item
+- `title` (string): Tab label text
+
+### 15. Timeline Component (`<timeline-component>`)
+
+Chronological event display with customizable styling and icons.
+
+**Basic Usage:**
+```html
+<timeline-component>
+    <timeline-item date="Jan 15, 2023" title="Project Started">
+        <p>Initial project planning and team formation.</p>
+    </timeline-item>
+    <timeline-item date="Feb 10, 2023" title="Requirements Gathering">
+        <p>Collected and analyzed project requirements.</p>
+    </timeline-item>
+</timeline-component>
+```
+
+**Properties:**
+- `date` (string): Event date
+- `title` (string): Event title
+- `variant` (string): 'success', 'error', 'warning', 'info'
+- `icon` (string): Custom SVG icon HTML
+
+### 16. Toast Component (`<dry-toast>`)
+
+Notification messages with positioning and auto-dismiss functionality.
+
+**Basic Usage:**
+```html
+<dry-toast message="Operation completed successfully!" type="success" auto-show></dry-toast>
+```
+
+**Properties:**
+- `message` (string): Toast message content
+- `type` (string): 'info', 'success', 'warning', 'error'
+- `position` (string): 'top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'
+- `duration` (number): Auto-dismiss duration in milliseconds
+- `auto-show` (boolean): Show toast automatically on load
+
+**JavaScript API:**
+```javascript
+Toast.info('Info message');
+Toast.success('Success message');
+Toast.warning('Warning message');
+Toast.error('Error message');
+
+// With options
+Toast.info('Message', { position: 'top-center', duration: 5000 });
+```
+
+### 17. Toggle Switch Component (`<toggle-switch>`)
+
+Binary state switches with custom styling and accessibility support.
+
+**Basic Usage:**
+```html
+<toggle-switch name="notifications" label="Email Notifications" checked></toggle-switch>
+<toggle-switch name="darkmode" size="lg" active-bg="bg-purple-500"></toggle-switch>
+```
+
+**Properties:**
+- `name` (string): Form field name
+- `label` (string): Toggle label text
+- `checked` (boolean): Initial checked state
+- `disabled` (boolean): Disable toggle interaction
+- `size` (string): 'sm', 'md', 'lg'
+- `active-bg` (string): CSS classes for active background
+- `inactive-bg` (string): CSS classes for inactive background
+- `switch-color` (string): CSS classes for switch handle
+
+## Implementation Patterns
+
+### Basic Setup
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="path/to/dry2/base.js"></script>
+    <script src="path/to/dry2/[component].js"></script>
+</head>
+<body>
+    <!-- Components here -->
+</body>
+</html>
+```
+
+### Component Loading
+Each component requires its specific JavaScript file:
+```javascript
+// Core components
+<script src="src/dry2/base.js"></script>
+<script src="src/dry2/accordion.js"></script>
+<script src="src/dry2/avatar.js"></script>
+<script src="src/dry2/badge.js"></script>
+// ... etc
+```
+
+### Styling Guidelines
+- Components use Tailwind CSS classes for styling
+- Custom CSS classes can be applied through component properties
+- Responsive design is built-in with Tailwind's responsive prefixes
+- Dark mode support available through Tailwind's dark mode utilities
+
+### Event Handling
+Components emit custom events for interaction:
+```javascript
+// Example: Accordion events
+accordion.addEventListener('accordion:change', (event) => {
+    console.log('Section changed:', event.detail);
+});
+
+// Example: Toggle switch events
+toggle.addEventListener('toggle:change', (event) => {
+    console.log('Toggle state:', event.detail.checked);
+});
+```
+
+### Accessibility Features
+- Keyboard navigation support
+- ARIA attributes for screen readers
+- Focus management
+- Semantic HTML structure
+- Color contrast compliance
+
+## Best Practices
+
+1. **Component Loading**: Only load required component scripts
+2. **Styling**: Use Tailwind classes for consistent styling
+3. **Event Handling**: Listen for component-specific events
+4. **Performance**: Implement lazy loading for large component sets
+5. **Accessibility**: Test with screen readers and keyboard navigation
+6. **Responsive Design**: Use Tailwind's responsive utilities
+7. **Form Integration**: Use appropriate `name` attributes for form components
+
+## Common Use Cases
+
+### Dashboard Layout
+```html
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <dry-card>
+        <div slot="body">
+            <dry-stat value="1234" label="Users" trend="up" trend-value="+12%"></dry-stat>
+        </div>
+    </dry-card>
+    <dry-card>
+        <div slot="body">
+            <dry-stat value="89.5" label="Performance" type="percentage"></dry-stat>
+        </div>
+    </dry-card>
+</div>
+```
+
+### Form Components
+```html
+<form>
+    <dry-select name="country" placeholder="Select country...">
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+    </dry-select>
+    
+    <toggle-switch name="newsletter" label="Subscribe to newsletter"></toggle-switch>
+    
+    <dry-button type="submit" variant="primary">Submit</dry-button>
+</form>
+```
+
+### Navigation
+```html
+<dry-breadcrumbs>
+    <breadcrumb-item href="/">Home</breadcrumb-item>
+    <breadcrumb-item href="/products">Products</breadcrumb-item>
+    <breadcrumb-item active>Current Page</breadcrumb-item>
+</dry-breadcrumbs>
+
+<dry-tabs>
+    <tab-item id="overview" title="Overview">Content</tab-item>
+    <tab-item id="details" title="Details">Content</tab-item>
+</dry-tabs>
+```
+
+This documentation provides comprehensive guidance for implementing and using the DRY2 web components library in modern web applications. 
