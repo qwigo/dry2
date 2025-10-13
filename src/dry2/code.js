@@ -9,11 +9,11 @@ class DryCode extends BaseElement {
     return ['language', 'show-copy', 'show-header'];
   }
 
-  _initializeComponent() {
-    try {
-      // Extract code content from the element's original content
+  connectedCallback() {
+    if (!this.hasAttribute('data-rendered')) {
+      // Extract and store code content before rendering
       const codeContent = this._extractContent();
-      
+
       this._componentData = {
         code: codeContent,
         language: this.language,
@@ -21,10 +21,13 @@ class DryCode extends BaseElement {
         showHeader: this.showHeader
       };
 
-      this._scheduleRender();
-      this._attachEventListeners();
-    } catch (error) {
-      this._handleError('Failed to initialize code component', error);
+      this._isInitialized = true;
+
+      // Call parent's connectedCallback which will trigger render()
+      super.connectedCallback();
+    } else {
+      // Already rendered, call parent to reattach listeners
+      super.connectedCallback();
     }
   }
 
@@ -38,36 +41,55 @@ class DryCode extends BaseElement {
     return tempDiv.textContent || tempDiv.innerText || '';
   }
 
-  _scheduleRender() {
-    if (this._renderingScheduled) return;
-    
-    this._renderingScheduled = true;
-    requestAnimationFrame(() => {
-      this._render();
-      this._renderingScheduled = false;
-    });
-  }
+  // Implement BaseElement's required render() method
+  render() {
+    if (!this._componentData) {
+      // Initialize data if not already done
+      this._componentData = {
+        code: '',
+        language: this.language,
+        showCopy: this.showCopy,
+        showHeader: this.showHeader
+      };
+    }
 
-  _render() {
     try {
       const container = document.createElement('div');
       container.className = 'relative mt-6 rounded-lg bg-slate-900 border border-slate-700 overflow-hidden shadow-lg';
-      
+
       if (this.showHeader) {
         container.appendChild(this._createHeader());
       }
-      
+
       container.appendChild(this._createCodeContent());
-      
+
       // Clear and append new content safely
       this.innerHTML = '';
       this.appendChild(container);
-      
-      // Cache elements after render
-      this._cacheElements();
     } catch (error) {
       this._handleError('Failed to render code component', error);
     }
+  }
+
+  // Override afterRender to cache elements after rendering
+  afterRender() {
+    this._cacheElements();
+  }
+
+  // Override attachEventListeners to attach copy button handler
+  attachEventListeners() {
+    if (!this._cachedElements?.copyBtn) return;
+
+    this._boundCopyHandler = this._copyToClipboard.bind(this);
+    this._cachedElements.copyBtn.addEventListener('click', this._boundCopyHandler);
+  }
+
+  // Override removeEventListeners
+  removeEventListeners() {
+    if (this._boundCopyHandler && this._cachedElements?.copyBtn) {
+      this._cachedElements.copyBtn.removeEventListener('click', this._boundCopyHandler);
+    }
+    super.removeEventListeners();
   }
 
   _createHeader() {
@@ -309,22 +331,6 @@ class DryCode extends BaseElement {
     return result;
   }
 
-  _attachEventListeners() {
-    if (!this._cachedElements?.copyBtn) return;
-    
-    // Remove existing listener to prevent duplicates
-    this._removeEventListeners();
-    
-    this._boundCopyHandler = this._copyToClipboard.bind(this);
-    this._cachedElements.copyBtn.addEventListener('click', this._boundCopyHandler);
-  }
-
-  _removeEventListeners() {
-    if (this._boundCopyHandler && this._cachedElements?.copyBtn) {
-      this._cachedElements.copyBtn.removeEventListener('click', this._boundCopyHandler);
-    }
-  }
-
   async _copyToClipboard() {
     const { copyBtn, copyText } = this._cachedElements;
     
@@ -333,7 +339,7 @@ class DryCode extends BaseElement {
     try {
       await navigator.clipboard.writeText(this._componentData.code);
       this._showSuccessState(copyBtn, copyText);
-      this._dispatchEvent('code:copied', { code: this._componentData.code });
+      this.emit('code:copied', { code: this._componentData.code });
     } catch (err) {
       console.warn('Modern clipboard API failed, trying fallback:', err);
       this._fallbackCopy(copyBtn, copyText);
@@ -354,13 +360,13 @@ class DryCode extends BaseElement {
       const successful = document.execCommand('copy');
       if (successful) {
         this._showSuccessState(copyBtn, copyText);
-        this._dispatchEvent('code:copied', { code: this._componentData.code });
+        this.emit('code:copied', { code: this._componentData.code });
       } else {
         throw new Error('execCommand failed');
       }
     } catch (err) {
       this._handleError('Failed to copy code to clipboard', err);
-      this._dispatchEvent('code:copy-failed', { error: err.message });
+      this.emit('code:copy-failed', { error: err.message });
     } finally {
       document.body.removeChild(textArea);
     }
@@ -389,7 +395,30 @@ class DryCode extends BaseElement {
 
   _handleError(message, error) {
     console.error(`DryCode: ${message}`, error);
-    this._dispatchEvent('code:error', { message, error: error?.message });
+    this.emit('code:error', { message, error: error?.message });
+  }
+
+  _escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  _getAttributeWithDefault(name, defaultValue) {
+    return this.getAttribute(name) || defaultValue;
+  }
+
+  _setAttribute(name, value) {
+    this.setAttribute(name, value);
+  }
+
+  _setBooleanAttribute(name, value) {
+    if (value) {
+      this.setAttribute(name, '');
+    } else {
+      this.removeAttribute(name);
+    }
   }
 
   // Public API methods
@@ -402,10 +431,11 @@ class DryCode extends BaseElement {
       this._handleError('setCode expects a string parameter');
       return;
     }
-    
+
     this._componentData.code = code;
-    this._scheduleRender();
-    this._attachEventListeners();
+    if (this.hasAttribute('data-rendered')) {
+      this.reRender();
+    }
   }
 
   // Getters and setters with validation
@@ -436,27 +466,27 @@ class DryCode extends BaseElement {
     this._setBooleanAttribute('show-header', value);
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (this._isInitialized && oldValue !== newValue) {
-      this._handleAttributeChange(name, oldValue, newValue);
-      
-      // Update component data
+  // Override onAttributeChange from BaseElement
+  onAttributeChange(name, oldValue, newValue) {
+    // Update component data
+    if (this._componentData) {
       if (name === 'language') this._componentData.language = this.language;
       if (name === 'show-copy') this._componentData.showCopy = this.showCopy;
       if (name === 'show-header') this._componentData.showHeader = this.showHeader;
-      
-      this._scheduleRender();
-      this._attachEventListeners();
     }
+
+    // BaseElement will call reRender() which handles the re-rendering
+    this.reRender();
   }
 
   disconnectedCallback() {
-    // Clean up timeouts and event listeners
+    // Clean up timeouts
     if (this._successTimeout) {
       clearTimeout(this._successTimeout);
     }
-    this._removeEventListeners();
-    super.disconnectedCallback?.();
+
+    // Call parent's disconnectedCallback which will call removeEventListeners
+    super.disconnectedCallback();
   }
 }
 
