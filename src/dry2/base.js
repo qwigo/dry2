@@ -15,12 +15,20 @@ class BaseElement extends HTMLElement {
    */
   connectedCallback() {
     if (!this.hasAttribute('data-rendered')) {
-      this.beforeRender();
-      this.render();
-      this.afterRender();
-      this.attachEventListeners();
-      this.setAttribute('data-rendered', '');
-      this._rendered = true;
+      // Defer rendering to next microtask to ensure all child elements are parsed
+      // This is especially important for components with child custom elements
+      // Use setTimeout instead of Promise to ensure parsing is complete
+      setTimeout(() => {
+        // Check if still connected (not removed during delay)
+        if (this.isConnected && !this.hasAttribute('data-rendered')) {
+          this.beforeRender();
+          this.render();
+          this.afterRender();
+          this.attachEventListeners();
+          this.setAttribute('data-rendered', '');
+          this._rendered = true;
+        }
+      }, 0);
     } else {
       // Re-attach event listeners if component is moved in DOM
       this.attachEventListeners();

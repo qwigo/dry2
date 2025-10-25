@@ -3,20 +3,16 @@ class DryBreadcrumbs extends BaseElement {
     super();
     this._isRendering = false;
     this._originalContent = null;
-  }
-
-  _initializeComponent() {
-    this.render();
-    this.setupEventListeners();
+    this._mutationObserver = null;
   }
 
   static get observedAttributes() {
     return ['separator', 'breadcrumb_class'];
   }
 
-  attributeChangedCallback() {
-    if (this.isConnected && !this._isRendering) {
-      this.render();
+  onAttributeChange(name, oldValue, newValue) {
+    if (!this._isRendering) {
+      this.reRender();
     }
   }
 
@@ -45,9 +41,9 @@ class DryBreadcrumbs extends BaseElement {
   getOriginalItems() {
     const hiddenDiv = this.querySelector('div[data-original-items]');
     if (hiddenDiv) {
-      return Array.from(hiddenDiv.querySelectorAll('breadcrumb-item'));
+      return Array.from(hiddenDiv.querySelectorAll('breadcrumb-item, dry-breadcrumb-item'));
     }
-    return Array.from(this.querySelectorAll('breadcrumb-item'));
+    return Array.from(this.querySelectorAll('breadcrumb-item, dry-breadcrumb-item'));
   }
 
   getSeparatorHTML() {
@@ -128,9 +124,9 @@ class DryBreadcrumbs extends BaseElement {
     this._isRendering = false;
   }
 
-  setupEventListeners() {
+  attachEventListeners() {
     // Only observe the hidden container for changes to original items
-    const observer = new MutationObserver((mutations) => {
+    this._mutationObserver = new MutationObserver((mutations) => {
       let shouldRerender = false;
       mutations.forEach(mutation => {
         // Only rerender if changes happened in the hidden container
@@ -141,11 +137,11 @@ class DryBreadcrumbs extends BaseElement {
       });
 
       if (shouldRerender && !this._isRendering) {
-        this.render();
+        this.reRender();
       }
     });
 
-    observer.observe(this, {
+    this._mutationObserver.observe(this, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -153,8 +149,15 @@ class DryBreadcrumbs extends BaseElement {
     });
   }
 
+  cleanup() {
+    if (this._mutationObserver) {
+      this._mutationObserver.disconnect();
+      this._mutationObserver = null;
+    }
+  }
+
   addItem(text, href = null, active = false) {
-    const item = document.createElement('breadcrumb-item');
+    const item = document.createElement('dry-breadcrumb-item');
     item.textContent = text;
 
     if (href) {
@@ -173,7 +176,7 @@ class DryBreadcrumbs extends BaseElement {
       this.appendChild(item);
     }
 
-    this.render();
+    this.reRender();
     return this;
   }
 
@@ -188,7 +191,7 @@ class DryBreadcrumbs extends BaseElement {
       items[index].setAttribute('active', '');
     }
 
-    this.render();
+    this.reRender();
     return this;
   }
 }
@@ -202,11 +205,11 @@ class BreadcrumbItem extends HTMLElement {
     // Trigger parent re-render when attributes change, but only if not currently rendering
     const parent = this.closest('dry-breadcrumbs');
     if (parent && !parent._isRendering) {
-      parent.render();
+      parent.reRender();
     }
   }
 }
 
 // Register the custom elements
 customElements.define('dry-breadcrumbs', DryBreadcrumbs);
-customElements.define('breadcrumb-item', BreadcrumbItem);
+customElements.define('dry-breadcrumb-item', BreadcrumbItem);

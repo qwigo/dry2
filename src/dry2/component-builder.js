@@ -419,8 +419,7 @@ class ComponentBuilder {
     if (!this._cachedElements.preview || this._isDestroyed) return;
     
     try {
-      const previewContent = this._generatePreview();
-      this._cachedElements.preview.innerHTML = previewContent;
+      this._cachedElements.preview.innerHTML = this._generatePreview();
       
       // Ensure custom element is upgraded and interactive
       const countdown = this._cachedElements.preview.querySelector('dry-countdown');
@@ -441,9 +440,8 @@ class ComponentBuilder {
     if (!this._cachedElements.code || this._isDestroyed) return;
     
     try {
-      const rawCode = this._generateCode();
       // Use textContent to automatically escape HTML and prevent browser from rendering custom elements
-      this._cachedElements.code.textContent = rawCode;
+      this._cachedElements.code.textContent = this._generateCode();
     } catch (error) {
       this._handleError('Failed to update code', error);
     }
@@ -470,9 +468,10 @@ class ComponentBuilder {
       .join(' ');
     
     const content = this.config.contentGenerator(this.currentValues);
-    const safeContent = this._escapeHtml(content);
+    // Don't escape content - it may contain child elements that need to be rendered
+    // The contentGenerator is responsible for providing safe content
     
-    return `<${this.config.componentTag}${attributes ? ' ' + attributes : ''}>${safeContent}</${this.config.componentTag}>`;
+    return `<${this.config.componentTag}${attributes ? ' ' + attributes : ''}>${content}</${this.config.componentTag}>`;
   }
   
   _generateCode() {
@@ -483,7 +482,7 @@ class ComponentBuilder {
     return componentHTML;
   }
   
-  defaultContentGenerator(values) {
+  defaultContentGenerator() {
     return 'Component content';
   }
   
