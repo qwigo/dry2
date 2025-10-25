@@ -22,6 +22,10 @@
     "test:unit:component": "node -e \"const component = process.argv[1]; require('child_process').spawn('mocha', [`tests/unit/components/${component}.test.js`, '--require', 'tests/unit/setup.js'], {stdio: 'inherit'})\"",
     "test:integration": "karma start tests/integration/karma.conf.js",
     "test:integration:ci": "karma start tests/integration/karma.conf.js --single-run",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
     "lint": "eslint src/**/*.js tests/**/*.js",
     "lint:fix": "eslint src/**/*.js tests/**/*.js --fix",
     "build": "node scripts/build.js",
@@ -62,6 +66,7 @@
   },
   "homepage": "https://github.com/yourusername/dry2-web-components#readme",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "c8": "^8.0.1",
     "chai": "^4.5.0",
     "chokidar": "^3.6.0",

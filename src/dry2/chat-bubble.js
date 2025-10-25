@@ -1,352 +1,454 @@
+/**
+ * DRY2 Chat Bubble Component
+ * A customizable chat bubble component for conversation interfaces
+ * Supports sent/received messages, avatars, timestamps, grouping, and delivery status
+ * Built with vanilla JavaScript using BaseElement
+ */
+
 class DryChatBubble extends BaseElement {
-  constructor() {
-    super();
-    this._isRendering = false;
+  /**
+   * Escape HTML to prevent XSS attacks
+   */
+  static _escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
-
-  static get observedAttributes() {
-    return ['type', 'avatar', 'name', 'timestamp', 'status', 'group-start', 'group-end'];
-  }
-
-
 
   /**
-   * Validate and sanitize avatar URL
-   * @param {string} url - Avatar URL
-   * @returns {string} - Safe URL or empty string
+   * Observe these attributes for changes
    */
-  _validateAvatarURL(url) {
-    if (!url || typeof url !== 'string') return '';
-    
+  static get observedAttributes() {
+    return ['type', 'name', 'avatar', 'status', 'timestamp', 'group-start', 'group-end'];
+  }
+
+  constructor() {
+    super();
+    this._originalContent = null;
+    this._contentObserver = null;
+    this._isCapturingContent = false;
+  }
+
+  /**
+   * Override connectedCallback to capture content using MutationObserver
+   */
+  connectedCallback() {
+    if (!this.hasAttribute('data-rendered')) {
+      // Set display style once on first connection
+      if (!this.style.display) {
+        this.style.display = 'block';
+      }
+
+      // Try to capture content immediately (for dynamically created elements)
+      const immediateContent = this.innerHTML.trim();
+
+      if (immediateContent && !this._isCapturingContent) {
+        // Content already exists, render immediately
+        this._originalContent = immediateContent;
+        super.connectedCallback();
+      } else if (!this._isCapturingContent) {
+        // Content not yet available, wait for parser to add it
+        this._isCapturingContent = true;
+
+        // Set up MutationObserver to watch for child nodes being added
+        this._contentObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              // Child nodes were added by the parser
+              const htmlContent = this.innerHTML.trim();
+              if (htmlContent && this._originalContent === null) {
+                this._originalContent = htmlContent;
+                this._contentObserver.disconnect();
+                this._contentObserver = null;
+
+                // Now render the component
+                super.connectedCallback();
+                break;
+              }
+            }
+          }
+        });
+
+        // Start observing - only watch childList changes, not attributes
+        this._contentObserver.observe(this, {
+          childList: true,
+          subtree: true
+        });
+
+        // Fallback: If no content is added within 100ms, render with default
+        setTimeout(() => {
+          if (this._contentObserver && !this.hasAttribute('data-rendered')) {
+            this._contentObserver.disconnect();
+            this._contentObserver = null;
+
+            if (this._originalContent === null) {
+              this._originalContent = this.innerHTML.trim() || 'Message';
+            }
+
+            super.connectedCallback();
+          }
+        }, 100);
+      }
+    } else {
+      // Already rendered, just reattach listeners
+      super.connectedCallback();
+    }
+  }
+
+  /**
+   * Override disconnectedCallback to clean up observer
+   */
+  disconnectedCallback() {
+    // Disconnect the MutationObserver if it exists
+    if (this._contentObserver) {
+      this._contentObserver.disconnect();
+      this._contentObserver = null;
+    }
+
+    // Call parent's disconnectedCallback
+    super.disconnectedCallback();
+  }
+
+  /**
+   * Main render method
+   */
+  render() {
+    const type = this.getAttr('type', 'sent');
+    const name = this.getAttr('name', '');
+    const avatar = this.getAttr('avatar', '');
+    const status = this.getAttr('status', '');
+    const timestamp = this.getAttr('timestamp', '');
+    const groupStart = this.getBoolAttr('group-start', false);
+    const groupEnd = this.getBoolAttr('group-end', false);
+
+    // Ensure we have content
+    if (this._originalContent === null) {
+      this._originalContent = 'Message';
+    }
+
+    // Build the message container
+    const containerClasses = this._getContainerClasses(type);
+    const bubbleClasses = this._getBubbleClasses(type, groupStart, groupEnd);
+
+    // Build the HTML structure
+    let html = `<div class="${containerClasses}">`;
+
+    // Add avatar for received messages
+    if (type === 'received' && groupEnd) {
+      html += this._getAvatarHTML(avatar, name);
+    } else if (type === 'received') {
+      html += '<div class="w-8 h-8 flex-shrink-0"></div>';
+    }
+
+    // Message bubble container
+    html += `<div class="flex flex-col ${type === 'sent' ? 'items-end' : 'items-start'} flex-1">`;
+
+    // Add name for received messages at group start
+    if (type === 'received' && groupStart && name) {
+      html += `<div class="text-xs text-gray-600 mb-1 px-1">${DryChatBubble._escapeHtml(name)}</div>`;
+    }
+
+    // Message bubble
+    html += `<div class="${bubbleClasses}">`;
+    html += this._originalContent; // Allow rich HTML content
+    html += '</div>';
+
+    // Add timestamp and status for group end
+    if (groupEnd) {
+      html += this._getMetadataHTML(type, timestamp, status);
+    }
+
+    html += '</div>'; // Close flex-col
+
+    html += '</div>'; // Close container
+
+    // Render the chat bubble
+    if (typeof this.replaceChildren === 'function') {
+      this.replaceChildren();
+    } else {
+      this.textContent = '';
+    }
+
+    this.innerHTML = html;
+  }
+
+  /**
+   * Get container classes based on message type
+   */
+  _getContainerClasses(type) {
+    const baseClasses = 'flex items-end gap-2 mb-1';
+    if (type === 'sent') {
+      return `${baseClasses} justify-end`;
+    }
+    return `${baseClasses} justify-start`;
+  }
+
+  /**
+   * Get bubble classes based on type and grouping
+   */
+  _getBubbleClasses(type, groupStart, groupEnd) {
+    let classes = ['px-4', 'py-2', 'max-w-md', 'break-words'];
+
+    // Type-specific colors
+    if (type === 'sent') {
+      classes.push('bg-blue-600', 'text-white');
+    } else {
+      classes.push('bg-gray-200', 'text-gray-900');
+    }
+
+    // Rounded corners based on grouping and type
+    if (type === 'sent') {
+      // Sent messages (right side)
+      if (groupStart && groupEnd) {
+        classes.push('rounded-2xl');
+      } else if (groupStart) {
+        classes.push('rounded-2xl', 'rounded-br-md');
+      } else if (groupEnd) {
+        classes.push('rounded-2xl', 'rounded-tr-md');
+      } else {
+        classes.push('rounded-2xl', 'rounded-tr-md', 'rounded-br-md');
+      }
+    } else {
+      // Received messages (left side)
+      if (groupStart && groupEnd) {
+        classes.push('rounded-2xl');
+      } else if (groupStart) {
+        classes.push('rounded-2xl', 'rounded-bl-md');
+      } else if (groupEnd) {
+        classes.push('rounded-2xl', 'rounded-tl-md');
+      } else {
+        classes.push('rounded-2xl', 'rounded-tl-md', 'rounded-bl-md');
+      }
+    }
+
+    return classes.join(' ');
+  }
+
+  /**
+   * Get avatar HTML for received messages
+   */
+  _getAvatarHTML(avatar, name) {
+    if (avatar) {
+      const escapedAvatar = DryChatBubble._escapeHtml(avatar);
+      const escapedName = DryChatBubble._escapeHtml(name);
+      return `<img src="${escapedAvatar}" alt="${escapedName}" class="w-8 h-8 rounded-full flex-shrink-0 object-cover">`;
+    }
+    return '<div class="w-8 h-8 rounded-full bg-gray-400 flex-shrink-0 flex items-center justify-center text-white text-xs font-medium">' +
+           (name ? DryChatBubble._escapeHtml(name.charAt(0).toUpperCase()) : '?') +
+           '</div>';
+  }
+
+  /**
+   * Get metadata HTML (timestamp and status)
+   */
+  _getMetadataHTML(type, timestamp, status) {
+    let html = '<div class="flex items-center gap-1 mt-1 px-1">';
+
+    // Add timestamp if provided
+    if (timestamp) {
+      const formattedTime = this._formatTimestamp(timestamp);
+      html += `<span class="text-xs text-gray-500">${DryChatBubble._escapeHtml(formattedTime)}</span>`;
+    }
+
+    // Add status indicator for sent messages
+    if (type === 'sent' && status) {
+      html += this._getStatusIconHTML(status);
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  /**
+   * Format timestamp for display
+   */
+  _formatTimestamp(timestamp) {
     try {
-      const urlObj = new URL(url, window.location.href);
-      
-      // Only allow http, https, and data URLs for images
-      if (!['http:', 'https:', 'data:'].includes(urlObj.protocol)) {
-        console.warn('DryChatBubble: Invalid avatar URL protocol:', urlObj.protocol);
-        return '';
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) {
+        return 'Just now';
+      } else if (diffMins < 60) {
+        return `${diffMins}m ago`;
+      } else if (diffHours < 24) {
+        return `${diffHours}h ago`;
+      } else if (diffDays < 7) {
+        return `${diffDays}d ago`;
+      } else {
+        // Format as date
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
-      
-      // If it's a data URL, make sure it's an image
-      if (urlObj.protocol === 'data:' && !url.toLowerCase().startsWith('data:image/')) {
-        console.warn('DryChatBubble: Data URL must be an image');
-        return '';
-      }
-      
-      return url;
     } catch (e) {
-      console.warn('DryChatBubble: Invalid avatar URL:', url, e.message);
       return '';
     }
   }
 
   /**
-   * Validate input values to prevent injection
+   * Get status icon HTML
    */
-  _validateInputs() {
-    const type = this.getAttribute('type') || 'received';
-    if (!['sent', 'received'].includes(type)) {
-      console.warn('DryChatBubble: Invalid type, defaulting to "received"');
-      this.setAttribute('type', 'received');
-    }
-    
-    // Validate status
-    const status = this.getAttribute('status') || '';
-    if (status && !['sent', 'delivered', 'read', 'failed'].includes(status)) {
-      console.warn('DryChatBubble: Invalid status, clearing');
-      this.setAttribute('status', '');
-    }
+  _getStatusIconHTML(status) {
+    const icons = {
+      sent: '<svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>',
+      delivered: '<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+      read: '<svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+      failed: '<svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>'
+    };
+    return icons[status] || '';
   }
 
-  _initializeComponent() {
-    this._validateInputs();
-    
-    // Store original content as text only (no HTML for security)
-    this._originalContent = this._extractContent();
-
-    // Create the component structure with Alpine.js
-    this._render();
+  /**
+   * Handle attribute changes
+   */
+  onAttributeChange(name, oldValue, newValue) {
+    // Re-render on any attribute change
+    this.reRender();
   }
 
-  _extractContent() {
-    // Extract text content only, no HTML to prevent XSS
-    return this.textContent.trim();
+  /**
+   * Public API: Set message type
+   */
+  setType(type) {
+    this.setAttribute('type', type);
   }
 
+  /**
+   * Public API: Set sender name
+   */
+  setName(name) {
+    this.setAttribute('name', name);
+  }
 
+  /**
+   * Public API: Set avatar URL
+   */
+  setAvatar(avatar) {
+    this.setAttribute('avatar', avatar);
+  }
 
-  _render() {
-    if (this._isRendering) return;
-    this._isRendering = true;
+  /**
+   * Public API: Set status
+   */
+  setStatus(status) {
+    this.setAttribute('status', status);
+  }
 
-    try {
-      this.innerHTML = `
-        <div x-data="{
-                type: '${this.type}',
-                avatar: '${this._validateAvatarURL(this.avatar)}',
-                name: '${this.name.replace(/'/g, "\\'")}',
-                timestamp: '${this.timestamp}',
-                status: '${this.status}',
-                groupStart: ${this.groupStart},
-                groupEnd: ${this.groupEnd},
-                content: '${this._originalContent.replace(/'/g, "\\'")}',
-                
-                getContainerClasses() {
-                    let classes = 'chat-bubble-container flex w-full ';
-                    if (this.groupEnd) classes += 'mb-4 '; else classes += 'mb-1 ';
-                    if (this.type === 'sent') classes += 'justify-end '; else classes += 'justify-start ';
-                    return classes;
-                },
-                
-                getBubbleClasses() {
-                    let classes = 'chat-bubble max-w-xs lg:max-w-md px-4 py-2 rounded-lg shadow-sm ';
-                    if (this.type === 'sent') {
-                        classes += 'bg-blue-600 dark:bg-blue-700 text-white ';
-                        if (!this.groupEnd) classes += 'rounded-br-sm ';
-                    } else {
-                        classes += 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 ';
-                        if (!this.groupEnd) classes += 'rounded-bl-sm ';
-                    }
-                    return classes;
-                },
-                
-                shouldShowAvatar() { return this.type === 'received' && this.avatar && this.groupEnd; },
-                shouldShowName() { return this.type === 'received' && this.name && this.groupStart; },
-                shouldShowTimestamp() { return this.timestamp && this.groupEnd; },
-                shouldShowStatus() { return this.status && this.type === 'sent' && this.groupEnd; },
-                
-                getStatusIcon() {
-                    switch (this.status) {
-                        case 'sent': return '✓';
-                        case 'delivered': return '✓✓';
-                        case 'read': return '✓✓';
-                        case 'failed': return '✗';
-                        default: return '';
-                    }
-                },
-                
-                formatTimestamp() {
-                    if (!this.timestamp) return '';
-                    try {
-                        const date = new Date(this.timestamp);
-                        if (isNaN(date.getTime())) return this.timestamp;
-                        const now = new Date();
-                        const diffMs = now.getTime() - date.getTime();
-                        if (diffMs < 0) return date.toLocaleDateString();
-                        const diffMins = Math.floor(diffMs / 60000);
-                        const diffHours = Math.floor(diffMs / 3600000);
-                        const diffDays = Math.floor(diffMs / 86400000);
-                        if (diffMins < 1) return 'now';
-                        if (diffMins < 60) return diffMins + 'm';
-                        if (diffHours < 24) return diffHours + 'h';
-                        if (diffDays < 7) return diffDays + 'd';
-                        return date.toLocaleDateString();
-                    } catch (e) {
-                        return this.timestamp;
-                    }
-                }
-            }"
-             :class="getContainerClasses()"
-             class="chat-bubble-wrapper">
-            
-            <!-- Received Message Layout -->
-            <template x-if="type === 'received'">
-                <div class="flex items-end gap-2 max-w-full">
-                    
-                    <!-- Avatar -->
-                    <div x-show="shouldShowAvatar()" class="flex-shrink-0">
-                        <img x-show="avatar" 
-                             :src="avatar" 
-                             :alt="name"
-                             class="w-8 h-8 rounded-full object-cover"
-                             loading="lazy"
-                             onerror="this.style.display='none'">
-                    </div>
-                    
-                    <!-- Spacer when no avatar -->
-                    <div x-show="!shouldShowAvatar() && !groupEnd" class="w-10 flex-shrink-0"></div>
-                    
-                    <!-- Message Content -->
-                    <div class="flex-1 min-w-0">
-                        
-                        <!-- Name -->
-                        <div x-show="shouldShowName()" 
-                             class="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium"
-                             x-text="name"></div>
-                        
-                        <!-- Bubble -->
-                        <div :class="getBubbleClasses()">
-                            <div class="break-words" x-text="content"></div>
-                        </div>
-                        
-                        <!-- Timestamp -->
-                        <div x-show="shouldShowTimestamp()" 
-                             class="text-xs mt-1 text-gray-500 dark:text-gray-400"
-                             x-text="formatTimestamp()"></div>
-                        
-                    </div>
-                    
-                </div>
-            </template>
-            
-            <!-- Sent Message Layout -->
-            <template x-if="type === 'sent'">
-                <div class="flex items-end justify-end max-w-full">
-                    
-                    <!-- Message Content -->
-                    <div class="flex-1 min-w-0 flex flex-col items-end">
-                        
-                        <!-- Bubble -->
-                        <div :class="getBubbleClasses()">
-                            <div class="break-words" x-text="content"></div>
-                        </div>
-                        
-                        <!-- Timestamp and Status -->
-                        <div x-show="shouldShowTimestamp() || shouldShowStatus()" 
-                             class="flex items-center gap-2 mt-1">
-                            
-                            <!-- Timestamp -->
-                            <div x-show="shouldShowTimestamp()" 
-                                 class="text-xs text-blue-200 dark:text-blue-300"
-                                 x-text="formatTimestamp()"></div>
-                            
-                            <!-- Status -->
-                            <div x-show="shouldShowStatus()" 
-                                 class="text-xs text-blue-200 dark:text-blue-300"
-                                 x-text="getStatusIcon()"></div>
-                            
-                        </div>
-                        
-                    </div>
-                    
-                </div>
-            </template>
-            
-        </div>
-      `;
+  /**
+   * Public API: Set timestamp
+   */
+  setTimestamp(timestamp) {
+    this.setAttribute('timestamp', timestamp);
+  }
 
-      // Data is now embedded directly in the x-data attribute
-    } finally {
-      this._isRendering = false;
+  /**
+   * Public API: Set message content
+   */
+  setContent(content) {
+    this._originalContent = content;
+    if (this.hasAttribute('data-rendered')) {
+      this.reRender();
     }
   }
 
   /**
-   * Optimized update - only re-render if necessary
+   * Get/Set type property
    */
-  _triggerUpdate() {
-    if (this._isInitialized && !this._isRendering) {
-      this._validateInputs();
-      
-      // Check if we actually need to update
-      const newContent = this._extractContent();
-      const needsUpdate = (
-        newContent !== this._originalContent ||
-        this._lastType !== this.type ||
-        this._lastAvatar !== this.avatar ||
-        this._lastName !== this.name ||
-        this._lastTimestamp !== this.timestamp ||
-        this._lastStatus !== this.status ||
-        this._lastGroupStart !== this.groupStart ||
-        this._lastGroupEnd !== this.groupEnd
-      );
-      
-      if (needsUpdate) {
-        this._originalContent = newContent;
-        // Update cached values for next comparison
-        this._lastType = this.type;
-        this._lastAvatar = this.avatar;
-        this._lastName = this.name;
-        this._lastTimestamp = this.timestamp;
-        this._lastStatus = this.status;
-        this._lastGroupStart = this.groupStart;
-        this._lastGroupEnd = this.groupEnd;
-        this._render();
-      }
-    }
-  }
-
-  // Getters and setters with validation
   get type() {
-    const type = this._getAttributeWithDefault('type', 'received');
-    return ['sent', 'received'].includes(type) ? type : 'received';
+    return this.getAttr('type', 'sent');
   }
 
   set type(value) {
-    if (['sent', 'received'].includes(value)) {
-      this._setAttribute('type', value);
-      this._triggerUpdate();
-    } else {
-      console.warn('DryChatBubble: Invalid type value:', value);
-    }
+    this.setType(value);
   }
 
-  get avatar() {
-    return this._getAttributeWithDefault('avatar', '');
-  }
-
-  set avatar(value) {
-    this._setAttribute('avatar', value);
-    this._triggerUpdate();
-  }
-
+  /**
+   * Get/Set name property
+   */
   get name() {
-    const name = this._getAttributeWithDefault('name', '');
-    // Basic XSS prevention for name attribute
-    return name.replace(/<[^>]*>/g, '').trim();
+    return this.getAttr('name', '');
   }
 
   set name(value) {
-    this._setAttribute('name', value);
-    this._triggerUpdate();
+    this.setName(value);
   }
 
-  get timestamp() {
-    return this._getAttributeWithDefault('timestamp', '');
+  /**
+   * Get/Set avatar property
+   */
+  get avatar() {
+    return this.getAttr('avatar', '');
   }
 
-  set timestamp(value) {
-    this._setAttribute('timestamp', value);
-    this._triggerUpdate();
+  set avatar(value) {
+    this.setAvatar(value);
   }
 
+  /**
+   * Get/Set status property
+   */
   get status() {
-    const status = this._getAttributeWithDefault('status', '');
-    return ['sent', 'delivered', 'read', 'failed'].includes(status) ? status : '';
+    return this.getAttr('status', '');
   }
 
   set status(value) {
-    if (!value || ['sent', 'delivered', 'read', 'failed'].includes(value)) {
-      this._setAttribute('status', value);
-      this._triggerUpdate();
-    } else {
-      console.warn('DryChatBubble: Invalid status value:', value);
-    }
+    this.setStatus(value);
   }
 
+  /**
+   * Get/Set timestamp property
+   */
+  get timestamp() {
+    return this.getAttr('timestamp', '');
+  }
+
+  set timestamp(value) {
+    this.setTimestamp(value);
+  }
+
+  /**
+   * Get/Set group-start property
+   */
   get groupStart() {
-    return this._getBooleanAttribute('group-start');
+    return this.getBoolAttr('group-start', false);
   }
 
   set groupStart(value) {
-    this._setBooleanAttribute('group-start', value);
-    this._triggerUpdate();
+    if (value) {
+      this.setAttribute('group-start', '');
+    } else {
+      this.removeAttribute('group-start');
+    }
   }
 
+  /**
+   * Get/Set group-end property
+   */
   get groupEnd() {
-    return this._getBooleanAttribute('group-end');
+    return this.getBoolAttr('group-end', false);
   }
 
   set groupEnd(value) {
-    this._setBooleanAttribute('group-end', value);
-    this._triggerUpdate();
-  }
-
-  _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      this._triggerUpdate();
+    if (value) {
+      this.setAttribute('group-end', '');
+    } else {
+      this.removeAttribute('group-end');
     }
   }
 }
 
+// Register the custom element
 customElements.define('dry-chat-bubble', DryChatBubble);
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = DryChatBubble;
+}
+

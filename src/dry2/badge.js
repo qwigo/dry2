@@ -1,407 +1,368 @@
+/**
+ * DRY2 Badge Component
+ * A customizable badge component for status indicators, counts, or labels
+ * Built with vanilla JavaScript using BaseElement
+ */
+
 class DryBadge extends BaseElement {
+  /**
+   * Escape HTML to prevent XSS attacks
+   */
+  static _escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /**
+   * Observe these attributes for changes
+   */
   static get observedAttributes() {
-    return ['variant', 'size', 'position', 'dot', 'max', 'visible', 'class'];
+    return ['variant', 'size', 'position', 'dot', 'max', 'visible'];
   }
 
   constructor() {
     super();
-    this._alpineDataRef = null;
-    this._isRendering = false;
-    this._validVariants = new Set(['primary', 'success', 'danger', 'warning', 'info']);
-    this._validSizes = new Set(['sm', 'md', 'lg']);
-    this._validPositions = new Set(['standalone', 'top-right', 'top-left', 'bottom-right', 'bottom-left']);
+    this._innerElement = null;
+    this._originalContent = null;
+    this._contentObserver = null;
+    this._isCapturingContent = false;
   }
 
-  _initializeComponent() {
-    try {
-      // Store original content safely
-      const originalContent = this._extractAndSanitizeContent();
-      
-      // Create the component structure with Alpine.js
-      this._render(originalContent);
-      
-      // Cache Alpine.js data reference
-      this._cacheAlpineData();
-    } catch (error) {
-      console.error('DryBadge initialization failed:', error);
-      this._renderFallback();
+  /**
+   * Override connectedCallback to capture content using MutationObserver
+   */
+  connectedCallback() {
+    if (!this.hasAttribute('data-rendered')) {
+      // Set display style once on first connection
+      if (!this.style.display) {
+        this.style.display = 'inline-block';
+      }
+
+      // Try to capture content immediately (for dynamically created elements)
+      const immediateContent = this.textContent.trim();
+
+      if (immediateContent || this.getBoolAttr('dot', false)) {
+        // Content already exists or it's a dot badge, render immediately
+        this._originalContent = immediateContent;
+        super.connectedCallback();
+      } else if (!this._isCapturingContent) {
+        // Content not yet available, wait for parser to add it
+        this._isCapturingContent = true;
+
+        // Set up MutationObserver to watch for child nodes being added
+        this._contentObserver = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              // Child nodes were added by the parser
+              const textContent = this.textContent.trim();
+              if ((textContent || this.getBoolAttr('dot', false)) && this._originalContent === null) {
+                this._originalContent = textContent;
+                this._contentObserver.disconnect();
+                this._contentObserver = null;
+
+                // Now render the component
+                super.connectedCallback();
+                break;
+              }
+            }
+          }
+        });
+
+        // Start observing - only watch childList changes, not attributes
+        this._contentObserver.observe(this, {
+          childList: true,
+          subtree: true
+        });
+
+        // Fallback: If no content is added within 100ms, render with default
+        setTimeout(() => {
+          if (this._contentObserver && !this.hasAttribute('data-rendered')) {
+            this._contentObserver.disconnect();
+            this._contentObserver = null;
+
+            if (this._originalContent === null) {
+              this._originalContent = this.textContent.trim() || '';
+            }
+
+            super.connectedCallback();
+          }
+        }, 100);
+      }
+    } else {
+      // Already rendered, just reattach listeners
+      super.connectedCallback();
     }
   }
 
-  _extractAndSanitizeContent() {
-    const content = this.textContent.trim();
-    // Sanitize content to prevent XSS
-    return this._escapeHtml(content);
-  }
-
-  _escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return '';
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  _escapeForJs(unsafe) {
-    if (typeof unsafe !== 'string') return '';
-    return unsafe
-      .replace(/\\/g, "\\\\")
-      .replace(/'/g, "\\'")
-      .replace(/"/g, '\\"')
-      .replace(/\n/g, "\\n")
-      .replace(/\r/g, "\\r")
-      .replace(/\t/g, "\\t");
-  }
-
-  _validateAttribute(name, value) {
-    switch (name) {
-      case 'variant':
-        return this._validVariants.has(value) ? value : 'primary';
-      case 'size':
-        return this._validSizes.has(value) ? value : 'md';
-      case 'position':
-        return this._validPositions.has(value) ? value : 'standalone';
-      case 'max':
-        const maxNum = parseInt(value, 10);
-        return !isNaN(maxNum) && maxNum > 0 ? maxNum : null;
-      default:
-        return value;
+  /**
+   * Override disconnectedCallback to clean up observer
+   */
+  disconnectedCallback() {
+    // Disconnect the MutationObserver if it exists
+    if (this._contentObserver) {
+      this._contentObserver.disconnect();
+      this._contentObserver = null;
     }
+
+    // Call parent's disconnectedCallback
+    super.disconnectedCallback();
   }
 
-  _buildClassString(baseClasses, conditionalClasses) {
-    const classes = [baseClasses];
-    conditionalClasses.forEach(cls => cls && classes.push(cls));
-    return classes.filter(Boolean).join(' ');
+  /**
+   * Main render method
+   */
+  render() {
+    const variant = this.getAttr('variant', 'primary');
+    const size = this.getAttr('size', 'md');
+    const position = this.getAttr('position', 'standalone');
+    const isDot = this.getBoolAttr('dot', false);
+    const max = this.getNumberAttr('max', null);
+    const visible = this.getBoolAttr('visible', true);
+
+    // Ensure we have content if not a dot badge
+    if (this._originalContent === null && !isDot) {
+      this._originalContent = '';
+    }
+
+    // If not visible, hide and return
+    if (!visible) {
+      this.style.display = 'none';
+      return;
+    } else {
+      this.style.display = 'inline-block';
+    }
+
+    // Get base classes
+    const baseClasses = this._getBaseClasses();
+    const variantClasses = this._getVariantClasses(variant);
+    const sizeClasses = this._getSizeClasses(size, isDot);
+    const positionClasses = this._getPositionClasses(position);
+
+    const allClasses = `${baseClasses} ${variantClasses} ${sizeClasses} ${positionClasses}`.trim();
+
+    // Build content - handle numeric max values
+    let displayContent = '';
+    if (!isDot) {
+      if (max && !isNaN(this._originalContent) && parseInt(this._originalContent) > max) {
+        displayContent = `${max}+`;
+      } else {
+        displayContent = DryBadge._escapeHtml(this._originalContent);
+      }
+    }
+
+    // Render the badge inside the custom element
+    // Use replaceChildren() for efficient DOM clearing (or textContent for older browsers)
+    if (typeof this.replaceChildren === 'function') {
+      this.replaceChildren();
+    } else {
+      this.textContent = '';
+    }
+
+    // Create wrapper and badge span
+    const wrapper = document.createElement('div');
+    wrapper.className = 'badge-container inline-block';
+
+    const badge = document.createElement('span');
+    badge.className = allClasses;
+    badge.textContent = displayContent;
+
+    wrapper.appendChild(badge);
+    this.appendChild(wrapper);
+
+    // Store reference to inner element
+    this._innerElement = badge;
   }
 
-  _getSizeClasses(size, isDot) {
-    const sizeMap = {
-      sm: isDot ? 'w-2 h-2' : 'px-1.5 py-0.5 text-xs min-h-[1.125rem]',
-      md: isDot ? 'w-3 h-3' : 'px-2 py-0.5 text-xs min-h-[1.25rem]',
-      lg: isDot ? 'w-4 h-4' : 'px-3 py-1 text-sm min-h-[1.75rem]'
-    };
-    return sizeMap[size] || sizeMap.md;
+  /**
+   * Get base badge classes
+   */
+  _getBaseClasses() {
+    return 'badge inline-flex items-center justify-center font-medium leading-none transition-all duration-200 rounded-full';
   }
 
+  /**
+   * Get variant-specific classes
+   */
   _getVariantClasses(variant) {
-    const variantMap = {
+    const variants = {
+      primary: 'bg-gray-800 text-white',
       success: 'bg-green-500 text-white',
       danger: 'bg-red-500 text-white',
       warning: 'bg-yellow-500 text-yellow-900',
-      info: 'bg-blue-500 text-white',
-      primary: 'bg-gray-800 text-white'
+      info: 'bg-blue-500 text-white'
     };
-    return variantMap[variant] || variantMap.primary;
+    return variants[variant] || variants.primary;
   }
 
+  /**
+   * Get size-specific classes
+   */
+  _getSizeClasses(size, isDot) {
+    if (isDot) {
+      const dotSizes = {
+        sm: 'w-2 h-2',
+        md: 'w-3 h-3',
+        lg: 'w-4 h-4'
+      };
+      return dotSizes[size] || dotSizes.md;
+    }
+
+    const sizes = {
+      sm: 'px-1.5 py-0.5 text-xs min-h-[1.125rem]',
+      md: 'px-2 py-0.5 text-xs min-h-[1.25rem]',
+      lg: 'px-3 py-1 text-sm min-h-[1.75rem]'
+    };
+    return sizes[size] || sizes.md;
+  }
+
+  /**
+   * Get position-specific classes
+   */
   _getPositionClasses(position) {
     if (position === 'standalone') return '';
-    
-    const positionMap = {
+
+    const positions = {
       'top-right': 'absolute z-10 -top-2 -right-2',
       'top-left': 'absolute z-10 -top-2 -left-2',
       'bottom-right': 'absolute z-10 bottom-4 -right-2',
       'bottom-left': 'absolute z-10 bottom-4 -left-2'
     };
-    return positionMap[position] || '';
+    return positions[position] || '';
   }
 
-
-
-  _render(originalContent) {
-    if (this._isRendering) return;
-    this._isRendering = true;
-
-    try {
-      const variant = this._validateAttribute('variant', this.variant);
-      const size = this._validateAttribute('size', this.size);
-      const position = this._validateAttribute('position', this.position);
-      const isDot = this.dot;
-      const max = this._validateAttribute('max', this.max);
-      const visible = this.visible;
-
-      // Use template element for safer DOM creation
-      const template = document.createElement('template');
-      template.innerHTML = `
-        <div x-data="{
-               content: '${this._escapeForJs(originalContent)}',
-               variant: '${variant}',
-               size: '${size}',
-               position: '${position}',
-               isDot: ${isDot},
-               max: ${max || 'null'},
-               visible: ${visible},
-               
-               getBadgeClasses() {
-                 const baseClasses = 'badge inline-flex items-center justify-center font-medium leading-none transition-all duration-200 rounded-full';
-                 let sizeClasses = '';
-                 let variantClasses = '';
-                 let positionClasses = '';
-                 
-                 // Size classes
-                 if (this.isDot) {
-                   sizeClasses = this.size === 'sm' ? 'w-2 h-2' : 
-                               this.size === 'lg' ? 'w-4 h-4' : 'w-3 h-3';
-                 } else {
-                   sizeClasses = this.size === 'sm' ? 'px-1.5 py-0.5 text-xs min-h-[1.125rem]' :
-                               this.size === 'lg' ? 'px-3 py-1 text-sm min-h-[1.75rem]' :
-                               'px-2 py-0.5 text-xs min-h-[1.25rem]';
-                 }
-                 
-                 // Variant classes
-                 variantClasses = this.variant === 'success' ? 'bg-green-500 dark:bg-green-600 text-white' :
-                                this.variant === 'danger' ? 'bg-red-500 dark:bg-red-600 text-white' :
-                                this.variant === 'warning' ? 'bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-white' :
-                                this.variant === 'info' ? 'bg-blue-500 dark:bg-blue-600 text-white' :
-                                'bg-gray-800 dark:bg-gray-700 text-white dark:text-gray-50';
-                 
-                 // Position classes
-                 if (this.position !== 'standalone') {
-                   positionClasses = 'absolute z-10 ' + 
-                     (this.position === 'top-right' ? '-top-2 -right-2' :
-                      this.position === 'top-left' ? '-top-2 -left-2' :
-                      this.position === 'bottom-right' ? 'bottom-4 -right-2' :
-                      this.position === 'bottom-left' ? 'bottom-4 -left-2' : '');
-                 }
-                 
-                 return [baseClasses, sizeClasses, variantClasses, positionClasses]
-                   .filter(cls => cls.length > 0).join(' ');
-               },
-               
-               getContainerClasses() {
-                 return 'badge-container inline-block';
-               },
-               
-               getDisplayContent() {
-                 if (this.isDot) return '';
-                 if (this.max && !isNaN(this.content) && parseInt(this.content) > this.max) {
-                   return this.max + '+';
-                 }
-                 return this.content;
-               },
-               
-               shouldShowBadge() {
-                 return this.visible && (this.isDot || this.content.length > 0);
-               }
-             }"
-             :class="getContainerClasses()"
-             x-show="visible"
-             x-transition:enter="transition-all duration-200 ease-out"
-             x-transition:enter-start="opacity-0 scale-75"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition-all duration-150 ease-in"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-75">
-          <span :class="getBadgeClasses()"
-                x-show="shouldShowBadge()"
-                x-text="getDisplayContent()">
-          </span>
-        </div>
-      `;
-
-      // Clear and append new content
-      this.innerHTML = '';
-      this.appendChild(template.content.cloneNode(true));
-      
-      // Re-cache Alpine data reference
-      this._cacheAlpineData();
-    } catch (error) {
-      console.error('DryBadge render failed:', error);
-      this._renderFallback();
-    } finally {
-      this._isRendering = false;
-    }
+  /**
+   * Handle attribute changes
+   */
+  onAttributeChange(name, oldValue, newValue) {
+    // Re-render on any attribute change
+    this.reRender();
   }
 
-  _renderFallback() {
-    // Fallback rendering without Alpine.js for critical failures
-    const content = this._extractAndSanitizeContent();
-    const variant = this._validateAttribute('variant', this.variant);
-    const size = this._validateAttribute('size', this.size);
-    const isDot = this.dot;
-    
-    if (!this.visible || (!isDot && !content)) {
-      this.style.display = 'none';
-      return;
-    }
-
-    const badgeClasses = this._buildClassString(
-      'badge inline-flex items-center justify-center font-medium leading-none rounded-full',
-      [
-        this._getSizeClasses(size, isDot),
-        this._getVariantClasses(variant),
-        this._getPositionClasses(this.position)
-      ]
-    );
-
-    this.innerHTML = `
-      <div class="badge-container inline-block">
-        <span class="${badgeClasses}">${isDot ? '' : content}</span>
-      </div>
-    `;
-  }
-
-  _cacheAlpineData() {
-    // Safely cache Alpine.js data reference with retry logic
-    setTimeout(() => {
-      try {
-        const element = this.querySelector('[x-data]');
-        this._alpineDataRef = element?.__x?.$data || null;
-      } catch (error) {
-        console.warn('Failed to cache Alpine.js data:', error);
-        this._alpineDataRef = null;
-      }
-    }, 0);
-  }
-
-  _updateAlpineProperty(property, value) {
-    if (this._alpineDataRef && this._alpineDataRef[property] !== undefined) {
-      try {
-        this._alpineDataRef[property] = value;
-        return true;
-      } catch (error) {
-        console.warn(`Failed to update Alpine.js property ${property}:`, error);
-      }
-    }
-    return false;
-  }
-
-  // Optimized attribute change handling - only update what's necessary
-  _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue === newValue || !this._isInitialized || this._isRendering) return;
-
-    const validatedValue = this._validateAttribute(name, newValue);
-    
-    try {
-      switch (name) {
-        case 'variant':
-        case 'size': 
-        case 'position':
-          // These affect styling, try Alpine update first, fallback to re-render
-          if (!this._updateAlpineProperty(name, validatedValue)) {
-            this._render(this._extractAndSanitizeContent());
-          }
-          break;
-          
-        case 'dot':
-          const isDot = newValue !== null && newValue !== 'false';
-          if (!this._updateAlpineProperty('isDot', isDot)) {
-            this._render(this._extractAndSanitizeContent());
-          }
-          break;
-          
-        case 'max':
-          if (!this._updateAlpineProperty('max', validatedValue)) {
-            this._render(this._extractAndSanitizeContent());
-          }
-          break;
-          
-        case 'visible':
-          const visible = newValue !== null && newValue !== 'false';
-          if (!this._updateAlpineProperty('visible', visible)) {
-            // Fallback to direct style manipulation
-            this.style.display = visible ? '' : 'none';
-          }
-          break;
-          
-        case 'class':
-          // Full re-render needed for class changes
-          this._render(this._extractAndSanitizeContent());
-          break;
-      }
-    } catch (error) {
-      console.error(`Error handling attribute change for ${name}:`, error);
-      // Fallback to safe re-render
-      this._renderFallback();
-    }
-  }
-
-  // Public API methods with error handling
+  /**
+   * Public API: Show badge
+   */
   show() {
-    this.visible = true;
+    this.setAttribute('visible', 'true');
   }
 
+  /**
+   * Public API: Hide badge
+   */
   hide() {
-    this.visible = false;
+    this.setAttribute('visible', 'false');
   }
 
+  /**
+   * Public API: Toggle visibility
+   */
   toggle() {
-    this.visible = !this.visible;
-  }
-
-  setContent(content) {
-    if (content == null) content = '';
-    
-    const sanitizedContent = this._escapeHtml(content.toString());
-    
-    if (!this._updateAlpineProperty('content', sanitizedContent)) {
-      // Fallback: update text content and re-render
-      this.textContent = content;
-      this._render(sanitizedContent);
+    const isVisible = this.getBoolAttr('visible', true);
+    if (isVisible) {
+      this.hide();
+    } else {
+      this.show();
     }
   }
 
-  // Getters and setters with validation
+  /**
+   * Public API: Set badge content
+   */
+  setContent(content) {
+    this._originalContent = content ? content.toString() : '';
+    if (this.hasAttribute('data-rendered')) {
+      this.reRender();
+    }
+  }
+
+  /**
+   * Get/Set variant property
+   */
   get variant() {
-    return this._getAttributeWithDefault('variant', 'primary');
+    return this.getAttr('variant', 'primary');
   }
 
   set variant(value) {
-    const validatedValue = this._validateAttribute('variant', value);
-    this._setAttribute('variant', validatedValue);
+    this.setAttribute('variant', value);
   }
 
+  /**
+   * Get/Set size property
+   */
   get size() {
-    return this._getAttributeWithDefault('size', 'md');
+    return this.getAttr('size', 'md');
   }
 
   set size(value) {
-    const validatedValue = this._validateAttribute('size', value);
-    this._setAttribute('size', validatedValue);
+    this.setAttribute('size', value);
   }
 
+  /**
+   * Get/Set position property
+   */
   get position() {
-    return this._getAttributeWithDefault('position', 'standalone');
+    return this.getAttr('position', 'standalone');
   }
 
   set position(value) {
-    const validatedValue = this._validateAttribute('position', value);
-    this._setAttribute('position', validatedValue);
+    this.setAttribute('position', value);
   }
 
+  /**
+   * Get/Set dot property
+   */
   get dot() {
-    return this._getBooleanAttribute('dot');
+    return this.getBoolAttr('dot', false);
   }
 
   set dot(value) {
-    this._setBooleanAttribute('dot', value);
+    if (value) {
+      this.setAttribute('dot', '');
+    } else {
+      this.removeAttribute('dot');
+    }
   }
 
+  /**
+   * Get/Set max property
+   */
   get max() {
-    return this._getNumericAttribute('max', null);
+    const value = this.getNumberAttr('max', null);
+    return value;
   }
 
   set max(value) {
-    const validatedValue = this._validateAttribute('max', value);
-    this._setNumericAttribute('max', validatedValue);
+    if (value !== null && value !== undefined && !isNaN(value)) {
+      this.setAttribute('max', value.toString());
+    } else {
+      this.removeAttribute('max');
+    }
   }
 
+  /**
+   * Get/Set visible property
+   */
   get visible() {
-    return !this.hasAttribute('hidden') && this.getAttribute('visible') !== 'false';
+    return this.getBoolAttr('visible', true);
   }
 
   set visible(value) {
     if (value) {
-      this.removeAttribute('hidden');
       this.setAttribute('visible', 'true');
     } else {
-      this.setAttribute('hidden', '');
       this.setAttribute('visible', 'false');
     }
   }
 }
 
+// Register the custom element
 customElements.define('dry-badge', DryBadge);
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = DryBadge;
+}
