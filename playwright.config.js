@@ -33,6 +33,9 @@ export default defineConfig({
     
     // Video on failure
     video: 'retain-on-failure',
+    
+    // Grant clipboard permissions for all tests
+    permissions: ['clipboard-read', 'clipboard-write'],
   },
 
   // Configure projects for major browsers

@@ -345,7 +345,23 @@ document.addEventListener('toggle:changed', (event) => {
     </div>
 
 <script>
-    // Interactive demo event handling
+    // Interactive demo event handling - set up immediately
+    (function() {
+        // Set up event listener immediately (don't wait for DOMContentLoaded)
+        document.addEventListener('toggle:changed', function(event) {
+            const eventLog = document.getElementById('event-log');
+            if (eventLog) {
+                const { name, checked, value } = event.detail;
+                const entry = document.createElement('div');
+                entry.className = 'text-xs';
+                entry.textContent = `${new Date().toLocaleTimeString()}: ${name} toggled to ${checked ? 'ON' : 'OFF'} (value: ${value})`;
+                eventLog.appendChild(entry);
+                eventLog.scrollTop = eventLog.scrollHeight;
+            }
+        });
+    })();
+
+    // Wait for DOM to be ready for other setup
     document.addEventListener('DOMContentLoaded', function() {
         const eventLog = document.getElementById('event-log');
         const clearBtn = document.getElementById('clear-log');
@@ -357,12 +373,6 @@ document.addEventListener('toggle:changed', (event) => {
             eventLog.appendChild(entry);
             eventLog.scrollTop = eventLog.scrollHeight;
         }
-
-        // Listen for toggle events
-        document.addEventListener('toggle:changed', function(event) {
-            const { name, checked, value } = event.detail;
-            addLogEntry(`${name} toggled to ${checked ? 'ON' : 'OFF'} (value: ${value})`);
-        });
 
         // Clear log button
         clearBtn.addEventListener('click', function() {

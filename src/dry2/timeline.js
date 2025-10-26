@@ -4,7 +4,7 @@ class Timeline extends BaseElement {
     this._childObserver = null;
   }
 
-  _initializeComponent() {
+  render() {
     // Apply simple container styling
     this.className = this.getContainerClasses();
     
@@ -79,7 +79,7 @@ class TimelineItem extends BaseElement {
     return ['variant', 'date', 'title', 'icon'];
   }
 
-  _initializeComponent() {
+  render() {
     // Store original content before any modifications
     if (!this._originalContent) {
       this._originalContent = this.innerHTML;
@@ -87,7 +87,7 @@ class TimelineItem extends BaseElement {
     
     // Don't initialize immediately - wait for parent timeline to call _initializeWithIndex
     const parentTimeline = this.closest('timeline-component');
-    if (parentTimeline && parentTimeline._isInitialized) {
+    if (parentTimeline && parentTimeline._rendered) {
       // Parent is already initialized, we can initialize now
       this._initializeWithParent();
     }
@@ -176,7 +176,7 @@ class TimelineItem extends BaseElement {
   }
 
   get variant() {
-    return this._getAttributeWithDefault('variant', 'default');
+    return this.getAttr('variant', 'default');
   }
 
   get date() {
@@ -200,9 +200,8 @@ class TimelineItem extends BaseElement {
       .replace(/'/g, '&#039;');
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    super.attributeChangedCallback(name, oldValue, newValue);
-    if (oldValue !== newValue && this._isInitialized) {
+  onAttributeChange(name, oldValue, newValue) {
+    if (oldValue !== newValue && this._rendered) {
       this._initializeItem();
     }
   }

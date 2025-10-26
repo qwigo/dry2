@@ -17,12 +17,12 @@ class DryToast extends BaseElement {
     }
   }
 
-  _initializeComponent() {
+  render() {
     // Hide the original element
     this.style.display = 'none';
 
     // Auto-show if specified
-    if (this._getBooleanAttribute('auto-show')) {
+    if (this.getBoolAttr('auto-show')) {
       setTimeout(() => this.show(), 100);
     }
   }
@@ -168,7 +168,7 @@ class DryToast extends BaseElement {
   }
 
   _dispatchToastEvent(eventName) {
-    this._dispatchEvent(eventName, {
+    this.emit(eventName, {
       toast: this,
       type: this.type,
       message: this.message
@@ -186,38 +186,38 @@ class DryToast extends BaseElement {
 
   // Getters and setters
   get message() {
-    return this._getAttributeWithDefault('message', '');
+    return this.getAttr('message', '');
   }
 
   set message(value) {
-    this._setAttribute('message', value);
+    this.setAttribute('message', value);
   }
 
   get type() {
-    return this._getAttributeWithDefault('type', 'info');
+    return this.getAttr('type', 'info');
   }
 
   set type(value) {
-    this._setAttribute('type', value);
+    this.setAttribute('type', value);
   }
 
   get position() {
-    return this._getAttributeWithDefault('position', 'bottom-right');
+    return this.getAttr('position', 'bottom-right');
   }
 
   set position(value) {
-    this._setAttribute('position', value);
+    this.setAttribute('position', value);
   }
 
   get duration() {
-    return this._getNumericAttribute('duration', 3000);
+    return this.getNumberAttr('duration', 3000);
   }
 
   set duration(value) {
-    this._setNumericAttribute('duration', value);
+    this.setAttribute('duration', value);
   }
 
-  _handleAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, oldValue, newValue) {
     if (oldValue !== newValue && this._isVisible) {
       // Re-render the toast if it's currently visible
       this.hide();

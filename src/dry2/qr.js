@@ -5,16 +5,15 @@ class DryQRCode extends BaseElement {
     this.canvas = null;
   }
 
-  _initializeComponent() {
+  beforeRender() {
     this.initializeCanvas();
-    this.render();
   }
 
   static get observedAttributes() {
     return ['value', 'size', 'foreground', 'background', 'error-correction'];
   }
 
-  _handleAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, oldValue, newValue) {
     if (this.isConnected && oldValue !== newValue) {
       this.render();
     }
@@ -22,43 +21,43 @@ class DryQRCode extends BaseElement {
 
   // Getters and setters for JavaScript API
   get value() {
-    return this._getAttributeWithDefault('value', '');
+    return this.getAttr('value', '');
   }
 
   set value(val) {
-    this._setAttribute('value', val);
+    this.setAttribute('value', val);
   }
 
   get size() {
-    return this._getNumericAttribute('size', 200);
+    return this.getNumberAttr('size', 200);
   }
 
   set size(val) {
-    this._setNumericAttribute('size', val);
+    this.setAttribute('size', val);
   }
 
   get foreground() {
-    return this._getAttributeWithDefault('foreground', '#000000');
+    return this.getAttr('foreground', '#000000');
   }
 
   set foreground(val) {
-    this._setAttribute('foreground', val);
+    this.setAttribute('foreground', val);
   }
 
   get background() {
-    return this._getAttributeWithDefault('background', '#ffffff');
+    return this.getAttr('background', '#ffffff');
   }
 
   set background(val) {
-    this._setAttribute('background', val);
+    this.setAttribute('background', val);
   }
 
   get errorCorrection() {
-    return this._getAttributeWithDefault('error-correction', 'M');
+    return this.getAttr('error-correction', 'M');
   }
 
   set errorCorrection(val) {
-    this._setAttribute('error-correction', val);
+    this.setAttribute('error-correction', val);
   }
 
   initializeCanvas() {

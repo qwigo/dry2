@@ -19,7 +19,7 @@
 </head>
 <body class="bg-gray-50">
     <!-- Include Navigation -->
-    <div id="navigation" hx-get="partials/nav.inc.html" hx-trigger="load"></div>
+    <div id="navigation"></div>
     
     <!-- Breadcrumbs -->
     <div class="bg-white border-b">
@@ -84,28 +84,28 @@
                         </div>
                     </div>
                     
-                    <dry-code language="HTML"><!-- Basic card structure -->
-<dry-card>
-    <div slot="header">
-        <h3 class="text-lg font-semibold text-gray-900">Simple Card</h3>
-    </div>
-    <div slot="body">
-        <p class="text-gray-600">This is a basic card with header and body content.</p>
-    </div>
-</dry-card>
+                    <dry-code language="HTML">&lt;!-- Basic card structure --&gt;
+&lt;dry-card&gt;
+    &lt;div slot="header"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Simple Card&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div slot="body"&gt;
+        &lt;p class="text-gray-600"&gt;This is a basic card with header and body content.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;
 
-<!-- Card with footer -->
-<dry-card>
-    <div slot="body">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Body Only</h3>
-        <p class="text-gray-600">This card contains only body content.</p>
-    </div>
-    <div slot="footer">
-        <div class="flex justify-end">
-            <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Action</button>
-        </div>
-    </div>
-</dry-card></dry-code>
+&lt;!-- Card with footer --&gt;
+&lt;dry-card&gt;
+    &lt;div slot="body"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900 mb-2"&gt;Body Only&lt;/h3&gt;
+        &lt;p class="text-gray-600"&gt;This card contains only body content.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div slot="footer"&gt;
+        &lt;div class="flex justify-end"&gt;
+            &lt;button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"&gt;Action&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;</dry-code>
                 </section>
 
                 <!-- Variants Section -->
@@ -144,33 +144,33 @@
                         </div>
                     </div>
                     
-                    <dry-code language="HTML"><!-- Card variants -->
-<dry-card variant="filled">
-    <div slot="header">
-        <h3 class="text-lg font-semibold text-gray-900">Filled (Default)</h3>
-    </div>
-    <div slot="body">
-        <p class="text-gray-600">Standard filled card with background and shadow.</p>
-    </div>
-</dry-card>
+                    <dry-code language="HTML">&lt;!-- Card variants --&gt;
+&lt;dry-card variant="filled"&gt;
+    &lt;div slot="header"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Filled (Default)&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div slot="body"&gt;
+        &lt;p class="text-gray-600"&gt;Standard filled card with background and shadow.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;
 
-<dry-card variant="outlined" bordered>
-    <div slot="header">
-        <h3 class="text-lg font-semibold text-gray-900">Outlined</h3>
-    </div>
-    <div slot="body">
-        <p class="text-gray-600">Outlined card with border and no shadow.</p>
-    </div>
-</dry-card>
+&lt;dry-card variant="outlined" bordered&gt;
+    &lt;div slot="header"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Outlined&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div slot="body"&gt;
+        &lt;p class="text-gray-600"&gt;Outlined card with border and no shadow.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;
 
-<dry-card variant="elevated" elevation="xl">
-    <div slot="header">
-        <h3 class="text-lg font-semibold text-gray-900">Elevated</h3>
-    </div>
-    <div slot="body">
-        <p class="text-gray-600">Elevated card with enhanced shadow.</p>
-    </div>
-</dry-card></dry-code>
+&lt;dry-card variant="elevated" elevation="xl"&gt;
+    &lt;div slot="header"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Elevated&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div slot="body"&gt;
+        &lt;p class="text-gray-600"&gt;Elevated card with enhanced shadow.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;</dry-code>
                 </section>
 
                 <!-- Interactive Demo Section -->
@@ -182,7 +182,7 @@
                         <div class="flex flex-col lg:flex-row gap-8">
                             <div class="flex-1">
                                 <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
-                                    <dry-card id="interactive-card" variant="filled" elevation="md" interactive>
+                                    <dry-card id="interactive-card" variant="filled" elevation="md" orientation="vertical" interactive>
                                         <div slot="header">
                                             <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>
                                         </div>
@@ -236,14 +236,14 @@
                         </div>
                     </div>
 
-                    <dry-code language="HTML" id="interactive-code"><dry-card variant="filled" elevation="md" interactive>
-    <div slot="header">
-        <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>
-    </div>
-    <div slot="body">
-        <p class="text-gray-600">This card can be controlled via the controls on the right.</p>
-    </div>
-</dry-card></dry-code>
+                    <dry-code language="HTML" id="interactive-code">&lt;dry-card variant="filled" elevation="md" orientation="vertical" interactive&gt;
+    &lt;div slot="header"&gt;
+        &lt;h3 class="text-lg font-semibold text-gray-900"&gt;Interactive Card&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div slot="body"&gt;
+        &lt;p class="text-gray-600"&gt;This card can be controlled via the controls on the right.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/dry-card&gt;</dry-code>
                 </section>
 
                 <!-- Component Builder Section -->
@@ -382,7 +382,7 @@
 
     <script>
         // Interactive demo functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        function initializeInteractiveDemo() {
             const interactiveCard = document.getElementById('interactive-card');
             const variantSelect = document.getElementById('variant-select');
             const elevationSelect = document.getElementById('elevation-select');
@@ -390,6 +390,13 @@
             const interactiveCheckbox = document.getElementById('interactive-checkbox');
             const borderedCheckbox = document.getElementById('bordered-checkbox');
             const interactiveCode = document.getElementById('interactive-code');
+
+            // Check if all elements exist before proceeding
+            if (!interactiveCard || !variantSelect || !elevationSelect || !orientationSelect || 
+                !interactiveCheckbox || !borderedCheckbox || !interactiveCode) {
+                console.warn('Card showcase: Some interactive demo elements not found');
+                return;
+            }
 
             function updateInteractiveCode() {
                 let code = '<dry-card';
@@ -402,9 +409,8 @@
                     code += ` elevation="${elevationSelect.value}"`;
                 }
                 
-                if (orientationSelect.value !== 'vertical') {
-                    code += ` orientation="${orientationSelect.value}"`;
-                }
+                // Always include orientation attribute
+                code += ` orientation="${orientationSelect.value}"`;
                 
                 if (interactiveCheckbox.checked) {
                     code += ' interactive';
@@ -415,7 +421,11 @@
                 }
                 
                 code += '>\n    <div slot="header">\n        <h3 class="text-lg font-semibold text-gray-900">Interactive Card</h3>\n    </div>\n    <div slot="body">\n        <p class="text-gray-600">This card can be controlled via the controls on the right.</p>\n    </div>\n</dry-card>';
-                interactiveCode.textContent = code;
+                
+                // Use setCode() method to properly update the code component
+                if (interactiveCode && typeof interactiveCode.setCode === 'function') {
+                    interactiveCode.setCode(code);
+                }
             }
 
             // Event listeners for interactive controls
@@ -443,68 +453,77 @@
                 interactiveCard.bordered = this.checked;
                 updateInteractiveCode();
             });
+        }
 
-            // Initialize Component Builder
-            new ComponentBuilder({
-                elementId: 'card-component-builder',
-                componentTag: 'dry-card',
-                title: 'Card Component Builder',
-                description: 'Try changing the card properties dynamically and see the results in real-time.',
-                
-                properties: {
-                    variant: {
-                        type: 'select',
-                        label: 'Variant',
-                        options: [
-                            { value: 'filled', label: 'Filled' },
-                            { value: 'outlined', label: 'Outlined' },
-                            { value: 'elevated', label: 'Elevated' }
-                        ],
-                        default: 'filled'
+        // Initialize Component Builder
+        function initializeComponentBuilder() {
+            // Check if ComponentBuilder is available
+            if (typeof ComponentBuilder === 'undefined') {
+                console.warn('ComponentBuilder not available, skipping initialization');
+                return;
+            }
+
+            try {
+                new ComponentBuilder({
+                    elementId: 'card-component-builder',
+                    componentTag: 'dry-card',
+                    title: 'Card Component Builder',
+                    description: 'Try changing the card properties dynamically and see the results in real-time.',
+                    
+                    properties: {
+                        variant: {
+                            type: 'select',
+                            label: 'Variant',
+                            options: [
+                                { value: 'filled', label: 'Filled' },
+                                { value: 'outlined', label: 'Outlined' },
+                                { value: 'elevated', label: 'Elevated' }
+                            ],
+                            default: 'filled'
+                        },
+                        elevation: {
+                            type: 'select',
+                            label: 'Elevation',
+                            options: [
+                                { value: 'none', label: 'None' },
+                                { value: 'sm', label: 'Small' },
+                                { value: 'md', label: 'Medium' },
+                                { value: 'lg', label: 'Large' },
+                                { value: 'xl', label: 'Extra Large' }
+                            ],
+                            default: 'md'
+                        },
+                        orientation: {
+                            type: 'select',
+                            label: 'Orientation',
+                            options: [
+                                { value: 'vertical', label: 'Vertical' },
+                                { value: 'horizontal', label: 'Horizontal' }
+                            ],
+                            default: 'vertical'
+                        },
+                        interactive: {
+                            type: 'checkbox',
+                            label: 'Interactive',
+                            default: false
+                        },
+                        bordered: {
+                            type: 'checkbox',
+                            label: 'Bordered',
+                            default: false
+                        }
                     },
-                    elevation: {
-                        type: 'select',
-                        label: 'Elevation',
-                        options: [
-                            { value: 'none', label: 'None' },
-                            { value: 'sm', label: 'Small' },
-                            { value: 'md', label: 'Medium' },
-                            { value: 'lg', label: 'Large' },
-                            { value: 'xl', label: 'Extra Large' }
-                        ],
-                        default: 'md'
+                    
+                    defaults: {
+                        variant: 'filled',
+                        elevation: 'md',
+                        orientation: 'vertical',
+                        interactive: false,
+                        bordered: false
                     },
-                    orientation: {
-                        type: 'select',
-                        label: 'Orientation',
-                        options: [
-                            { value: 'vertical', label: 'Vertical' },
-                            { value: 'horizontal', label: 'Horizontal' }
-                        ],
-                        default: 'vertical'
-                    },
-                    interactive: {
-                        type: 'checkbox',
-                        label: 'Interactive',
-                        default: false
-                    },
-                    bordered: {
-                        type: 'checkbox',
-                        label: 'Bordered',
-                        default: false
-                    }
-                },
-                
-                defaults: {
-                    variant: 'filled',
-                    elevation: 'md',
-                    orientation: 'vertical',
-                    interactive: false,
-                    bordered: false
-                },
-                
-                contentGenerator: function(values) {
-                    return `
+                    
+                    contentGenerator: function(values) {
+                        return `
     <div slot="header">
         <h3 class="text-lg font-semibold text-gray-900">Sample Card</h3>
         <p class="text-sm text-gray-500">Dynamic Example</p>
@@ -518,11 +537,26 @@
             <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">Cancel</button>
         </div>
     </div>`;
-                }
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to initialize ComponentBuilder:', error);
+            }
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeInteractiveDemo();
+                initializeComponentBuilder();
             });
-        });
+        } else {
+            // DOM already loaded
+            initializeInteractiveDemo();
+            initializeComponentBuilder();
+        }
     </script>
     
-    <div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
+    <div id="footer"></div>
 </body>
 </html>

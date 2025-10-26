@@ -38,10 +38,7 @@ class DryBadge extends BaseElement {
    */
   connectedCallback() {
     if (!this.hasAttribute('data-rendered')) {
-      // Set display style once on first connection
-      if (!this.style.display) {
-        this.style.display = 'inline-block';
-      }
+      // Display style will be set during render based on position attribute
 
       // Try to capture content immediately (for dynamically created elements)
       const immediateContent = this.textContent.trim();
@@ -134,7 +131,17 @@ class DryBadge extends BaseElement {
       this.style.display = 'none';
       return;
     } else {
-      this.style.display = 'inline-block';
+      // For positioned badges, don't constrain with inline-block
+      if (position !== 'standalone') {
+        this.style.display = 'block';
+        this.style.position = 'absolute';
+        // Apply position styles directly to the custom element
+        const positionStyles = this._getPositionStyles(position);
+        Object.assign(this.style, positionStyles);
+      } else {
+        this.style.display = 'inline-block';
+        this.style.position = '';
+      }
     }
 
     // Get base classes
@@ -165,7 +172,7 @@ class DryBadge extends BaseElement {
 
     // Create wrapper and badge span
     const wrapper = document.createElement('div');
-    wrapper.className = 'badge-container inline-block';
+    wrapper.className = 'badge-container';
 
     const badge = document.createElement('span');
     badge.className = allClasses;
@@ -221,18 +228,25 @@ class DryBadge extends BaseElement {
   }
 
   /**
-   * Get position-specific classes
+   * Get position-specific classes (without absolute positioning, handled on custom element)
    */
   _getPositionClasses(position) {
     if (position === 'standalone') return '';
+    // Return z-index class only, positioning handled at custom element level
+    return 'z-10';
+  }
 
+  /**
+   * Get position-specific styles for custom element
+   */
+  _getPositionStyles(position) {
     const positions = {
-      'top-right': 'absolute z-10 -top-2 -right-2',
-      'top-left': 'absolute z-10 -top-2 -left-2',
-      'bottom-right': 'absolute z-10 bottom-4 -right-2',
-      'bottom-left': 'absolute z-10 bottom-4 -left-2'
+      'top-right': { top: '-0.5rem', right: '-0.5rem' },
+      'top-left': { top: '-0.5rem', left: '-0.5rem' },
+      'bottom-right': { bottom: '-0.5rem', right: '-0.5rem' },
+      'bottom-left': { bottom: '-0.5rem', left: '-0.5rem' }
     };
-    return positions[position] || '';
+    return positions[position] || {};
   }
 
   /**

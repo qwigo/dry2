@@ -733,13 +733,13 @@ print(greet("World"))</dry-code>
             <p class="demo-description">Try different languages and configuration options.</p>
             
             <div class="demo-container">
-                <div x-data="demoData()">
+                <div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Controls -->
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                                <select x-model="language" @change="codeContent = getExampleCode(language); updateDemo()" class="w-full p-2 border border-gray-300 rounded">
+                                <select id="language-select" class="w-full p-2 border border-gray-300 rounded">
                                     <option value="JavaScript">JavaScript</option>
                                     <option value="Python">Python</option>
                                     <option value="HTML">HTML</option>
@@ -753,11 +753,11 @@ print(greet("World"))</dry-code>
                             
                             <div class="space-y-2">
                                 <label class="flex items-center">
-                                    <input type="checkbox" x-model="showHeader" @change="updateDemo()" class="mr-2">
+                                    <input type="checkbox" id="show-header-check" checked class="mr-2">
                                     Show Header
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="checkbox" x-model="showCopy" @change="updateDemo()" class="mr-2">
+                                    <input type="checkbox" id="show-copy-check" checked class="mr-2">
                                     Show Copy Button
                                 </label>
                             </div>
@@ -765,15 +765,23 @@ print(greet("World"))</dry-code>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Code Content</label>
                                 <textarea 
-                                    x-model="codeContent" 
+                                    id="code-textarea"
                                     class="w-full p-2 border border-gray-300 rounded font-mono text-sm" 
                                     rows="12"
-                                    placeholder="Enter your code here...">
-                                </textarea>
+                                    placeholder="Enter your code here...">// Interactive JavaScript example
+const message = 'Hello from the interactive demo!';
+console.log(message);
+
+// Try changing the language to see different syntax highlighting
+function greet(name) {
+    return `Hello, ${name}!`;
+}
+
+greet('Developer');</textarea>
                             </div>
                             
                             <button 
-                                @click="updateDemo()"
+                                id="update-demo-btn"
                                 class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                                 Update Preview
                             </button>
@@ -916,52 +924,67 @@ codeElement.showHeader = true;</dry-code>
     </div>
 
     <script>
-        // Data function for the interactive demo
-        function demoData() {
-            return {
-                language: 'JavaScript',
-                showHeader: true,
-                showCopy: true,
-                codeContent: '// Interactive JavaScript example\nconst message = \'Hello from the interactive demo!\';\nconsole.log(message);\n\n// Try changing the language to see different syntax highlighting\nfunction greet(name) {\n    return `Hello, ${name}!`;\n}\n\ngreet(\'Developer\');',
-                
-                updateDemo() {
-                    const codeElement = document.getElementById('demo-code');
-                    if (codeElement) {
-                        // Update attributes
-                        codeElement.setAttribute('language', this.language);
-                        codeElement.setAttribute('show-header', this.showHeader);
-                        codeElement.setAttribute('show-copy', this.showCopy);
-                        
-                        // Update code content
-                        codeElement.setCode(this.codeContent);
-                    }
-                },
-                
-                getExampleCode(lang) {
-                    const examples = {
-                        'JavaScript': '// Modern JavaScript ES6+ Example\nconst users = [\n  { name: \'Alice\', age: 30, active: true },\n  { name: \'Bob\', age: 25, active: false }\n];\n\n// Arrow functions and destructuring\nconst getActiveUsers = () => users.filter(({ active }) => active);\n\n// Async/await example\nasync function fetchData() {\n  try {\n    const response = await fetch(\'/api/users\');\n    return await response.json();\n  } catch (error) {\n    console.error(\'Error:\', error);\n  }\n}',
-                        
-                        'Python': '# Python Data Processing Example\nimport pandas as pd\nfrom datetime import datetime\n\nclass DataProcessor:\n    def __init__(self, data_source):\n        self.data_source = data_source\n        self.processed_data = None\n        \n    def analyze_data(self, data):\n        summary = {\n            \'total_rows\': len(data),\n            \'columns\': list(data.columns),\n            \'missing_values\': data.isnull().sum().to_dict()\n        }\n        return summary\n\n# List comprehension example\nactive_users = [user for user in users if user.get(\'active\', False)]',
-                        
-                        'HTML': '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Interactive Demo</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n    <header class="main-header">\n        <h1 id="title">Welcome</h1>\n        <nav>\n            <a href="#home">Home</a>\n            <a href="#about">About</a>\n        </nav>\n    </header>\n    <main>\n        <p>This is a paragraph with <strong>bold text</strong>.</p>\n    </main>\n</body>\n</html>',
-                        
-                        'CSS': '/* Modern CSS with Variables and Grid */\n:root {\n  --primary-color: #3b82f6;\n  --secondary-color: #64748b;\n  --border-radius: 0.5rem;\n}\n\n.container {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n  gap: 2rem;\n  padding: 2rem;\n}\n\n.card {\n  background: white;\n  border-radius: var(--border-radius);\n  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\n  transition: transform 0.3s ease;\n}\n\n.card:hover {\n  transform: translateY(-4px);\n}',
-                        
-                        'JSON': '{\n  "status": "success",\n  "timestamp": "2024-01-15T10:30:00Z",\n  "data": {\n    "users": [\n      {\n        "id": 1,\n        "username": "alice_doe",\n        "email": "alice@example.com",\n        "profile": {\n          "firstName": "Alice",\n          "lastName": "Doe",\n          "age": 28,\n          "active": true,\n          "preferences": {\n            "theme": "dark",\n            "notifications": true\n          }\n        }\n      }\n    ],\n    "pagination": {\n      "currentPage": 1,\n      "totalPages": 5,\n      "itemsPerPage": 10\n    }\n  }\n}',
-                        
-                        'SQL': '-- Advanced SQL with Joins and Window Functions\nSELECT \n    u.id as user_id,\n    u.username,\n    u.email,\n    COUNT(DISTINCT p.id) as total_posts,\n    COUNT(DISTINCT c.id) as total_comments,\n    AVG(p.view_count) as avg_post_views,\n    ROW_NUMBER() OVER (ORDER BY COUNT(p.id) DESC) as user_rank,\n    CASE \n        WHEN COUNT(p.id) > 50 THEN \'Power User\'\n        WHEN COUNT(p.id) > 10 THEN \'Active User\'\n        ELSE \'Casual User\'\n    END as user_category\nFROM users u\nLEFT JOIN posts p ON u.id = p.user_id \nLEFT JOIN comments c ON p.id = c.post_id\nWHERE u.active = true\n    AND u.created_at >= \'2023-01-01\'\nGROUP BY u.id, u.username, u.email\nORDER BY total_posts DESC;',
-                        
-                        'Bash': '#!/bin/bash\n# Deployment Automation Script\nset -euo pipefail\n\nAPP_NAME="my-web-app"\nDEPLOY_DIR="/var/www/${APP_NAME}"\nLOG_FILE="/var/log/${APP_NAME}-deploy.log"\n\n# Logging function\nlog() {\n    echo "$(date \'+%Y-%m-%d %H:%M:%S\') - $1" | tee -a "$LOG_FILE"\n}\n\n# Create backup\ncreate_backup() {\n    local backup_name="${APP_NAME}-$(date +%Y%m%d-%H%M%S)"\n    log "Creating backup: $backup_name"\n    \n    if [[ -d "$DEPLOY_DIR" ]]; then\n        tar -czf "/var/backups/${backup_name}.tar.gz" "$DEPLOY_DIR"\n        log "Backup created successfully"\n    fi\n}\n\n# Main deployment\ndeploy() {\n    log "Starting deployment"\n    create_backup\n    # Add deployment logic here\n    log "Deployment completed"\n}\n\ndeploy',
-                        
-                        'XML': '<?xml version="1.0" encoding="UTF-8"?>\n<bookstore>\n    <book id="1" category="fiction">\n        <title lang="en">Great Gatsby</title>\n        <author>F. Scott Fitzgerald</author>\n        <year>1925</year>\n        <price currency="USD">12.99</price>\n        <description>\n            A classic American novel about the Jazz Age.\n        </description>\n    </book>\n    <book id="2" category="biography">\n        <title lang="en">Steve Jobs</title>\n        <author>Walter Isaacson</author>\n        <year>2011</year>\n        <price currency="USD">14.99</price>\n    </book>\n</bookstore>'
-                    };
-                    return examples[lang] || this.codeContent;
-                }
-            };
-        }
+        // Example code snippets for different languages
+        const exampleCodeSnippets = {
+            'JavaScript': '// Modern JavaScript ES6+ Example\nconst users = [\n  { name: \'Alice\', age: 30, active: true },\n  { name: \'Bob\', age: 25, active: false }\n];\n\n// Arrow functions and destructuring\nconst getActiveUsers = () => users.filter(({ active }) => active);\n\n// Async/await example\nasync function fetchData() {\n  try {\n    const response = await fetch(\'/api/users\');\n    return await response.json();\n  } catch (error) {\n    console.error(\'Error:\', error);\n  }\n}',
+            
+            'Python': '# Python Data Processing Example\nimport pandas as pd\nfrom datetime import datetime\n\nclass DataProcessor:\n    def __init__(self, data_source):\n        self.data_source = data_source\n        self.processed_data = None\n        \n    def analyze_data(self, data):\n        summary = {\n            \'total_rows\': len(data),\n            \'columns\': list(data.columns),\n            \'missing_values\': data.isnull().sum().to_dict()\n        }\n        return summary\n\n# List comprehension example\nactive_users = [user for user in users if user.get(\'active\', False)]',
+            
+            'HTML': '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Interactive Demo</title>\n    <link rel="stylesheet" href="styles.css">\n</head>\n<body>\n    <header class="main-header">\n        <h1 id="title">Welcome</h1>\n        <nav>\n            <a href="#home">Home</a>\n            <a href="#about">About</a>\n        </nav>\n    </header>\n    <main>\n        <p>This is a paragraph with <strong>bold text</strong>.</p>\n    </main>\n</body>\n</html>',
+            
+            'CSS': '/* Modern CSS with Variables and Grid */\n:root {\n  --primary-color: #3b82f6;\n  --secondary-color: #64748b;\n  --border-radius: 0.5rem;\n}\n\n.container {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n  gap: 2rem;\n  padding: 2rem;\n}\n\n.card {\n  background: white;\n  border-radius: var(--border-radius);\n  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\n  transition: transform 0.3s ease;\n}\n\n.card:hover {\n  transform: translateY(-4px);\n}',
+            
+            'JSON': '{\n  "status": "success",\n  "timestamp": "2024-01-15T10:30:00Z",\n  "data": {\n    "users": [\n      {\n        "id": 1,\n        "username": "alice_doe",\n        "email": "alice@example.com",\n        "profile": {\n          "firstName": "Alice",\n          "lastName": "Doe",\n          "age": 28,\n          "active": true,\n          "preferences": {\n            "theme": "dark",\n            "notifications": true\n          }\n        }\n      }\n    ],\n    "pagination": {\n      "currentPage": 1,\n      "totalPages": 5,\n      "itemsPerPage": 10\n    }\n  }\n}',
+            
+            'SQL': '-- Advanced SQL with Joins and Window Functions\nSELECT \n    u.id as user_id,\n    u.username,\n    u.email,\n    COUNT(DISTINCT p.id) as total_posts,\n    COUNT(DISTINCT c.id) as total_comments,\n    AVG(p.view_count) as avg_post_views,\n    ROW_NUMBER() OVER (ORDER BY COUNT(p.id) DESC) as user_rank,\n    CASE \n        WHEN COUNT(p.id) > 50 THEN \'Power User\'\n        WHEN COUNT(p.id) > 10 THEN \'Active User\'\n        ELSE \'Casual User\'\n    END as user_category\nFROM users u\nLEFT JOIN posts p ON u.id = p.user_id \nLEFT JOIN comments c ON p.id = c.post_id\nWHERE u.active = true\n    AND u.created_at >= \'2023-01-01\'\nGROUP BY u.id, u.username, u.email\nORDER BY total_posts DESC;',
+            
+            'Bash': '#!/bin/bash\n# Deployment Automation Script\nset -euo pipefail\n\nAPP_NAME="my-web-app"\nDEPLOY_DIR="/var/www/${APP_NAME}"\nLOG_FILE="/var/log/${APP_NAME}-deploy.log"\n\n# Logging function\nlog() {\n    echo "$(date \'+%Y-%m-%d %H:%M:%S\') - $1" | tee -a "$LOG_FILE"\n}\n\n# Create backup\ncreate_backup() {\n    local backup_name="${APP_NAME}-$(date +%Y%m%d-%H%M%S)"\n    log "Creating backup: $backup_name"\n    \n    if [[ -d "$DEPLOY_DIR" ]]; then\n        tar -czf "/var/backups/${backup_name}.tar.gz" "$DEPLOY_DIR"\n        log "Backup created successfully"\n    fi\n}\n\n# Main deployment\ndeploy() {\n    log "Starting deployment"\n    create_backup\n    # Add deployment logic here\n    log "Deployment completed"\n}\n\ndeploy',
+            
+            'XML': '<?xml version="1.0" encoding="UTF-8"?>\n<bookstore>\n    <book id="1" category="fiction">\n        <title lang="en">Great Gatsby</title>\n        <author>F. Scott Fitzgerald</author>\n        <year>1925</year>\n        <price currency="USD">12.99</price>\n        <description>\n            A classic American novel about the Jazz Age.\n        </description>\n    </book>\n    <book id="2" category="biography">\n        <title lang="en">Steve Jobs</title>\n        <author>Walter Isaacson</author>\n        <year>2011</year>\n        <price currency="USD">14.99</price>\n    </book>\n</bookstore>'
+        };
         
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Code Showcase loaded successfully');
+            
+            // Setup interactive demo event listeners
+            const languageSelect = document.getElementById('language-select');
+            const showHeaderCheck = document.getElementById('show-header-check');
+            const showCopyCheck = document.getElementById('show-copy-check');
+            const codeTextarea = document.getElementById('code-textarea');
+            const updateButton = document.getElementById('update-demo-btn');
+            const demoCodeElement = document.getElementById('demo-code');
+            
+            // Function to update the demo
+            const updateDemo = () => {
+                if (demoCodeElement) {
+                    const language = languageSelect.value;
+                    const showHeader = showHeaderCheck.checked;
+                    const showCopy = showCopyCheck.checked;
+                    const codeContent = codeTextarea.value;
+                    
+                    // Update attributes
+                    demoCodeElement.setAttribute('language', language);
+                    demoCodeElement.setAttribute('show-header', showHeader);
+                    demoCodeElement.setAttribute('show-copy', showCopy);
+                    
+                    // Update code content
+                    demoCodeElement.setCode(codeContent);
+                }
+            };
+            
+            // Language change handler
+            languageSelect.addEventListener('change', () => {
+                const language = languageSelect.value;
+                codeTextarea.value = exampleCodeSnippets[language] || codeTextarea.value;
+                updateDemo();
+            });
+            
+            // Update button handler
+            updateButton.addEventListener('click', updateDemo);
+            
+            // Checkbox change handlers
+            showHeaderCheck.addEventListener('change', updateDemo);
+            showCopyCheck.addEventListener('change', updateDemo);
 
             // Initialize Component Builder
             new ComponentBuilder({

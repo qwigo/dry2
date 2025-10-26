@@ -1,675 +1,441 @@
 /**
- * DryAccordion - Secure and performant accordion component
- * Fixes: XSS vulnerabilities, performance issues, and architectural concerns
+ * DRY2 Accordion Component
+ * A customizable accordion component with smooth animations and accessibility support
+ * Built with vanilla JavaScript using BaseElement
+ */
+
+/**
+ * AccordionItem - Individual accordion section
+ */
+class AccordionItem extends BaseElement {
+  /**
+   * Escape HTML to prevent XSS attacks
+   */
+  static _escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /**
+   * Observe these attributes for changes
+   */
+  static get observedAttributes() {
+    return ['title', 'icon', 'open', 'disabled'];
+  }
+
+  constructor() {
+    super();
+    this._originalContent = null;
+    this._header = null;
+    this._content = null;
+    this._contentWrapper = null;
+    this._isOpen = false;
+  }
+
+  /**
+   * Override beforeRender to capture original content
+   */
+  beforeRender() {
+    // Capture the original content before we transform it
+    if (!this._originalContent) {
+      this._originalContent = this.innerHTML;
+    }
+  }
+
+  /**
+   * Main render method
+   */
+  render() {
+    const title = this.getAttr('title', 'Accordion Item');
+    const icon = this.getAttr('icon', '');
+    const isOpen = this.getBoolAttr('open', false);
+    const disabled = this.getBoolAttr('disabled', false);
+
+    // Store open state
+    this._isOpen = isOpen;
+
+    // Generate unique ID if not present
+    if (!this.id) {
+      this.id = `accordion-item-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    // Build the accordion structure
+    const headerId = `${this.id}-header`;
+    const contentId = `${this.id}-content`;
+
+    // Build icon HTML (if provided, it's already HTML)
+    const iconHTML = icon ? icon : '';
+
+    // Build header
+    const headerHTML = `
+      <button 
+        id="${headerId}"
+        class="accordion-header w-full flex items-center justify-between px-4 py-3 text-left font-medium transition-colors duration-200 ${
+          disabled 
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+            : 'bg-white hover:bg-gray-50 text-gray-900 cursor-pointer'
+        } border-b border-gray-200"
+        aria-expanded="${isOpen}"
+        aria-controls="${contentId}"
+        ${disabled ? 'disabled' : ''}
+      >
+        <span class="flex items-center gap-2">
+          ${iconHTML ? `<span class="accordion-icon">${iconHTML}</span>` : ''}
+          <span class="accordion-title">${AccordionItem._escapeHtml(title)}</span>
+        </span>
+        <svg 
+          class="accordion-chevron w-5 h-5 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''}" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+    `;
+
+    // Build content area
+    const contentHTML = `
+      <div 
+        id="${contentId}"
+        class="accordion-content-wrapper overflow-hidden transition-all duration-300 ease-in-out"
+        style="max-height: ${isOpen ? '1000px' : '0'}; opacity: ${isOpen ? '1' : '0'};"
+        role="region"
+        aria-labelledby="${headerId}"
+      >
+        <div class="accordion-content p-4 bg-white border-b border-gray-200">
+          ${this._originalContent}
+        </div>
+      </div>
+    `;
+
+    // Clear and rebuild
+    this.innerHTML = headerHTML + contentHTML;
+
+    // Store references
+    this._header = this.querySelector('.accordion-header');
+    this._contentWrapper = this.querySelector('.accordion-content-wrapper');
+    this._content = this.querySelector('.accordion-content');
+  }
+
+  /**
+   * Attach event listeners
+   */
+  attachEventListeners() {
+    if (this._header && !this.getBoolAttr('disabled', false)) {
+      this.addTrackedListener(this._header, 'click', this._handleClick.bind(this));
+    }
+  }
+
+  /**
+   * Handle header click
+   */
+  _handleClick(event) {
+    event.preventDefault();
+    this.toggle();
+  }
+
+  /**
+   * Open the accordion item
+   */
+  open() {
+    if (this._isOpen || this.getBoolAttr('disabled', false)) return;
+
+    this._isOpen = true;
+    this.setAttribute('open', '');
+
+    // Animate open
+    if (this._contentWrapper && this._header) {
+      const chevron = this._header.querySelector('.accordion-chevron');
+      this._header.setAttribute('aria-expanded', 'true');
+      this._contentWrapper.style.maxHeight = `${this._content.scrollHeight + 32}px`;
+      this._contentWrapper.style.opacity = '1';
+      if (chevron) {
+        chevron.classList.add('transform', 'rotate-180');
+      }
+    }
+
+    // Notify parent accordion
+    this._notifyParent('opened');
+  }
+
+  /**
+   * Close the accordion item
+   */
+  close() {
+    if (!this._isOpen || this.getBoolAttr('disabled', false)) return;
+
+    this._isOpen = false;
+    this.removeAttribute('open');
+
+    // Animate close
+    if (this._contentWrapper && this._header) {
+      const chevron = this._header.querySelector('.accordion-chevron');
+      this._header.setAttribute('aria-expanded', 'false');
+      this._contentWrapper.style.maxHeight = '0';
+      this._contentWrapper.style.opacity = '0';
+      if (chevron) {
+        chevron.classList.remove('transform', 'rotate-180');
+      }
+    }
+
+    // Notify parent accordion
+    this._notifyParent('closed');
+  }
+
+  /**
+   * Toggle the accordion item
+   */
+  toggle() {
+    if (this._isOpen) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+
+  /**
+   * Notify parent accordion of state change
+   */
+  _notifyParent(action) {
+    const parent = this.closest('dry-accordion');
+    if (parent) {
+      parent._handleItemChange(this.id, action);
+    }
+  }
+
+  /**
+   * Handle attribute changes
+   */
+  onAttributeChange(name, oldValue, newValue) {
+    if (name === 'open') {
+      if (this.getBoolAttr('open', false)) {
+        this._isOpen = false; // Reset so open() will work
+        this.open();
+      } else {
+        this._isOpen = true; // Reset so close() will work
+        this.close();
+      }
+    } else if (name === 'disabled') {
+      this.reRender();
+    } else {
+      // Re-render for title or icon changes
+      this.reRender();
+    }
+  }
+
+  /**
+   * Get open state
+   */
+  get isOpen() {
+    return this._isOpen;
+  }
+}
+
+/**
+ * DryAccordion - Accordion container component
  */
 class DryAccordion extends BaseElement {
+  /**
+   * Observe these attributes for changes
+   */
   static get observedAttributes() {
     return ['multiple', 'disabled'];
   }
 
   constructor() {
     super();
-    this._accordionState = null;
-    this._accordionEl = null;
-    this._alpineDataCache = null;
-    this._itemsCache = null;
-    this._errorReported = false;
-    this._childObserver = null;
+    this._openItems = new Set();
   }
 
-  connectedCallback() {
-    if (!this._isInitialized) {
-      this._waitForChildrenAndInitialize();
-      this._isInitialized = true;
+  /**
+   * Main render method
+   */
+  render() {
+    // Just add styling wrapper - children accordion-items are already rendered
+    const multiple = this.getBoolAttr('multiple', false);
+    const disabled = this.getBoolAttr('disabled', false);
+
+    // Add base styling to accordion container
+    if (!this.classList.contains('dry-accordion')) {
+      this.classList.add('dry-accordion', 'border', 'border-gray-200', 'rounded-lg', 'overflow-hidden');
     }
+
+    // Apply disabled state to all items
+    if (disabled) {
+      this.$$('accordion-item').forEach(item => {
+        item.setAttribute('disabled', '');
+      });
+    } else {
+      this.$$('accordion-item').forEach(item => {
+        item.removeAttribute('disabled');
+      });
+    }
+
+    // Initialize open items set
+    this._updateOpenItems();
   }
 
-  _initializeComponent() {
-    try {
-      // Extract accordion items with caching
-      const items = this._extractItemsSecurely();
-
-      if (items.length === 0) {
-        // Don't treat this as an error immediately - wait for items to be added
-        console.info('Accordion initialized with no items - waiting for items to be added');
-        this._setupEmptyAccordion();
-        return;
+  /**
+   * Update the set of open items
+   */
+  _updateOpenItems() {
+    this._openItems.clear();
+    this.$$('accordion-item').forEach(item => {
+      if (item.isOpen) {
+        this._openItems.add(item.id);
       }
-
-      // Initialize accordion state
-      this._accordionState = new AccordionState(items, {
-        multiple: this.multiple,
-        disabled: this.disabled
-      });
-
-      // Build DOM efficiently without innerHTML replacement
-      this._buildAccordionDOM();
-
-      // Initialize Alpine.js safely
-      this._initializeAlpineJS();
-
-      this._dispatchEvent('accordion:initialized', {
-        itemCount: items.length,
-        openItems: this._accordionState.getOpenItems()
-      });
-
-    } catch (error) {
-      this._handleError('initialization-failed', error.message, error);
-    }
+    });
   }
 
   /**
-   * Setup empty accordion that will watch for items to be added
+   * Handle item state change
    */
-  _setupEmptyAccordion() {
-    // Set up a mutation observer to watch for child accordion-item elements
-    this._setupChildObserver();
-    
-    // Create a minimal container for now
-    this.innerHTML = '<div class="accordion space-y-2" x-data="{ openItems: [], multiple: false, disabled: false }"></div>';
-    this._accordionEl = this.firstElementChild;
-  }
+  _handleItemChange(itemId, action) {
+    const multiple = this.getBoolAttr('multiple', false);
 
-  /**
-   * Setup mutation observer to watch for child elements being added
-   */
-  _setupChildObserver() {
-    if (this._childObserver) {
-      this._childObserver.disconnect();
-    }
-
-    this._childObserver = new MutationObserver((mutations) => {
-      let hasNewAccordionItems = false;
-      
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeType === Node.ELEMENT_NODE && 
-              node.tagName && 
-              node.tagName.toLowerCase() === 'accordion-item') {
-            hasNewAccordionItems = true;
+    if (action === 'opened') {
+      // If not multiple mode, close other items
+      if (!multiple) {
+        this.$$('accordion-item').forEach(item => {
+          if (item.id !== itemId && item.isOpen) {
+            item.close();
           }
         });
-      });
-
-      if (hasNewAccordionItems) {
-        // Clear cache and re-initialize
-        this._itemsCache = null;
-        this._childObserver.disconnect();
-        this._childObserver = null;
-        
-        // Small delay to ensure all items are added
-        setTimeout(() => {
-          this._initializeComponent();
-        }, 50);
       }
+      this._openItems.add(itemId);
+    } else if (action === 'closed') {
+      this._openItems.delete(itemId);
+    }
+
+    // Emit change event
+    this.emit('accordion:change', {
+      itemId,
+      isOpen: action === 'opened',
+      openItems: Array.from(this._openItems)
     });
-
-    this._childObserver.observe(this, { childList: true, subtree: false });
   }
 
   /**
-   * Securely extract items with proper validation and sanitization
+   * Open a specific item
    */
-  _extractItemsSecurely() {
-    if (this._itemsCache) {
-      return this._itemsCache;
-    }
-
-    let itemElements = [];
-
-    // Method 1: Direct children with accordion-item tag
-    itemElements = Array.from(this.children).filter(child =>
-      child.tagName && child.tagName.toLowerCase() === 'accordion-item'
-    );
-
-    // Method 2: Elements with title attribute (fallback)
-    if (itemElements.length === 0) {
-      itemElements = Array.from(this.children).filter(child =>
-        child.hasAttribute && child.hasAttribute('title')
-      );
-    }
-
-    // Method 3: Parse from preserved content (secure fallback)
-    if (itemElements.length === 0 && this._originalContent) {
-      itemElements = this._parseFromOriginalContent();
-    }
-
-    // Validate and sanitize extracted items
-    this._itemsCache = itemElements.map((item, index) => {
-      const id = this._sanitizeId(item.id || `item-${index}`);
-      const title = this._escapeHtml(item.getAttribute('title') || `Item ${index + 1}`);
-      const icon = this._sanitizeIcon(item.getAttribute('icon') || '');
-      
-      return {
-        id,
-        title,
-        icon,
-        disabled: item.hasAttribute('disabled'),
-        open: item.hasAttribute('open'),
-        content: this._sanitizeContent(item.innerHTML || '')
-      };
-    });
-
-    return this._itemsCache;
-  }
-
-  /**
-   * Parse items from original content securely
-   */
-  _parseFromOriginalContent() {
-    try {
-      // Use DOMParser for secure parsing instead of innerHTML
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(
-        `<div>${this._originalContent}</div>`, 
-        'text/html'
-      );
-      
-      return Array.from(doc.body.firstChild.children).filter(child =>
-        child.tagName && child.tagName.toLowerCase() === 'accordion-item'
-      );
-    } catch (error) {
-      console.warn('Failed to parse original content:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Build accordion DOM efficiently using DocumentFragment
-   */
-  _buildAccordionDOM() {
-    // Clear existing content
-    this.innerHTML = '';
-
-    // Create container
-    const container = document.createElement('div');
-    container.className = 'accordion space-y-2';
-
-    // Set Alpine.js data directly on the element
-    this._setAlpineData(container);
-
-    // Build items using DocumentFragment for performance
-    const fragment = document.createDocumentFragment();
-    this._accordionState.items.forEach(item => {
-      const itemElement = this._createItemElement(item);
-      fragment.appendChild(itemElement);
-    });
-
-    container.appendChild(fragment);
-    this.appendChild(container);
-    this._accordionEl = container;
-  }
-
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  _setAlpineData(container) {
-    const openItems = this._accordionState.getOpenItems();
-    const multiple = this._accordionState.multiple;
-    const disabled = this._accordionState.disabled;
-
-    // Create a properly formatted x-data string
-    const dataString = `{
-      openItems: ${JSON.stringify(openItems)},
-      multiple: ${multiple},
-      disabled: ${disabled},
-      isOpen(itemId) {
-        return this.openItems.includes(itemId);
-      },
-      toggle(itemId) {
-        if (this.disabled) return;
-        
-        if (this.isOpen(itemId)) {
-          this.openItems = this.openItems.filter(id => id !== itemId);
-        } else {
-          if (this.multiple) {
-            this.openItems.push(itemId);
-          } else {
-            this.openItems = [itemId];
-          }
-        }
-        
-        this.$dispatch('accordion:change', {
-          itemId: itemId,
-          isOpen: this.isOpen(itemId),
-          openItems: this.openItems
-        });
-      }
-    }`;
-
-    container.setAttribute('x-data', dataString);
-  }
-
-  /**
-   * Initialize Alpine.js data directly on the element
-   */
-  _initializeAlpineData(container, dataObj) {
-    // Use a simple x-data attribute that Alpine can parse
-    container.setAttribute('x-data', '{}');
-    
-    // Set up the data after Alpine initializes the element
-    setTimeout(() => {
-      if (window.Alpine && window.Alpine.$data) {
-        try {
-          const alpineInstance = window.Alpine.$data(container);
-          if (alpineInstance) {
-            // Copy properties to the Alpine instance
-            Object.assign(alpineInstance, dataObj);
-          }
-        } catch (error) {
-          console.warn('Failed to set Alpine data directly, using fallback');
-          this._createDataStringFallback(container, dataObj.openItems);
-        }
-      }
-    }, 50);
-  }
-
-  /**
-   * Fallback method to create a safe data string
-   */
-  _createDataStringFallback(container, openItems) {
-    // Use simple string construction with careful escaping
-    const openItemsStr = openItems.map(id => `'${id}'`).join(',');
-    
-    const dataString = `{
-      openItems: [${openItemsStr}],
-      multiple: ${this._accordionState.multiple},
-      disabled: ${this._accordionState.disabled},
-      isOpen(itemId) { return this.openItems.includes(itemId); },
-      toggle(itemId) { 
-        if (this.disabled) return;
-        if (this.isOpen(itemId)) {
-          this.openItems = this.openItems.filter(id => id !== itemId);
-        } else {
-          if (this.multiple) { this.openItems.push(itemId); } 
-          else { this.openItems = [itemId]; }
-        }
-        this.$dispatch('accordion:change', { itemId, isOpen: this.isOpen(itemId), openItems: this.openItems });
-      }
-    }`;
-
-    container.setAttribute('x-data', dataString);
-  }
-
-  /**
-   * Create individual accordion item element
-   */
-  _createItemElement(item) {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'accordion-item bg-white border border-gray-200 rounded-lg overflow-hidden';
-
-    // Create header button
-    const button = this._createItemButton(item);
-    itemDiv.appendChild(button);
-
-    // Create content container
-    const contentContainer = this._createItemContent(item);
-    itemDiv.appendChild(contentContainer);
-
-    return itemDiv;
-  }
-
-  /**
-   * Create accordion item button with proper security
-   */
-  _createItemButton(item) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `accordion-header flex items-center justify-between w-full px-4 py-3 text-left bg-transparent hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ${
-      item.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-    }`;
-    
-    // Set Alpine.js attributes safely using full attribute names
-    button.setAttribute('x-on:click', `toggle('${item.id}')`);
-    button.setAttribute('x-bind:aria-expanded', `isOpen('${item.id}')`);
-    button.setAttribute('aria-controls', `${item.id}-content`);
-    
-    if (item.disabled) {
-      button.disabled = true;
-    }
-
-    // Create button content
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'flex items-center';
-
-    // Add icon if present
-    if (item.icon) {
-      const iconSpan = document.createElement('span');
-      iconSpan.className = 'mr-2';
-      iconSpan.innerHTML = item.icon; // Sanitized icon HTML
-      contentDiv.appendChild(iconSpan);
-    }
-
-    // Add title
-    const titleSpan = document.createElement('span');
-    titleSpan.className = 'font-medium text-gray-900';
-    titleSpan.textContent = item.title; // Safe text content, already escaped
-    contentDiv.appendChild(titleSpan);
-
-    button.appendChild(contentDiv);
-
-    // Add chevron icon
-    const chevron = this._createChevronIcon(item.id);
-    button.appendChild(chevron);
-
-    return button;
-  }
-
-  /**
-   * Create chevron icon element
-   */
-  _createChevronIcon(itemId) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'w-5 h-5 transition-transform duration-200');
-    svg.setAttribute('x-bind:class', `isOpen('${itemId}') ? 'transform rotate-180' : ''`);
-    svg.setAttribute('fill', 'none');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('stroke', 'currentColor');
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('stroke-linecap', 'round');
-    path.setAttribute('stroke-linejoin', 'round');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('d', 'M19 9l-7 7-7-7');
-
-    svg.appendChild(path);
-    return svg;
-  }
-
-  /**
-   * Create accordion item content container
-   */
-  _createItemContent(item) {
-    const contentDiv = document.createElement('div');
-    contentDiv.setAttribute('x-show', `isOpen('${item.id}')`);
-    contentDiv.setAttribute('x-transition:enter', 'transition-all duration-200 ease-out');
-    contentDiv.setAttribute('x-transition:enter-start', 'opacity-0 max-h-0');
-    contentDiv.setAttribute('x-transition:enter-end', 'opacity-100 max-h-screen');
-    contentDiv.setAttribute('x-transition:leave', 'transition-all duration-150 ease-in');
-    contentDiv.setAttribute('x-transition:leave-start', 'opacity-100 max-h-screen');
-    contentDiv.setAttribute('x-transition:leave-end', 'opacity-0 max-h-0');
-    contentDiv.className = 'accordion-content overflow-hidden';
-    contentDiv.id = `${item.id}-content`;
-
-    const innerDiv = document.createElement('div');
-    innerDiv.className = 'px-4 py-4 text-gray-700 border-t border-gray-200';
-    innerDiv.innerHTML = item.content; // Content is already sanitized
-
-    contentDiv.appendChild(innerDiv);
-    return contentDiv;
-  }
-
-  /**
-   * Initialize Alpine.js with proper error handling
-   */
-  _initializeAlpineJS() {
-    this._ensureAlpineProcessing();
-
-    // Cache Alpine data after initialization
-    setTimeout(() => {
-      this._alpineDataCache = this._getAlpineDataSecurely();
-    }, 100);
-  }
-
-  /**
-   * Get Alpine.js data with caching and error handling
-   */
-  _getAlpineDataSecurely() {
-    if (this._alpineDataCache) {
-      return this._alpineDataCache;
-    }
-
-    if (!this._accordionEl || !window.Alpine) {
-      return null;
-    }
-
-    try {
-      // Use official Alpine.js API instead of private properties
-      const data = window.Alpine.$data(this._accordionEl);
-      this._alpineDataCache = data;
-      return data;
-    } catch (error) {
-      console.warn('Failed to access Alpine.js data:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get all item IDs efficiently
-   */
-  _getAllItemIds() {
-    return this._accordionState ? this._accordionState.getAllItemIds() : [];
-  }
-
-  // Public API Methods with improved error handling
   openItem(itemId) {
-    if (!this._validateItemId(itemId)) return;
-    
-    const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && !alpineData.disabled && !alpineData.isOpen(itemId)) {
-      alpineData.toggle(itemId);
+    const item = this.querySelector(`#${itemId}`);
+    if (item && item.tagName === 'ACCORDION-ITEM') {
+      item.open();
     }
   }
 
+  /**
+   * Close a specific item
+   */
   closeItem(itemId) {
-    if (!this._validateItemId(itemId)) return;
-    
-    const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && alpineData.isOpen(itemId)) {
-      alpineData.toggle(itemId);
+    const item = this.querySelector(`#${itemId}`);
+    if (item && item.tagName === 'ACCORDION-ITEM') {
+      item.close();
     }
   }
 
+  /**
+   * Toggle a specific item
+   */
   toggleItem(itemId) {
-    if (!this._validateItemId(itemId)) return;
-    
-    const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && !alpineData.disabled) {
-      alpineData.toggle(itemId);
+    const item = this.querySelector(`#${itemId}`);
+    if (item && item.tagName === 'ACCORDION-ITEM') {
+      item.toggle();
     }
   }
 
+  /**
+   * Open all items (only works in multiple mode)
+   */
   openAll() {
-    const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && alpineData.multiple && !alpineData.disabled) {
-      alpineData.openItems = this._getAllItemIds();
+    const multiple = this.getBoolAttr('multiple', false);
+    if (!multiple) {
+      console.warn('openAll() only works in multiple mode');
+      return;
     }
+
+    this.$$('accordion-item').forEach(item => {
+      item.open();
+    });
   }
 
+  /**
+   * Close all items
+   */
   closeAll() {
-    const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && !alpineData.disabled) {
-      alpineData.openItems = [];
+    this.$$('accordion-item').forEach(item => {
+      item.close();
+    });
+  }
+
+  /**
+   * Handle attribute changes
+   */
+  onAttributeChange(name, oldValue, newValue) {
+    if (name === 'multiple') {
+      const multiple = this.getBoolAttr('multiple', false);
+      // If switching to single mode, close all but the first open item
+      if (!multiple) {
+        let firstOpenFound = false;
+        this.$$('accordion-item').forEach(item => {
+          if (item.isOpen) {
+            if (firstOpenFound) {
+              item.close();
+            } else {
+              firstOpenFound = true;
+            }
+          }
+        });
+      }
+    } else if (name === 'disabled') {
+      this.reRender();
     }
   }
 
-  // Getters and setters
+  /**
+   * Get/Set multiple property
+   */
   get multiple() {
-    return this._getBooleanAttribute('multiple');
+    return this.getBoolAttr('multiple', false);
   }
 
   set multiple(value) {
-    this._setBooleanAttribute('multiple', value);
-  }
-
-  get disabled() {
-    return this._getBooleanAttribute('disabled');
-  }
-
-  set disabled(value) {
-    this._setBooleanAttribute('disabled', value);
+    if (value) {
+      this.setAttribute('multiple', '');
+    } else {
+      this.removeAttribute('multiple');
+    }
   }
 
   /**
-   * Handle attribute changes with proper state management
+   * Get/Set disabled property
    */
-  _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      const alpineData = this._getAlpineDataSecurely();
-
-      if (alpineData && this._accordionState) {
-        if (name === 'multiple') {
-          const newMultiple = this.multiple;
-          alpineData.multiple = newMultiple;
-          this._accordionState.multiple = newMultiple;
-          
-          // If switching to single mode, keep only first open item
-          if (!newMultiple && alpineData.openItems.length > 1) {
-            alpineData.openItems = [alpineData.openItems[0]];
-          }
-        } else if (name === 'disabled') {
-          const newDisabled = this.disabled;
-          alpineData.disabled = newDisabled;
-          this._accordionState.disabled = newDisabled;
-        }
-      }
-    }
+  get disabled() {
+    return this.getBoolAttr('disabled', false);
   }
 
-  // Security utilities
-  _escapeHtml(text) {
-    if (typeof text !== 'string') return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  _sanitizeId(id) {
-    // Remove dangerous characters and ensure valid ID
-    return id.replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 50) || 'item';
-  }
-
-  _sanitizeIcon(icon) {
-    // Sanitize icon HTML - only allow SVG elements with safe attributes
-    if (typeof icon !== 'string' || !icon.trim()) return '';
-    
-    // Basic validation: must be an SVG element
-    if (!icon.trim().toLowerCase().startsWith('<svg')) {
-      console.warn('Icon must be an SVG element');
-      return '';
-    }
-    
-    // Remove dangerous attributes and scripts
-    return icon
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/data:/gi, '')
-      .trim();
-  }
-
-  _sanitizeContent(content) {
-    // Basic content sanitization - in production, use a proper sanitizer like DOMPurify
-    if (typeof content !== 'string') return '';
-    
-    // Remove script tags and dangerous attributes
-    return content
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-      .replace(/javascript:/gi, '');
-  }
-
-  _validateItemId(itemId) {
-    if (!itemId || typeof itemId !== 'string') {
-      console.warn('Invalid item ID provided to accordion method');
-      return false;
-    }
-    return true;
-  }
-
-  _handleError(type, message, error = null) {
-    if (this._errorReported) return; // Prevent spam
-    
-    console.error(`Accordion Error [${type}]:`, message);
-    if (error) console.error(error);
-    
-    this._dispatchEvent('accordion:error', { type, message, error });
-    this._errorReported = true;
-  }
-
-  // Cleanup on disconnect
-  disconnectedCallback() {
-    super.disconnectedCallback && super.disconnectedCallback();
-    
-    // Clean up mutation observer
-    if (this._childObserver) {
-      this._childObserver.disconnect();
-      this._childObserver = null;
-    }
-    
-    this._accordionState = null;
-    this._accordionEl = null;
-    this._alpineDataCache = null;
-    this._itemsCache = null;
-  }
-}
-
-/**
- * AccordionState - Manages accordion state separately from DOM
- */
-class AccordionState {
-  constructor(items, options = {}) {
-    this.items = items;
-    this.multiple = options.multiple || false;
-    this.disabled = options.disabled || false;
-    this._openItems = new Set();
-    
-    // Initialize open items
-    this._initializeOpenItems();
-  }
-
-  _initializeOpenItems() {
-    const initialOpenItems = this.items
-      .filter(item => item.open)
-      .map(item => item.id);
-
-    if (this.multiple) {
-      initialOpenItems.forEach(id => this._openItems.add(id));
-    } else if (initialOpenItems.length > 0) {
-      this._openItems.add(initialOpenItems[0]);
-    }
-  }
-
-  getOpenItems() {
-    return Array.from(this._openItems);
-  }
-
-  getAllItemIds() {
-    return this.items.map(item => item.id);
-  }
-
-  isOpen(itemId) {
-    return this._openItems.has(itemId);
-  }
-
-  toggle(itemId) {
-    if (this.disabled) return;
-
-    if (this._openItems.has(itemId)) {
-      this._openItems.delete(itemId);
+  set disabled(value) {
+    if (value) {
+      this.setAttribute('disabled', '');
     } else {
-      if (this.multiple) {
-        this._openItems.add(itemId);
-      } else {
-        this._openItems.clear();
-        this._openItems.add(itemId);
-      }
+      this.removeAttribute('disabled');
     }
   }
 }
 
-// Remove the empty AccordionItem class since it serves no purpose
-// If needed for styling or other purposes, it can be re-added with actual functionality
-
+// Register the custom elements
+customElements.define('accordion-item', AccordionItem);
 customElements.define('dry-accordion', DryAccordion);
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { DryAccordion, AccordionItem };
+}
+

@@ -25,7 +25,7 @@ class BaseElement extends HTMLElement {
           this.render();
           this.afterRender();
           this.attachEventListeners();
-          this.setAttribute('data-rendered', '');
+          this.setAttribute('data-rendered', 'true');
           this._rendered = true;
         }
       }, 0);

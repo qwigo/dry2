@@ -3,10 +3,6 @@ class DryStat extends BaseElement {
     super();
   }
 
-  _initializeComponent() {
-    this.render();
-  }
-
   static get observedAttributes() {
     return [
       'value', 'label', 'trend', 'trend-value', 'comparison', 'icon',
@@ -14,27 +10,27 @@ class DryStat extends BaseElement {
     ];
   }
 
-  _handleAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, oldValue, newValue) {
     if (this.isConnected && oldValue !== newValue) {
-      this.render();
+      this.reRender();
     }
   }
 
   // Getters for component properties
   get value() {
-    return this._getAttributeWithDefault('value', '0');
+    return this.getAttr('value', '0');
   }
 
   set value(val) {
-    this._setAttribute('value', val);
+    this.setAttribute('value', val);
   }
 
   get label() {
-    return this._getAttributeWithDefault('label', 'Statistic');
+    return this.getAttr('label', 'Statistic');
   }
 
   set label(val) {
-    this._setAttribute('label', val);
+    this.setAttribute('label', val);
   }
 
   get trend() {
@@ -42,7 +38,7 @@ class DryStat extends BaseElement {
   }
 
   set trend(val) {
-    this._setAttribute('trend', val);
+    this.setAttribute('trend', val);
   }
 
   get trendValue() {
@@ -50,7 +46,7 @@ class DryStat extends BaseElement {
   }
 
   set trendValue(val) {
-    this._setAttribute('trend-value', val);
+    this.setAttribute('trend-value', val);
   }
 
   get comparison() {
@@ -58,7 +54,7 @@ class DryStat extends BaseElement {
   }
 
   set comparison(val) {
-    this._setAttribute('comparison', val);
+    this.setAttribute('comparison', val);
   }
 
   get icon() {
@@ -66,15 +62,15 @@ class DryStat extends BaseElement {
   }
 
   set icon(val) {
-    this._setAttribute('icon', val);
+    this.setAttribute('icon', val);
   }
 
   get type() {
-    return this._getAttributeWithDefault('type', 'number');
+    return this.getAttr('type', 'number');
   }
 
   set type(val) {
-    this._setAttribute('type', val);
+    this.setAttribute('type', val);
   }
 
   get decimalPlaces() {
@@ -87,31 +83,35 @@ class DryStat extends BaseElement {
   }
 
   set decimalPlaces(val) {
-    this._setNumericAttribute('decimal-places', val);
+    this.setAttribute('decimal-places', val);
   }
 
   get currency() {
-    return this._getAttributeWithDefault('currency', 'USD');
+    return this.getAttr('currency', 'USD');
   }
 
   set currency(val) {
-    this._setAttribute('currency', val);
+    this.setAttribute('currency', val);
   }
 
   get percentageValue() {
-    return this._getBooleanAttribute('percentage-value');
+    return this.getBoolAttr('percentage-value', false);
   }
 
   set percentageValue(val) {
-    this._setBooleanAttribute('percentage-value', val);
+    if (val) {
+      this.setAttribute('percentage-value', 'true');
+    } else {
+      this.removeAttribute('percentage-value');
+    }
   }
 
   get layout() {
-    return this._getAttributeWithDefault('layout', 'vertical');
+    return this.getAttr('layout', 'vertical');
   }
 
   set layout(val) {
-    this._setAttribute('layout', val);
+    this.setAttribute('layout', val);
   }
 
   // Helper methods

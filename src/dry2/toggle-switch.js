@@ -45,18 +45,25 @@ class ToggleSwitch extends BaseElement {
   }
 
   /**
-   * Override connectedCallback to capture slot content
+   * Override connectedCallback to set initial state
    */
   connectedCallback() {
     if (!this.hasAttribute('data-rendered')) {
-      // Capture any slot content before rendering
-      this._originalSlotContent = this.innerHTML.trim();
-      
       // Set initial checked state from attribute
       this._checked = this.getBoolAttr('checked', false);
     }
     
     super.connectedCallback();
+  }
+
+  /**
+   * Called before rendering - capture slot content here after DOM is fully parsed
+   */
+  beforeRender() {
+    // Capture any slot content before rendering (after DOM is fully parsed)
+    if (!this._originalSlotContent) {
+      this._originalSlotContent = this.innerHTML.trim();
+    }
   }
 
   /**

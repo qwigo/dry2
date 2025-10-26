@@ -85,9 +85,9 @@
                     <p class="text-gray-600 mb-4">A simple dialog that loads content from an external file using HTMX.</p>
 
                     <dry-dialog
-                            url="dialog-content-example.html"
+                            url="partials/dialog-content-example.html"
                             button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
-                            dialog-class="bg-white rounded-lg shadow-xl max-w-lg w-full"
+                            dialog-class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6"
                             dialog-inner-id="basic-dialog-content"
                             trigger-id="basic-dialog-trigger">
                         Open Basic Dialog
@@ -108,9 +108,9 @@
                     <p class="text-gray-600 mb-4">Dialog containing a form loaded via AJAX.</p>
                     
                     <dry-dialog 
-                        url="dialog-form-example.html"
+                        url="partials/dialog-form-example.html"
                         button-class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors"
-                        dialog-class="bg-white rounded-lg shadow-xl max-w-lg w-full"
+                        dialog-class="bg-white rounded-lg shadow-xl max-w-lg w-full p-6"
                         dialog-inner-id="form-dialog-content"
                         trigger-id="form-dialog-trigger">
                         Open Contact Form
@@ -130,9 +130,9 @@
                     <p class="text-gray-600 mb-4">Dialog with custom styling and larger content area.</p>
                     
                     <dry-dialog 
-                        url="dialog-content-example.html"
+                        url="partials/dialog-content-example.html"
                         button-class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl"
-                        dialog-class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl shadow-2xl max-w-2xl w-full"
+                        dialog-class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl shadow-2xl max-w-2xl w-full p-6"
                         dialog-inner-id="styled-dialog-content"
                         trigger-id="styled-dialog-trigger">
                         🎨 Open Styled Dialog
@@ -160,7 +160,7 @@
                     <p class="text-gray-600 mb-4">Default drawer that slides in from the right edge of the screen.</p>
 
                     <dry-dialog
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="right"
                         button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
@@ -186,7 +186,7 @@
                     <p class="text-gray-600 mb-4">Drawer that slides in from the left edge of the screen.</p>
 
                     <dry-dialog
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="left"
                         button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-colors"
@@ -210,7 +210,7 @@
                     <p class="text-gray-600 mb-4">Drawer that slides down from the top of the screen.</p>
 
                     <dry-dialog
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="top"
                         button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors"
@@ -234,7 +234,7 @@
                     <p class="text-gray-600 mb-4">Drawer that slides up from the bottom of the screen.</p>
 
                     <dry-dialog
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="bottom"
                         button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
@@ -266,10 +266,10 @@
                     <p class="text-gray-600 mb-4">Drawer with custom styling including gradients and borders.</p>
 
                     <dry-dialog
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="right"
-                        drawer-class="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
+                        dialog-class="bg-white shadow-2xl fixed overflow-y-auto transition-transform duration-300 ease-in-out z-50 right-0 top-0 bottom-0 w-96 max-w-full translate-x-full p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
                         button-class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                         trigger-id="custom-drawer-trigger"
                         dialog-inner-id="custom-drawer-content">
@@ -292,10 +292,10 @@
                     <p class="text-gray-600 mb-4">Drawer with custom width and dark theme styling.</p>
 
                     <dry-dialog
-                        url="dialog-form-example.html"
+                        url="partials/dialog-form-example.html"
                         mode="drawer"
                         direction="right"
-                        drawer-class="p-6 bg-gray-900 text-white border-l-2 border-gray-700"
+                        dialog-class="bg-white shadow-2xl fixed overflow-y-auto transition-transform duration-300 ease-in-out z-50 right-0 top-0 bottom-0 w-96 max-w-full translate-x-full p-6 bg-gray-900 text-white border-l-2 border-gray-700"
                         button-class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors border border-gray-600"
                         trigger-id="wide-drawer-trigger"
                         dialog-inner-id="wide-drawer-content">
@@ -393,7 +393,7 @@
                     <!-- Hidden dialog for programmatic control -->
                     <dry-dialog 
                         id="programmatic-dialog"
-                        url="dialog-content-example.html"
+                        url="partials/dialog-content-example.html"
                         button-class="hidden"
                         dialog-class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full"
                         dialog-inner-id="programmatic-dialog-content">
@@ -403,11 +403,11 @@
                     <!-- Hidden drawer for programmatic control -->
                     <dry-dialog 
                         id="programmatic-drawer"
-                        url="drawer-example-content.html"
+                        url="partials/drawer-example-content.html"
                         mode="drawer"
                         direction="left"
                         button-class="hidden"
-                        drawer-class="p-6 bg-white shadow-xl"
+                        dialog-class="bg-white shadow-2xl fixed overflow-y-auto transition-transform duration-300 ease-in-out z-50 left-0 top-0 bottom-0 w-80 max-w-full -translate-x-full p-6 bg-white shadow-xl"
                         dialog-inner-id="programmatic-drawer-content">
                         Hidden Drawer Trigger
                     </dry-dialog>

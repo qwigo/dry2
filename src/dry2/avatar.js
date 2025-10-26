@@ -2,10 +2,28 @@ class DryAvatar extends BaseElement {
   constructor() {
     super();
     this._componentState = null;
+    this._isInitialized = false;
   }
 
   static get observedAttributes() {
     return ['src', 'name', 'initials', 'size', 'shape', 'alt'];
+  }
+
+  connectedCallback() {
+    // Skip BaseElement's connectedCallback and do our own initialization
+    if (!this._isInitialized) {
+      this._isInitialized = true;
+      this._initializeComponent();
+    }
+  }
+
+  render() {
+    // This method is required by BaseElement but not used by Avatar
+    // Avatar uses _initializeComponent instead
+    if (!this._isInitialized) {
+      this._isInitialized = true;
+      this._initializeComponent();
+    }
   }
 
   _initializeComponent() {
@@ -27,6 +45,35 @@ class DryAvatar extends BaseElement {
     // Create the component structure with vanilla JS
     this._render(originalContent);
     this._setupEventListeners();
+  }
+
+  _createComponentState(initialData) {
+    // Create a simple state object with getState and setState methods
+    const stateData = { ...initialData };
+    const watchers = new Map();
+    
+    return {
+      getState: () => stateData,
+      setState: (updates) => {
+        Object.keys(updates).forEach(key => {
+          const oldValue = stateData[key];
+          stateData[key] = updates[key];
+          
+          // Notify watchers
+          if (watchers.has(key)) {
+            watchers.get(key).forEach(callback => {
+              callback(updates[key], oldValue);
+            });
+          }
+        });
+      },
+      watch: (key, callback) => {
+        if (!watchers.has(key)) {
+          watchers.set(key, []);
+        }
+        watchers.get(key).push(callback);
+      }
+    };
   }
 
   _extractSlotContent() {
@@ -132,24 +179,35 @@ class DryAvatar extends BaseElement {
       }
     });
     
-    state.watch('imageError', () => {
-      this._updateAvatarDisplay();
+    state.watch('imageError', (newValue, oldValue) => {
+      // Only update if the error state actually changed
+      if (newValue !== oldValue) {
+        this._updateAvatarDisplay();
+      }
     });
     
-    state.watch('imageLoaded', () => {
-      this._updateImageOpacity();
+    state.watch('imageLoaded', (newValue, oldValue) => {
+      // Only update if the loaded state actually changed
+      if (newValue !== oldValue) {
+        this._updateImageOpacity();
+      }
     });
   }
 
   _updateAvatarDisplay() {
     const state = this._componentState.getState();
     
-    // Update image visibility
+    // Update image visibility and src (only if src changed)
     const img = this.querySelector('.avatar-image');
     if (img) {
       img.style.display = this._shouldShowImage(state) ? 'block' : 'none';
-      img.src = state.src;
-      img.alt = state.alt;
+      // Only update src if it's different to avoid reload loops
+      if (img.src !== state.src && state.src) {
+        img.src = state.src;
+      }
+      if (img.alt !== state.alt && state.alt) {
+        img.alt = state.alt;
+      }
     }
     
     // Update initials visibility
@@ -333,7 +391,7 @@ class DryAvatar extends BaseElement {
   }
 
   set src(value) {
-    this._setAttribute('src', value);
+    this.setAttribute('src', value);
   }
 
   get name() {
@@ -341,7 +399,7 @@ class DryAvatar extends BaseElement {
   }
 
   set name(value) {
-    this._setAttribute('name', value);
+    this.setAttribute('name', value);
   }
 
   get initials() {
@@ -349,23 +407,23 @@ class DryAvatar extends BaseElement {
   }
 
   set initials(value) {
-    this._setAttribute('initials', value);
+    this.setAttribute('initials', value);
   }
 
   get size() {
-    return this._getAttributeWithDefault('size', 'md');
+    return this.getAttr('size', 'md');
   }
 
   set size(value) {
-    this._setAttribute('size', value);
+    this.setAttribute('size', value);
   }
 
   get shape() {
-    return this._getAttributeWithDefault('shape', 'circle');
+    return this.getAttr('shape', 'circle');
   }
 
   set shape(value) {
-    this._setAttribute('shape', value);
+    this.setAttribute('shape', value);
   }
 
   get alt() {
@@ -373,7 +431,7 @@ class DryAvatar extends BaseElement {
   }
 
   set alt(value) {
-    this._setAttribute('alt', value);
+    this.setAttribute('alt', value);
   }
 
   _handleAttributeChange(name, oldValue, newValue) {

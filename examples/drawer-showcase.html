@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRY2 - Drawer Component Showcase</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
     <script src="../src/dry2/base.js"></script>
     <script src="../src/dry2/dialog.js"></script>
+    
+    <!-- Common CSS for showcase pages -->
+    <link rel="stylesheet" href="static/css/base.css">
+    
     <style>
         .drawer-container {
             overflow-y: auto;
@@ -20,6 +24,7 @@
             padding: 1.5rem;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
+            background: white;
         }
         .demo-title {
             font-size: 1.25rem;
@@ -36,6 +41,18 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+        /* Drawer backdrop styles */
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+        .drawer-backdrop.backdrop-active {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50 py-8">
@@ -51,19 +68,20 @@
             <p class="demo-description">Uses the native HTML dialog element with modal behavior</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/dialog-content-example.html" 
+                    url="dialog-content-example.html" 
                     mode="dialog"
                     trigger-id="dialog-trigger-1"
-                    dialog-inner-id="dialog-inner-1">
+                    dialog-inner-id="dialog-inner-1"
+                    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
                     Open Dialog
                 </dry-dialog>
                 
                 <dry-dialog 
-                    url="/examples/dialog-form-example.html" 
+                    url="dialog-form-example.html" 
                     mode="dialog"
                     trigger-id="dialog-trigger-2"
                     dialog-inner-id="dialog-inner-2"
-                    button-class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    button-class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors">
                     Open Form Dialog
                 </dry-dialog>
             </div>
@@ -75,21 +93,22 @@
             <p class="demo-description">Slides in from the right edge of the screen</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/drawer-example-content.html" 
+                    url="partials/drawer-example-content.html" 
                     mode="drawer"
                     direction="right"
                     trigger-id="drawer-right-trigger"
-                    dialog-inner-id="drawer-right-inner">
+                    dialog-inner-id="drawer-right-inner"
+                    button-class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
                     Open Right Drawer
                 </dry-dialog>
                 
                 <dry-dialog 
-                    url="/examples/dialog-form-example.html" 
+                    url="dialog-form-example.html" 
                     mode="drawer"
                     direction="right"
                     trigger-id="drawer-right-form-trigger"
                     dialog-inner-id="drawer-right-form-inner"
-                    button-class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    button-class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
                     Right Drawer Form
                 </dry-dialog>
             </div>
@@ -100,12 +119,12 @@
             <p class="demo-description">Slides in from the left edge of the screen</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/drawer-example-content.html" 
+                    url="partials/drawer-example-content.html" 
                     mode="drawer"
                     direction="left"
                     trigger-id="drawer-left-trigger"
                     dialog-inner-id="drawer-left-inner"
-                    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+                    button-class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition-colors">
                     Open Left Drawer
                 </dry-dialog>
             </div>
@@ -116,12 +135,12 @@
             <p class="demo-description">Slides down from the top of the screen</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/drawer-example-content.html" 
+                    url="partials/drawer-example-content.html" 
                     mode="drawer"
                     direction="top"
                     trigger-id="drawer-top-trigger"
                     dialog-inner-id="drawer-top-inner"
-                    button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+                    button-class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded transition-colors">
                     Open Top Drawer
                 </dry-dialog>
             </div>
@@ -132,12 +151,12 @@
             <p class="demo-description">Slides up from the bottom of the screen</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/drawer-example-content.html" 
+                    url="partials/drawer-example-content.html" 
                     mode="drawer"
                     direction="bottom"
                     trigger-id="drawer-bottom-trigger"
                     dialog-inner-id="drawer-bottom-inner"
-                    button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                    button-class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors">
                     Open Bottom Drawer
                 </dry-dialog>
             </div>
@@ -149,14 +168,14 @@
             <p class="demo-description">Demonstrating custom drawer classes and wider drawer</p>
             <div class="demo-controls">
                 <dry-dialog 
-                    url="/examples/drawer-example-content.html" 
+                    url="partials/drawer-example-content.html" 
                     mode="drawer"
                     direction="right"
                     trigger-id="drawer-custom-trigger"
                     dialog-inner-id="drawer-custom-inner"
-                    drawer-class="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
-                    button-class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold">
-                    Custom Styled Drawer
+                    dialog-class="bg-white shadow-2xl fixed overflow-y-auto transition-transform duration-300 ease-in-out z-50 right-0 top-0 bottom-0 w-96 max-w-full translate-x-full p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-l-4 border-blue-500"
+                    button-class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                    🎨 Custom Styled Drawer
                 </dry-dialog>
             </div>
         </div>

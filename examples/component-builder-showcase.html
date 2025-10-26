@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Builder Component Showcase - DRY2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="../src/dry2/vanilla-state.js"></script>
+    <script src="../src/dry2/base.js"></script>
+    <script src="../src/dry2/button.js"></script>
+    <script src="../src/dry2/badge.js"></script>
+    <script src="../src/dry2/breadcrumbs.js"></script>
+    <script src="../src/dry2/code.js"></script>
+    <script src="../src/dry2/component-builder.js"></script>
+    
+    <!-- Common CSS for showcase pages -->
+    <link rel="stylesheet" href="static/css/base.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Include Navigation -->
+    <div id="navigation" hx-get="partials/nav.inc.html" hx-trigger="load"></div>
+    
+    <!-- Breadcrumbs -->
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 xl:px-0 py-4">
+            <dry-breadcrumbs>
+                <breadcrumb-item href="../index.html">Home</breadcrumb-item>
+                <breadcrumb-item href="./index.html">Examples</breadcrumb-item>
+                <breadcrumb-item active>Component Builder</breadcrumb-item>
+            </dry-breadcrumbs>
+        </div>
+    </div>
+
+    <div class="p-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Component Builder</h1>
+            <p class="text-gray-600 mb-8">Interactive component builder for creating and testing components with live preview and code generation.</p>
+
+            <main>
+                <!-- Button Builder Example -->
+                <dry-component-builder 
+                    component-tag="dry-button" 
+                    title="Button Builder"
+                    description="Customize button properties and see the results in real-time">
+                    <script type="application/json">
+                    {
+                        "componentTag": "dry-button",
+                        "title": "Button Builder",
+                        "description": "Customize button properties and see the results in real-time.",
+                        "properties": {
+                            "variant": {
+                                "type": "select",
+                                "label": "Variant",
+                                "options": [
+                                    { "value": "primary", "label": "Primary" },
+                                    { "value": "secondary", "label": "Secondary" },
+                                    { "value": "outline", "label": "Outline" },
+                                    { "value": "text", "label": "Text" },
+                                    { "value": "danger", "label": "Danger" },
+                                    { "value": "success", "label": "Success" },
+                                    { "value": "warning", "label": "Warning" }
+                                ]
+                            },
+                            "size": {
+                                "type": "select",
+                                "label": "Size",
+                                "options": [
+                                    { "value": "sm", "label": "Small" },
+                                    { "value": "md", "label": "Medium" },
+                                    { "value": "lg", "label": "Large" },
+                                    { "value": "xl", "label": "Extra Large" }
+                                ]
+                            },
+                            "disabled": {
+                                "type": "checkbox",
+                                "label": "Disabled"
+                            },
+                            "loading": {
+                                "type": "checkbox",
+                                "label": "Loading"
+                            },
+                            "text": {
+                                "type": "text",
+                                "label": "Button Text"
+                            }
+                        },
+                        "defaults": {
+                            "variant": "primary",
+                            "size": "md",
+                            "disabled": false,
+                            "loading": false,
+                            "text": "Click Me"
+                        }
+                    }
+                    </script>
+                </dry-component-builder>
+
+                <!-- Badge Builder Example -->
+                <dry-component-builder 
+                    component-tag="dry-badge" 
+                    title="Badge Builder"
+                    description="Customize badge properties and see the results in real-time">
+                    <script type="application/json">
+                    {
+                        "componentTag": "dry-badge",
+                        "title": "Badge Builder",
+                        "description": "Customize badge properties and see the results in real-time.",
+                        "properties": {
+                            "variant": {
+                                "type": "select",
+                                "label": "Variant",
+                                "options": [
+                                    { "value": "primary", "label": "Primary" },
+                                    { "value": "success", "label": "Success" },
+                                    { "value": "danger", "label": "Danger" },
+                                    { "value": "warning", "label": "Warning" },
+                                    { "value": "info", "label": "Info" }
+                                ]
+                            },
+                            "size": {
+                                "type": "select",
+                                "label": "Size",
+                                "options": [
+                                    { "value": "sm", "label": "Small" },
+                                    { "value": "md", "label": "Medium" },
+                                    { "value": "lg", "label": "Large" }
+                                ]
+                            },
+                            "dot": {
+                                "type": "checkbox",
+                                "label": "Dot Badge"
+                            },
+                            "content": {
+                                "type": "text",
+                                "label": "Badge Content"
+                            }
+                        },
+                        "defaults": {
+                            "variant": "primary",
+                            "size": "md",
+                            "dot": false,
+                            "content": "5"
+                        }
+                    }
+                    </script>
+                </dry-component-builder>
+
+                <!-- Programmatic API Example -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Programmatic API</h2>
+                    <p class="demo-description">Control the component builder programmatically using JavaScript.</p>
+                    
+                    <div class="demo-container">
+                        <div class="space-y-4">
+                            <div class="flex gap-4">
+                                <button 
+                                    onclick="document.querySelector('dry-component-builder').updateProperty('variant', 'danger')"
+                                    class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                    Set Danger Variant
+                                </button>
+                                <button 
+                                    onclick="document.querySelector('dry-component-builder').updateProperty('size', 'xl')"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    Set XL Size
+                                </button>
+                                <button 
+                                    onclick="document.querySelector('dry-component-builder').updateProperty('loading', true)"
+                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                    Enable Loading
+                                </button>
+                            </div>
+                            <div>
+                                <button 
+                                    onclick="console.log('Current Properties:', document.querySelector('dry-component-builder').getAllProperties())"
+                                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                                    Log All Properties to Console
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <dry-code language="JavaScript">// Update a single property
+document.querySelector('dry-component-builder').updateProperty('variant', 'danger');
+
+// Get a property value
+const variant = document.querySelector('dry-component-builder').getProperty('variant');
+
+// Get all properties
+const allProps = document.querySelector('dry-component-builder').getAllProperties();
+console.log(allProps);
+
+// Set configuration dynamically
+const builder = document.querySelector('dry-component-builder');
+builder.setConfig({
+  componentTag: 'dry-button',
+  title: 'Custom Builder',
+  properties: { /* ... */ },
+  defaults: { /* ... */ }
+});</dry-code>
+                </section>
+
+                <!-- Features Section -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Features</h2>
+                    <p class="demo-description">Key features of the Component Builder component.</p>
+                    
+                    <div class="demo-container">
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>Live Preview:</strong> See component changes in real-time as you adjust properties</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>Code Generation:</strong> Automatically generates clean HTML code for the configured component</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>Multiple Control Types:</strong> Supports select, checkbox, range, and text input controls</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>Copy to Clipboard:</strong> One-click copy of generated code</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>Programmatic API:</strong> Full JavaScript API for dynamic control</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>XSS Protection:</strong> Built-in HTML escaping for security</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-3"></i>
+                                <span><strong>No Dependencies:</strong> Pure vanilla JavaScript, no Alpine.js or other frameworks required</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Configuration Example -->
+                <section class="demo-section">
+                    <h2 class="demo-title">Configuration Structure</h2>
+                    <p class="demo-description">Example configuration JSON for creating a component builder.</p>
+                    
+                    <dry-code language="JSON">{
+  "componentTag": "dry-button",
+  "title": "Button Builder",
+  "description": "Customize button properties and see the results in real-time.",
+  "properties": {
+    "variant": {
+      "type": "select",
+      "label": "Variant",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" }
+      ]
+    },
+    "size": {
+      "type": "select",
+      "label": "Size",
+      "options": [
+        { "value": "sm", "label": "Small" },
+        { "value": "md", "label": "Medium" }
+      ]
+    },
+    "disabled": {
+      "type": "checkbox",
+      "label": "Disabled"
+    },
+    "text": {
+      "type": "text",
+      "label": "Button Text"
+    }
+  },
+  "defaults": {
+    "variant": "primary",
+    "size": "md",
+    "disabled": false,
+    "text": "Click Me"
+  }
+}</dry-code>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div id="footer" hx-get="partials/footer.inc.html" hx-trigger="load"></div>
+
+    <script>
+        // Wait for custom elements to be defined and upgraded
+        (async function setupBuilders() {
+            // Wait for custom element to be defined
+            await customElements.whenDefined('dry-component-builder');
+            
+            // Small delay to ensure components are fully connected
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Add custom content generator for button builder
+            const buttonBuilder = document.querySelector('dry-component-builder[component-tag="dry-button"]');
+            if (buttonBuilder) {
+                const configScript = buttonBuilder.querySelector('script[type="application/json"]');
+                if (configScript) {
+                    const config = JSON.parse(configScript.textContent);
+                    
+                    config.contentGenerator = function(values) {
+                        return values.text || 'Button';
+                    };
+                    
+                    config.codeGenerator = function(values, config) {
+                        const attributes = Object.entries(values)
+                            .filter(([key, value]) => {
+                                const defaultValue = config.defaults[key];
+                                return value !== defaultValue && value !== false && value !== '' && key !== 'text';
+                            })
+                            .map(([key, value]) => {
+                                if (typeof value === 'boolean' && value === true) {
+                                    return key;
+                                }
+                                return `${key}="${value}"`;
+                            })
+                            .join(' ');
+                        
+                        return `<${config.componentTag}${attributes ? ' ' + attributes : ''}>${values.text || 'Button'}</${config.componentTag}>`;
+                    };
+                    
+                    buttonBuilder.setConfig(config);
+                }
+            }
+
+            // Add custom content generator for badge builder
+            const badgeBuilder = document.querySelector('dry-component-builder[component-tag="dry-badge"]');
+            if (badgeBuilder) {
+                const configScript = badgeBuilder.querySelector('script[type="application/json"]');
+                if (configScript) {
+                    const config = JSON.parse(configScript.textContent);
+                    
+                    config.contentGenerator = function(values) {
+                        return values.dot ? '' : (values.content || '');
+                    };
+                    
+                    config.codeGenerator = function(values, config) {
+                        const attributes = Object.entries(values)
+                            .filter(([key, value]) => {
+                                const defaultValue = config.defaults[key];
+                                return value !== defaultValue && value !== false && value !== '' && key !== 'content';
+                            })
+                            .map(([key, value]) => {
+                                if (typeof value === 'boolean' && value === true) {
+                                    return key;
+                                }
+                                return `${key}="${value}"`;
+                            })
+                            .join(' ');
+                        
+                        const content = values.dot ? '' : (values.content || '');
+                        return `<${config.componentTag}${attributes ? ' ' + attributes : ''}>${content}</${config.componentTag}>`;
+                    };
+                    
+                    badgeBuilder.setConfig(config);
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
+
