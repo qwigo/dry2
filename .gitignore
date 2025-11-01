@@ -8,3 +8,5 @@ all-components-showcase.html
 /.cursor/
 /cursor-instructions/
 /.vscode/
+/test-results/
+/playwright-report/

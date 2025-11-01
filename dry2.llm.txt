@@ -2,15 +2,18 @@
 
 ## Overview
 
-DRY2 is a comprehensive web components library built with modern web standards, designed for creating interactive and accessible user interfaces. The library leverages Web Components (Custom Elements) with vanilla JavaScript for reactivity and state management, Tailwind CSS for styling, HTMX for AJAX functionality, and Font Awesome for icons.
+DRY2 is a comprehensive web components library built with modern web standards, designed for creating interactive and accessible user interfaces. The library leverages Web Components (Custom Elements) with **vanilla JavaScript** for reactivity and state management (no framework dependencies), Tailwind CSS for styling, HTMX for AJAX functionality, and Font Awesome for icons.
+
+**Architecture**: All components extend from a lightweight `BaseElement` base class that provides lifecycle management, event handling, and rendering capabilities **without Shadow DOM**, allowing seamless integration with page styles and third-party libraries.
 
 ## Core Dependencies
 
 - **Web Components**: Custom Elements API for component definition
-- **Vanilla JavaScript**: Native JavaScript with Proxy-based reactive state management
+- **Vanilla JavaScript**: Native JavaScript with Proxy-based reactive state management (`VanillaState`)
+- **BaseElement**: Custom base class for component lifecycle and rendering
 - **Tailwind CSS**: Utility-first CSS framework for styling
-- **HTMX**: HTML-over-the-wire for AJAX interactions
-- **Font Awesome**: Icon library for visual elements
+- **HTMX**: HTML-over-the-wire for AJAX interactions (optional, used by dialog component)
+- **Font Awesome**: Icon library for visual elements (optional, used by button and other components)
 
 ## Components Overview
 
@@ -185,7 +188,7 @@ Message display for chat interfaces with alignment and avatar support.
 
 ### 8. Code Component (`<dry-code>`)
 
-Syntax-highlighted code blocks with copy-to-clipboard functionality.
+Syntax-highlighted code blocks with copy-to-clipboard functionality using vanilla JavaScript.
 
 **Basic Usage:**
 ```html
@@ -198,24 +201,54 @@ function greet(name) {
 
 **Properties:**
 - `language` (string): Programming language for syntax highlighting
-- `copy` (boolean): Enable copy-to-clipboard button
+- `theme` (string): Color theme for syntax highlighting ('light', 'dark')
+- `copy` (boolean): Enable copy-to-clipboard button (default: true)
+- `line-numbers` (boolean): Show line numbers
+
+**Features:**
+- Built-in syntax highlighting for multiple languages
+- One-click copy-to-clipboard functionality
+- Responsive design with horizontal scrolling for long lines
+- XSS protection for code content
 
 ### 9. Countdown Component (`<dry-countdown>`)
 
-Time-based countdown displays with customizable formats.
+Time-based countdown displays with customizable formats using vanilla JavaScript state management.
 
 **Basic Usage:**
 ```html
+<!-- Countdown to specific date -->
 <dry-countdown target="2024-12-31T23:59:59"></dry-countdown>
+
+<!-- Countdown with duration -->
+<dry-countdown duration="3600"></dry-countdown>
 ```
 
 **Properties:**
 - `target` (string): Target date/time in ISO format
-- `format` (string): Display format customization
+- `duration` (number): Duration in seconds (alternative to target)
+- `format` (string): Display format ('dhms', 'hms', 'ms', 's')
+- `show-labels` (boolean): Show unit labels (days, hours, etc.)
+- `compact` (boolean): Compact display mode
+
+**Events:**
+- `countdown:complete`: Fired when countdown reaches zero
+- `countdown:tick`: Fired on each second update
+
+**JavaScript API:**
+```javascript
+const countdown = document.querySelector('dry-countdown');
+countdown.start();
+countdown.pause();
+countdown.reset();
+countdown.addEventListener('countdown:complete', () => {
+    console.log('Countdown finished!');
+});
+```
 
 ### 10. Dialog Component (`<dry-dialog>`)
 
-Modal dialogs and slide-out drawers with HTMX integration.
+Modal dialogs and slide-out drawers with HTMX integration, built with vanilla JavaScript (no Alpine.js).
 
 **Basic Usage:**
 ```html
@@ -232,19 +265,44 @@ Modal dialogs and slide-out drawers with HTMX integration.
     url="drawer-content.html"
     mode="drawer"
     direction="right"
-    button-class="bg-blue-500 text-white px-4 py-2 rounded">
+    button-class="bg-blue-500 text-white px-4 py-2 rounded"
+    drawer-class="bg-white w-96 h-full">
     Open Drawer
 </dry-dialog>
 ```
 
 **Properties:**
-- `url` (string): AJAX content URL
-- `mode` (string): 'dialog' or 'drawer'
-- `direction` (string): 'left', 'right', 'top', 'bottom' (drawer only)
+- `url` (string): AJAX content URL (loaded via HTMX)
+- `mode` (string): 'dialog' (default) or 'drawer'
+- `direction` (string): 'left', 'right', 'top', 'bottom' (drawer only, default: 'right')
 - `button-class` (string): CSS classes for trigger button
 - `dialog-class` (string): CSS classes for dialog container
-- `trigger-id` (string): ID for trigger element
-- `dialog-inner-id` (string): ID for content container
+- `drawer-class` (string): CSS classes for drawer container (drawer mode only)
+- `trigger-id` (string): Custom ID for trigger element
+- `dialog-inner-id` (string): Custom ID for content container
+
+**Events:**
+- `dialog:open`: Fired when dialog/drawer opens
+- `dialog:close`: Fired when dialog/drawer closes
+- `dialog:loaded`: Fired when HTMX content finishes loading
+
+**Features:**
+- Backdrop click to close (for dialogs)
+- ESC key to close
+- Focus trap for accessibility
+- Smooth slide animations for drawers
+- MutationObserver to preserve button text content
+- XSS protection for all attributes
+
+**JavaScript API:**
+```javascript
+const dialog = document.querySelector('dry-dialog');
+dialog.open();
+dialog.close();
+dialog.addEventListener('dialog:open', () => {
+    console.log('Dialog opened');
+});
+```
 
 ### 11. QR Component (`<dry-qr>`)
 
@@ -378,7 +436,7 @@ Toast.info('Message', { position: 'top-center', duration: 5000 });
 
 ### 17. Toggle Switch Component (`<toggle-switch>`)
 
-Binary state switches with custom styling and accessibility support.
+Binary state switches with custom styling and accessibility support using vanilla JavaScript.
 
 **Basic Usage:**
 ```html
@@ -396,9 +454,119 @@ Binary state switches with custom styling and accessibility support.
 - `inactive-bg` (string): CSS classes for inactive background
 - `switch-color` (string): CSS classes for switch handle
 
+**Events:**
+- `toggle:change`: Fired when toggle state changes with `event.detail.checked`
+
+**JavaScript API:**
+```javascript
+const toggle = document.querySelector('toggle-switch');
+toggle.setChecked(true);
+toggle.setDisabled(true);
+toggle.addEventListener('toggle:change', (e) => {
+    console.log('Checked:', e.detail.checked);
+});
+```
+
+### 18. Component Builder (`<dry-component-builder>`)
+
+Interactive component builder for creating live component demonstrations with property controls.
+
+**Basic Usage:**
+```html
+<dry-component-builder component-tag="dry-button" title="Button Builder">
+    <script type="application/json">
+    {
+        "componentTag": "dry-button",
+        "title": "Button Component Builder",
+        "description": "Try changing the button properties dynamically.",
+        "properties": {
+            "variant": {
+                "type": "select",
+                "label": "Variant",
+                "options": [
+                    {"value": "primary", "label": "Primary"},
+                    {"value": "secondary", "label": "Secondary"},
+                    {"value": "outline", "label": "Outline"}
+                ]
+            },
+            "size": {
+                "type": "select",
+                "label": "Size",
+                "options": [
+                    {"value": "sm", "label": "Small"},
+                    {"value": "md", "label": "Medium"},
+                    {"value": "lg", "label": "Large"}
+                ]
+            },
+            "disabled": {
+                "type": "checkbox",
+                "label": "Disabled"
+            }
+        },
+        "defaults": {
+            "variant": "primary",
+            "size": "md",
+            "disabled": false
+        }
+    }
+    </script>
+</dry-component-builder>
+```
+
+**Properties:**
+- `component-tag` (string): Tag name of component to build
+- `title` (string): Builder title
+- `description` (string): Builder description
+
+**Configuration (via JSON script tag):**
+- `properties`: Object defining available controls (select, checkbox, range, text, color)
+- `defaults`: Default values for properties
+- `contentGenerator`: Function to generate component content
+- `codeGenerator`: Function to generate code display
+- `previewWrapper`: Function to wrap preview HTML
+
+**Features:**
+- Live component preview
+- Dynamic property controls
+- Generated code display with syntax highlighting
+- Copy-to-clipboard functionality
+- Support for multiple control types
+- XSS protection for all user inputs
+
 ## Implementation Patterns
 
-### Basic Setup
+### Basic Setup (CDN/Individual Files)
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX for AJAX (optional, only needed for dialog component) -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    
+    <!-- Font Awesome for icons (optional) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- DRY2 Core (required) -->
+    <script src="src/dry2/base.js"></script>
+    <script src="src/dry2/vanilla-state.js"></script>
+    
+    <!-- Load specific components as needed -->
+    <script src="src/dry2/button.js"></script>
+    <script src="src/dry2/avatar.js"></script>
+    <script src="src/dry2/dialog.js"></script>
+</head>
+<body>
+    <!-- Use components -->
+    <dry-button variant="primary">Click me</dry-button>
+    <dry-avatar name="John Doe"></dry-avatar>
+</body>
+</html>
+```
+
+### Bundled Setup (Recommended for Production)
 ```html
 <!DOCTYPE html>
 <html>
@@ -406,20 +574,29 @@ Binary state switches with custom styling and accessibility support.
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="path/to/dry2/base.js"></script>
-    <script src="path/to/dry2/[component].js"></script>
+    
+    <!-- Single bundled file with all components -->
+    <script src="dist/dry2.js"></script>
 </head>
 <body>
-    <!-- Components here -->
+    <!-- All components available -->
 </body>
 </html>
 ```
 
-### Component Loading
-Each component requires its specific JavaScript file:
+### Component Loading Order
+Components depend on the base infrastructure:
 ```javascript
-// Core components
+// 1. Core base class (required first)
 <script src="src/dry2/base.js"></script>
+
+// 2. State management system (required for reactive components)
+<script src="src/dry2/vanilla-state.js"></script>
+
+// 3. XSS prevention utilities (optional but recommended)
+<script src="src/dry2/xss-prevention.js"></script>
+
+// 4. Individual components
 <script src="src/dry2/accordion.js"></script>
 <script src="src/dry2/avatar.js"></script>
 <script src="src/dry2/badge.js"></script>
@@ -433,35 +610,112 @@ Each component requires its specific JavaScript file:
 - Dark mode support available through Tailwind's dark mode utilities
 
 ### Event Handling
-Components emit custom events for interaction:
+All components emit custom events using the native CustomEvent API:
 ```javascript
 // Example: Accordion events
+const accordion = document.querySelector('dry-accordion');
 accordion.addEventListener('accordion:change', (event) => {
     console.log('Section changed:', event.detail);
 });
 
 // Example: Toggle switch events
+const toggle = document.querySelector('toggle-switch');
 toggle.addEventListener('toggle:change', (event) => {
     console.log('Toggle state:', event.detail.checked);
 });
+
+// Example: Dialog events
+const dialog = document.querySelector('dry-dialog');
+dialog.addEventListener('dialog:open', () => {
+    console.log('Dialog opened');
+});
+dialog.addEventListener('dialog:close', () => {
+    console.log('Dialog closed');
+});
+
+// Example: Countdown events
+const countdown = document.querySelector('dry-countdown');
+countdown.addEventListener('countdown:complete', () => {
+    console.log('Countdown finished!');
+});
+```
+
+### State Management
+Components use VanillaState for reactive state:
+```javascript
+// Internal component state example (from component implementation)
+class MyComponent extends BaseElement {
+    constructor() {
+        super();
+        this._state = new VanillaState({
+            isOpen: false,
+            count: 0
+        });
+        this.reactive = this._state.createReactive();
+    }
+    
+    // Watch for state changes
+    setupWatchers() {
+        this._state.watch('isOpen', (newValue, oldValue) => {
+            console.log('isOpen changed:', newValue);
+            this.updateView();
+        });
+    }
+}
 ```
 
 ### Accessibility Features
-- Keyboard navigation support
-- ARIA attributes for screen readers
-- Focus management
-- Semantic HTML structure
-- Color contrast compliance
+- **Keyboard navigation**: Full keyboard support (Tab, Enter, Escape, Arrow keys)
+- **ARIA attributes**: Proper roles, labels, and states for screen readers
+- **Focus management**: Logical tab order and focus trapping in modals
+- **Semantic HTML**: Uses appropriate HTML5 elements
+- **Color contrast**: WCAG AA compliant color combinations
+- **Screen reader announcements**: Live regions for dynamic content
 
 ## Best Practices
 
-1. **Component Loading**: Only load required component scripts
-2. **Styling**: Use Tailwind classes for consistent styling
-3. **Event Handling**: Listen for component-specific events
-4. **Performance**: Implement lazy loading for large component sets
-5. **Accessibility**: Test with screen readers and keyboard navigation
-6. **Responsive Design**: Use Tailwind's responsive utilities
-7. **Form Integration**: Use appropriate `name` attributes for form components
+1. **Component Loading**: 
+   - Load `base.js` and `vanilla-state.js` first
+   - Only load components you actually use
+   - Use bundled `dist/dry2.js` for production
+   - Consider code splitting for large applications
+
+2. **Styling**: 
+   - Use Tailwind utility classes for consistent styling
+   - Pass custom classes via component properties
+   - Avoid inline styles; use Tailwind classes instead
+   - Test responsive breakpoints (sm, md, lg, xl)
+
+3. **Event Handling**: 
+   - Use addEventListener for all component events
+   - Event names follow pattern: `component:action`
+   - Always check `event.detail` for event data
+   - Clean up listeners when removing components
+
+4. **Performance**: 
+   - Components render asynchronously with setTimeout(0)
+   - Use MutationObserver sparingly
+   - Leverage event delegation for dynamic content
+   - Avoid excessive re-renders by batching state updates
+
+5. **Accessibility**: 
+   - Test with screen readers (NVDA, JAWS, VoiceOver)
+   - Verify keyboard navigation works without mouse
+   - Check color contrast ratios
+   - Use semantic HTML elements
+   - Provide meaningful ARIA labels
+
+6. **Security**:
+   - All components include XSS protection
+   - User input is sanitized automatically
+   - Avoid using `innerHTML` with untrusted content
+   - Use `textContent` for plain text
+
+7. **Form Integration**: 
+   - Use `name` attribute for form field components
+   - Components work with standard form submission
+   - Access form data via `FormData` API
+   - Listen for `change` events for validation
 
 ## Common Use Cases
 

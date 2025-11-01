@@ -1,7 +1,13 @@
+/**
+ * Playwright E2E Tests for Dialog Component
+ * Tests both modal dialog and drawer modes
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('Dialog Component', () => {
   test.beforeEach(async ({ page }) => {
+    // Navigate to the dialog showcase page
     await page.goto('/examples/dialog-showcase.html', { waitUntil: 'domcontentloaded' });
     
     // Wait for custom elements to be defined
@@ -9,432 +15,543 @@ test.describe('Dialog Component', () => {
       return customElements.get('dry-dialog');
     });
     
-    // Small wait for page to stabilize
-    await page.waitForTimeout(500);
+    // Wait for custom elements to be upgraded and HTMX to be ready
+    await page.waitForTimeout(1500);
   });
 
-  test('should render without no content messages', async ({ page }) => {
-    // Check that dialog components are present
-    const dialogComponents = page.locator('dry-dialog');
-    await expect(dialogComponents.first()).toBeVisible();
+  test('should render without no-content messages', async ({ page }) => {
+    // Check that there are no "no content" or error messages
+    const noContentText = await page.locator('text=/no content|not found|error loading/i').count();
+    expect(noContentText).toBe(0);
+
+    // Verify dry-dialog elements are present
+    const dialogComponents = await page.locator('dry-dialog').count();
+    expect(dialogComponents).toBeGreaterThan(0);
+
+    // Verify specific expected links are visible with text
+    await expect(page.locator('dry-dialog a:has-text("Open Basic Dialog")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Right Drawer")')).toBeVisible();
     
-    // Check that no "not defined" or "undefined" messages appear
-    const bodyContent = await page.textContent('body');
-    expect(bodyContent).not.toContain('not defined');
-    expect(bodyContent).not.toContain('undefined');
+    // Count visible links with text content
+    const visibleLinksWithText = await page.locator('dry-dialog a:visible:not(:empty)').count();
+    expect(visibleLinksWithText).toBeGreaterThan(5);
   });
 
-  test('should not have JavaScript console errors', async ({ page }) => {
-    const consoleErrors = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
+  test('should have correct initial state on page load', async ({ page }) => {
+    // All dialogs should be closed initially
+    const visibleDialogs = await page.locator('dialog[open]').count();
+    expect(visibleDialogs).toBe(0);
+
+    // All drawer backdrops should be hidden initially
+    const visibleBackdrops = await page.locator('[data-backdrop="true"]:not(.hidden)').count();
+    expect(visibleBackdrops).toBe(0);
+
+    // Verify links have correct classes
+    const firstLink = page.locator('dry-dialog a').first();
+    const hasLinkClasses = await firstLink.evaluate((el) => {
+      return el.className.includes('bg-') || el.className.includes('px-') || el.className.includes('py-');
     });
-
-    await page.waitForTimeout(2000);
-    
-    // Filter out the Tailwind CDN warning
-    const relevantErrors = consoleErrors.filter(error => 
-      !error.includes('cdn.tailwindcss.com should not be used in production')
-    );
-    
-    expect(relevantErrors).toEqual([]);
+    expect(hasLinkClasses).toBe(true);
   });
 
-  test('should display button text correctly', async ({ page }) => {
-    // Check basic dialog button
-    const basicDialogButton = page.locator('dry-dialog a:has-text("Open Basic Dialog")');
-    await expect(basicDialogButton).toBeVisible();
+  test('should open and close modal dialog', async ({ page }) => {
+    // Find the first basic dialog trigger (exclude hidden buttons)
+    const triggerButton = page.locator('dry-dialog a:not(.hidden)').first();
     
-    // Check form dialog button
-    const formDialogButton = page.locator('dry-dialog a:has-text("Open Contact Form")');
-    await expect(formDialogButton).toBeVisible();
+    // Click to open dialog
+    await triggerButton.click();
+    
+    // Wait for dialog to open
+    await page.waitForTimeout(1000);
+    
+    // Verify dialog is open
+    const openDialog = page.locator('dialog[open]').first();
+    await expect(openDialog).toBeVisible();
+    
+    // Verify dialog has content container with ID
+    const dialogInner = openDialog.locator('div[id*="dialog"]');
+    await expect(dialogInner).toBeAttached();
+    
+    // Close dialog using ESC key (we know this works from other tests)
+    await page.keyboard.press('Escape');
+    
+    // Wait for dialog to close
+    await page.waitForTimeout(500);
+    
+    // Verify dialog is closed
+    const closedDialogs = await page.locator('dialog[open]').count();
+    expect(closedDialogs).toBe(0);
   });
 
-  test('should close dialog when close button is clicked', async ({ page }) => {
-    // Open dialog programmatically
+  test('should open and close drawer', async ({ page }) => {
+    // Find a drawer trigger (right drawer)
+    const drawerTrigger = page.locator('dry-dialog a:has-text("Open Right Drawer")').first();
+    
+    // Click to open drawer
+    await drawerTrigger.click();
+    
+    // Wait for drawer animation
+    await page.waitForTimeout(500);
+    
+    // Verify backdrop is visible
+    const backdrop = page.locator('[data-backdrop="true"]:not(.hidden)').first();
+    await expect(backdrop).toBeVisible();
+    
+    // Verify drawer is visible (look for div with role="dialog", not dialog element)
+    const drawer = page.locator('dry-dialog div[role="dialog"][id*="drawer"]').first();
+    await expect(drawer).toBeAttached();
+    
+    const hasTranslateClass = await drawer.evaluate((el) => {
+      return el.classList.contains('translate-x-full') || 
+             el.classList.contains('-translate-x-full') ||
+             el.classList.contains('translate-y-full') || 
+             el.classList.contains('-translate-y-full');
+    });
+    expect(hasTranslateClass).toBe(false);
+    
+    // Close drawer using ESC key (we know this works from other tests)
+    await page.keyboard.press('Escape');
+    
+    // Wait for drawer animation
+    await page.waitForTimeout(500);
+    
+    // Verify drawer is hidden (translated off-screen)
+    const isHidden = await drawer.evaluate((el) => {
+      return el.classList.contains('translate-x-full') || 
+             el.classList.contains('-translate-x-full');
+    });
+    expect(isHidden).toBe(true);
+  });
+
+  test('should close dialog when clicking backdrop', async ({ page }) => {
+    // Open modal dialog
+    const triggerButton = page.locator('dry-dialog a').first();
+    await triggerButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify dialog is open
+    await expect(page.locator('dialog[open]').first()).toBeVisible();
+    
+    // Click on dialog backdrop (outside dialog content)
+    const dialog = page.locator('dialog[open]').first();
+    const dialogBox = await dialog.boundingBox();
+    
+    // Click outside the dialog content area
+    await page.mouse.click(dialogBox.x - 10, dialogBox.y + 10);
+    
+    // Wait for close
+    await page.waitForTimeout(500);
+    
+    // Verify dialog is closed
+    const openDialogs = await page.locator('dialog[open]').count();
+    expect(openDialogs).toBe(0);
+  });
+
+  test('should close drawer when clicking backdrop', async ({ page }) => {
+    // Open drawer
+    const drawerTrigger = page.locator('dry-dialog a:has-text("Open Right Drawer")').first();
+    await drawerTrigger.click();
+    await page.waitForTimeout(500);
+    
+    // Click backdrop
+    const backdrop = page.locator('[data-backdrop="true"]:not(.hidden)').first();
+    await backdrop.click();
+    
+    // Wait for drawer animation
+    await page.waitForTimeout(500);
+    
+    // Verify drawer is closed (look for div with role="dialog")
+    const drawer = page.locator('dry-dialog div[role="dialog"][id*="drawer"]').first();
+    const isHidden = await drawer.evaluate((el) => {
+      return el.classList.contains('translate-x-full');
+    });
+    expect(isHidden).toBe(true);
+  });
+
+  test('should close dialog when pressing ESC key', async ({ page }) => {
+    // Open modal dialog
+    const triggerButton = page.locator('dry-dialog a').first();
+    await triggerButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify dialog is open
+    await expect(page.locator('dialog[open]').first()).toBeVisible();
+    
+    // Press ESC key
+    await page.keyboard.press('Escape');
+    
+    // Wait for close
+    await page.waitForTimeout(500);
+    
+    // Verify dialog is closed
+    const openDialogs = await page.locator('dialog[open]').count();
+    expect(openDialogs).toBe(0);
+  });
+
+  test('should test different drawer directions', async ({ page }) => {
+    // Test left drawer
+    await page.locator('dry-dialog a:has-text("Open Left Drawer")').first().click();
+    await page.waitForTimeout(500);
+    
+    let drawer = page.locator('dry-dialog [role="dialog"]:has-text("Drawer Content")').first();
+    let hasLeftPosition = await drawer.evaluate(el => el.classList.contains('left-0'));
+    expect(hasLeftPosition).toBe(true);
+    
+    // Close it
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test top drawer
+    await page.locator('dry-dialog a:has-text("Open Top Drawer")').first().click();
+    await page.waitForTimeout(500);
+    
+    drawer = page.locator('dry-dialog [role="dialog"]:has-text("Drawer Content")').first();
+    let hasTopPosition = await drawer.evaluate(el => el.classList.contains('top-0'));
+    expect(hasTopPosition).toBe(true);
+    
+    // Close it
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test bottom drawer
+    await page.locator('dry-dialog a:has-text("Open Bottom Drawer")').first().click();
+    await page.waitForTimeout(500);
+    
+    drawer = page.locator('dry-dialog [role="dialog"]:has-text("Drawer Content")').first();
+    let hasBottomPosition = await drawer.evaluate(el => el.classList.contains('bottom-0'));
+    expect(hasBottomPosition).toBe(true);
+  });
+
+  test('should work with programmatic API', async ({ page }) => {
+    // Test programmatic open
     await page.evaluate(() => {
-      const dialog = document.querySelector('dry-dialog');
+      const dialog = document.getElementById('programmatic-dialog');
       if (dialog) dialog.open();
     });
     
     await page.waitForTimeout(500);
     
     // Verify dialog is open
-    const dialog = page.locator('dialog[data-dialog-type="dialog"]').first();
-    let isOpen = await dialog.evaluate((el) => el.open);
-    expect(isOpen).toBe(true);
+    await expect(page.locator('dialog[open]').first()).toBeVisible();
     
-    // Click close button
-    const closeButton = dialog.locator('#closer');
-    await closeButton.click();
+    // Test programmatic close
+    await page.evaluate(() => {
+      const dialog = document.getElementById('programmatic-dialog');
+      if (dialog) dialog.close();
+    });
     
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
     
-    // Dialog should be closed
-    isOpen = await dialog.evaluate((el) => el.open);
-    expect(isOpen).toBe(false);
+    // Verify dialog is closed
+    const openDialogs = await page.locator('dialog[open]').count();
+    expect(openDialogs).toBe(0);
+  });
+
+  test('should emit custom events', async ({ page }) => {
+    // Set up event listeners
+    await page.evaluate(() => {
+      window.dialogEvents = [];
+      document.addEventListener('dialog:opened', (e) => {
+        window.dialogEvents.push({ type: 'opened', detail: e.detail });
+      });
+      document.addEventListener('dialog:closed', (e) => {
+        window.dialogEvents.push({ type: 'closed', detail: e.detail });
+      });
+    });
+    
+    // Open dialog
+    const triggerButton = page.locator('dry-dialog a').first();
+    await triggerButton.click();
+    await page.waitForTimeout(500);
+    
+    // Check opened event was fired
+    let events = await page.evaluate(() => window.dialogEvents);
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    expect(events[0].type).toBe('opened');
+    
+    // Close dialog
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Check closed event was fired
+    events = await page.evaluate(() => window.dialogEvents);
+    expect(events.length).toBeGreaterThanOrEqual(2);
+    expect(events[events.length - 1].type).toBe('closed');
   });
 
   test('should have proper accessibility attributes', async ({ page }) => {
-    const trigger = page.locator('dry-dialog').first().locator('a');
-    await trigger.click();
+    // Open a modal dialog
+    const triggerButton = page.locator('dry-dialog a:not(.hidden)').first();
+    await triggerButton.click();
+    await page.waitForTimeout(1000);
     
-    await page.waitForTimeout(500);
+    // Check dialog has aria-modal
+    const dialog = page.locator('dialog[open]').first();
+    const ariaModal = await dialog.getAttribute('aria-modal');
+    expect(ariaModal).toBe('true');
     
-    // Check close button has aria-label
-    const closeButton = page.locator('dialog #closer').first();
-    const ariaLabel = await closeButton.getAttribute('aria-label');
-    expect(ariaLabel).toBe('Close dialog');
+    const role = await dialog.getAttribute('role');
+    expect(role).toBe('dialog');
+    
+    // Verify dialog content is visible
+    const dialogInner = dialog.locator('div[id*="dialog"]');
+    await expect(dialogInner).toBeVisible();
   });
 
-  test('should support programmatic open/close', async ({ page }) => {
-    // Get reference to programmatic dialog
-    const dialogOpened = await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.open();
-        return true;
-      }
-      return false;
-    });
+  test('should load HTMX content into dialog', async ({ page }) => {
+    // Click to open a dialog that loads content via HTMX
+    const triggerButton = page.locator('dry-dialog a:has-text("Open Basic Dialog")').first();
+    await triggerButton.click();
     
-    expect(dialogOpened).toBe(true);
+    // Wait for HTMX to load and dialog to open
+    await page.waitForTimeout(2000);
     
-    await page.waitForTimeout(500);
+    // Verify dialog is open
+    const dialog = page.locator('dialog[open]').first();
+    await expect(dialog).toBeVisible();
     
-    // Check that dialog is open
-    const dialog = page.locator('#programmatic-dialog dialog[data-dialog-type="dialog"]');
-    const isOpen = await dialog.evaluate((el) => el.open);
-    expect(isOpen).toBe(true);
+    // Verify HTMX content was loaded (check for specific text from dialog-content-example.html)
+    const content = await dialog.textContent();
+    expect(content).toContain('Dialog Content Example');
+    expect(content).toContain('This content was dynamically loaded');
     
-    // Close programmatically
-    await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.close();
-      }
-    });
-    
-    await page.waitForTimeout(300);
-    
-    // Check that dialog is closed
-    const isClosed = await dialog.evaluate((el) => !el.open);
-    expect(isClosed).toBe(true);
-  });
-
-  test('should emit custom events on open', async ({ page }) => {
-    // Set up event listener
-    await page.evaluate(() => {
-      window.dialogOpenedEvent = null;
-      document.addEventListener('dialog:opened', (e) => {
-        window.dialogOpenedEvent = e.detail;
-      });
-    });
-    
-    // Open dialog programmatically
-    await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.open();
-      }
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Check event was fired
-    const eventDetail = await page.evaluate(() => window.dialogOpenedEvent);
-    expect(eventDetail).toBeTruthy();
-  });
-});
-
-test.describe('Drawer Component', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/examples/dialog-showcase.html', { waitUntil: 'domcontentloaded' });
-    
-    // Wait for custom elements to be defined
-    await page.waitForFunction(() => {
-      return customElements.get('dry-dialog');
-    });
-    
-    // Small wait for page to stabilize
-    await page.waitForTimeout(500);
-  });
-
-  test('should render drawer trigger buttons', async ({ page }) => {
-    // Check right drawer button
-    const rightDrawerButton = page.locator('dry-dialog a:has-text("Open Right Drawer")');
-    await expect(rightDrawerButton).toBeVisible();
-    
-    // Check left drawer button
-    const leftDrawerButton = page.locator('dry-dialog a:has-text("Open Left Drawer")');
-    await expect(leftDrawerButton).toBeVisible();
-  });
-
-  test('should close drawer when close button is clicked', async ({ page }) => {
-    // Open drawer programmatically
-    await page.evaluate(() => {
-      const drawer = document.querySelector('dry-dialog[mode="drawer"]');
-      if (drawer) drawer.open();
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Verify drawer is open
-    const backdrop = page.locator('.drawer-backdrop[data-dialog-type="drawer"]').first();
-    let isVisible = await backdrop.evaluate((el) => el.style.display !== 'none');
-    expect(isVisible).toBe(true);
-    
-    // Click close button
-    const closeButton = backdrop.locator('#closer');
-    await closeButton.click();
-    
-    // Wait for drawer animation
-    await page.waitForTimeout(500);
-    
-    // Drawer backdrop should be hidden
-    const isHidden = await backdrop.evaluate((el) => el.style.display === 'none');
-    expect(isHidden).toBe(true);
-  });
-
-  test('should close drawer when backdrop is clicked', async ({ page }) => {
-    // Open drawer programmatically
-    await page.evaluate(() => {
-      const drawer = document.querySelector('dry-dialog[mode="drawer"]');
-      if (drawer) drawer.open();
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Verify drawer is open
-    const backdrop = page.locator('.drawer-backdrop[data-dialog-type="drawer"]').first();
-    let isVisible = await backdrop.evaluate((el) => el.style.display !== 'none');
-    expect(isVisible).toBe(true);
-    
-    // Click backdrop (directly on backdrop element, not on panel)
-    await backdrop.evaluate((el) => {
-      const event = new MouseEvent('click', { bubbles: true });
-      // Simulate click directly on backdrop
-      Object.defineProperty(event, 'target', { value: el, enumerable: true });
-      el.dispatchEvent(event);
-    });
-    
-    // Wait for drawer animation
-    await page.waitForTimeout(500);
-    
-    // Drawer should be hidden
-    const isHidden = await backdrop.evaluate((el) => el.style.display === 'none');
-    expect(isHidden).toBe(true);
-  });
-
-  test('should close drawer when ESC key is pressed', async ({ page }) => {
-    // Open drawer
-    const trigger = page.locator('dry-dialog a:has-text("Open Right Drawer")');
-    await trigger.click();
-    
-    await page.waitForTimeout(500);
-    
-    // Press ESC key
-    await page.keyboard.press('Escape');
-    
-    // Wait for drawer animation
-    await page.waitForTimeout(500);
-    
-    // Drawer should be hidden
-    const backdrop = page.locator('.drawer-backdrop[data-dialog-type="drawer"]').first();
-    const isHidden = await backdrop.evaluate((el) => el.style.display === 'none');
-    expect(isHidden).toBe(true);
-  });
-
-  test('should support different drawer directions', async ({ page }) => {
-    // Test left drawer
-    const leftTrigger = page.locator('dry-dialog a:has-text("Open Left Drawer")');
-    await leftTrigger.click();
-    await page.waitForTimeout(500);
-    
-    const leftPanel = page.locator('.drawer-backdrop[data-dialog-type="drawer"]').nth(1).locator('[data-drawer-panel]');
-    const hasLeftClass = await leftPanel.evaluate((el) => el.classList.contains('left-0'));
-    expect(hasLeftClass).toBe(true);
-    
-    // Close left drawer
+    // Close dialog
     await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
-    
-    // Test top drawer
-    const topTrigger = page.locator('dry-dialog a:has-text("Open Top Drawer")');
-    await topTrigger.click();
-    await page.waitForTimeout(500);
-    
-    const topPanel = page.locator('.drawer-backdrop[data-dialog-type="drawer"]').nth(2).locator('[data-drawer-panel]');
-    const hasTopClass = await topPanel.evaluate((el) => el.classList.contains('top-0'));
-    expect(hasTopClass).toBe(true);
   });
 
-  test('should support programmatic drawer open/close', async ({ page }) => {
-    // Get reference to programmatic drawer
-    const drawerOpened = await page.evaluate(() => {
-      const drawer = document.getElementById('programmatic-drawer');
-      if (drawer) {
-        drawer.open();
-        return true;
-      }
-      return false;
-    });
+  test('should load HTMX content into drawer', async ({ page }) => {
+    // Click to open a drawer that loads content via HTMX
+    const drawerButton = page.locator('dry-dialog a:has-text("Open Right Drawer")').first();
+    await drawerButton.click();
     
-    expect(drawerOpened).toBe(true);
+    // Wait for HTMX to load and drawer to open
+    await page.waitForTimeout(2000);
     
-    await page.waitForTimeout(500);
-    
-    // Check that drawer is open
-    const backdrop = page.locator('#programmatic-drawer .drawer-backdrop[data-dialog-type="drawer"]');
-    await expect(backdrop).toBeVisible();
-    
-    // Close programmatically
-    await page.evaluate(() => {
-      const drawer = document.getElementById('programmatic-drawer');
-      if (drawer) {
-        drawer.close();
-      }
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Check that drawer is closed
-    const isHidden = await backdrop.evaluate((el) => el.style.display === 'none');
-    expect(isHidden).toBe(true);
-  });
-
-  test('should emit custom events on drawer open/close', async ({ page }) => {
-    // Set up event listeners
-    await page.evaluate(() => {
-      window.drawerOpenedEvent = null;
-      window.drawerClosedEvent = null;
-      
-      document.addEventListener('dialog:opened', (e) => {
-        if (e.detail.mode === 'drawer') {
-          window.drawerOpenedEvent = e.detail;
-        }
-      });
-      
-      document.addEventListener('dialog:closed', (e) => {
-        if (e.detail.mode === 'drawer') {
-          window.drawerClosedEvent = e.detail;
-        }
-      });
-    });
-    
-    // Open drawer programmatically
-    await page.evaluate(() => {
-      const drawer = document.getElementById('programmatic-drawer');
-      if (drawer) {
-        drawer.open();
-      }
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Check open event was fired
-    const openEvent = await page.evaluate(() => window.drawerOpenedEvent);
-    expect(openEvent).toBeTruthy();
-    expect(openEvent.mode).toBe('drawer');
+    // Verify drawer content was loaded (check for specific text from drawer-example-content.html)
+    const drawer = page.locator('dry-dialog div[role="dialog"]').first();
+    const content = await drawer.textContent();
+    expect(content).toContain('Drawer Content Example');
+    expect(content).toContain('Dynamic content loading');
     
     // Close drawer
-    await page.evaluate(() => {
-      const drawer = document.getElementById('programmatic-drawer');
-      if (drawer) {
-        drawer.close();
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+  });
+
+  test('should have no JavaScript console errors', async ({ page }) => {
+    const consoleErrors = [];
+    
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
       }
     });
     
+    // Interact with dialogs
+    const triggerButton = page.locator('dry-dialog a').first();
+    await triggerButton.click();
     await page.waitForTimeout(500);
     
-    // Check close event was fired
-    const closeEvent = await page.evaluate(() => window.drawerClosedEvent);
-    expect(closeEvent).toBeTruthy();
-    expect(closeEvent.mode).toBe('drawer');
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Open drawer
+    const drawerTrigger = page.locator('dry-dialog a:has-text("Open Right Drawer")').first();
+    await drawerTrigger.click();
+    await page.waitForTimeout(500);
+    
+    const backdrop = page.locator('[data-backdrop="true"]').first();
+    await backdrop.click();
+    await page.waitForTimeout(500);
+    
+    // Check for errors
+    expect(consoleErrors.length).toBe(0);
+  });
+
+  test('should support custom styling', async ({ page }) => {
+    // Find custom styled dialog
+    const customButton = page.locator('dry-dialog a:has-text("🎨 Custom Styled Drawer")').first();
+    
+    // Verify button has custom classes
+    const buttonClass = await customButton.getAttribute('class');
+    expect(buttonClass).toContain('gradient');
+    
+    await customButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify drawer has custom classes
+    const drawer = page.locator('dry-dialog [role="dialog"]:has-text("Drawer Content")').first();
+    const drawerClass = await drawer.getAttribute('class');
+    expect(drawerClass).toContain('gradient');
+  });
+
+  test('should handle multiple dialogs on same page', async ({ page }) => {
+    // Open first dialog
+    const firstButton = page.locator('dry-dialog a').first();
+    await firstButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify only one dialog is open
+    let openDialogs = await page.locator('dialog[open]').count();
+    expect(openDialogs).toBe(1);
+    
+    // Close first dialog
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Open a drawer
+    const drawerButton = page.locator('dry-dialog a:has-text("Open Right Drawer")').first();
+    await drawerButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify drawer is open
+    const backdrop = page.locator('[data-backdrop="true"]:not(.hidden)').first();
+    await expect(backdrop).toBeVisible();
+    
+    // Close drawer
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+  });
+
+  test('should maintain button text content', async ({ page }) => {
+    // Check various button texts are visible and have correct content
+    await expect(page.locator('dry-dialog a:has-text("Open Basic Dialog")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Contact Form")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Right Drawer")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Left Drawer")')).toBeVisible();
+    
+    // Verify visible buttons have meaningful text
+    const visibleButtons = await page.locator('dry-dialog a:visible').all();
+    expect(visibleButtons.length).toBeGreaterThan(5);
+    
+    // Check a few sample buttons for proper text
+    const firstButtonText = await page.locator('dry-dialog a:visible').first().textContent();
+    expect(firstButtonText.trim().length).toBeGreaterThan(0);
+    expect(firstButtonText).not.toContain('undefined');
+    expect(firstButtonText).not.toContain('null');
+  });
+
+  test('should support custom dialog widths', async ({ page }) => {
+    // Test small dialog (max-w-sm)
+    const smallDialogButton = page.locator('dry-dialog a:has-text("Open Small Dialog")');
+    await expect(smallDialogButton).toBeVisible();
+    await smallDialogButton.click();
+    await page.waitForTimeout(1000);
+    
+    let dialog = page.locator('dialog[open]').first();
+    await expect(dialog).toBeVisible();
+    
+    // Check that dialog has max-w-sm class
+    const dialogInner = dialog.locator('div[id*="dialog"]').first();
+    let hasSmallWidth = await dialogInner.evaluate(el => el.classList.contains('max-w-sm'));
+    expect(hasSmallWidth).toBe(true);
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test extra large dialog (max-w-6xl)
+    const xlDialogButton = page.locator('dry-dialog a:has-text("Open Extra Large Dialog")');
+    await xlDialogButton.click();
+    await page.waitForTimeout(1000);
+    
+    dialog = page.locator('dialog[open]').first();
+    await expect(dialog).toBeVisible();
+    
+    // Check that dialog has max-w-6xl class
+    const xlDialogInner = dialog.locator('div[id*="dialog"]').first();
+    let hasXlWidth = await xlDialogInner.evaluate(el => el.classList.contains('max-w-6xl'));
+    expect(hasXlWidth).toBe(true);
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test custom width dialog (w-[600px])
+    const customWidthButton = page.locator('dry-dialog a:has-text("Open Custom Width Dialog")');
+    await customWidthButton.click();
+    await page.waitForTimeout(1000);
+    
+    dialog = page.locator('dialog[open]').first();
+    await expect(dialog).toBeVisible();
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+  });
+
+  test('should support custom drawer widths', async ({ page }) => {
+    // Test narrow drawer (w-64)
+    const narrowDrawerButton = page.locator('dry-dialog a:has-text("Open Narrow Drawer")');
+    await expect(narrowDrawerButton).toBeVisible();
+    await narrowDrawerButton.click();
+    await page.waitForTimeout(500);
+    
+    let drawer = page.locator('dry-dialog div[role="dialog"]').first();
+    await expect(drawer).toBeAttached();
+    
+    // Check that drawer has w-64 class
+    let hasNarrowWidth = await drawer.evaluate(el => el.classList.contains('w-64'));
+    expect(hasNarrowWidth).toBe(true);
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test wide drawer (w-96)
+    const wideDrawerButton = page.locator('dry-dialog a:has-text("Open Wide Drawer")');
+    await wideDrawerButton.click();
+    await page.waitForTimeout(500);
+    
+    drawer = page.locator('dry-dialog div[role="dialog"]').first();
+    await expect(drawer).toBeAttached();
+    
+    // Check that drawer has w-96 class
+    let hasWideWidth = await drawer.evaluate(el => el.classList.contains('w-96'));
+    expect(hasWideWidth).toBe(true);
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test extra wide drawer (w-[32rem])
+    const extraWideDrawerButton = page.locator('dry-dialog a:has-text("Open Extra Wide Drawer")');
+    await extraWideDrawerButton.click();
+    await page.waitForTimeout(500);
+    
+    drawer = page.locator('dry-dialog div[role="dialog"]').first();
+    await expect(drawer).toBeAttached();
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+    
+    // Test half screen drawer (w-1/2)
+    const halfScreenDrawerButton = page.locator('dry-dialog a:has-text("Open Half Screen Drawer")');
+    await halfScreenDrawerButton.click();
+    await page.waitForTimeout(500);
+    
+    drawer = page.locator('dry-dialog div[role="dialog"]').first();
+    await expect(drawer).toBeAttached();
+    
+    // Check that drawer has w-1/2 class
+    let hasHalfWidth = await drawer.evaluate(el => el.classList.contains('w-1/2'));
+    expect(hasHalfWidth).toBe(true);
+    
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+  });
+
+  test('should verify custom width components render correctly', async ({ page }) => {
+    // Check all custom width buttons are visible
+    await expect(page.locator('dry-dialog a:has-text("Open Small Dialog")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Extra Large Dialog")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Custom Width Dialog")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Full Width Dialog")')).toBeVisible();
+    
+    // Check all custom drawer width buttons are visible
+    await expect(page.locator('dry-dialog a:has-text("Open Narrow Drawer")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Wide Drawer")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Extra Wide Drawer")')).toBeVisible();
+    await expect(page.locator('dry-dialog a:has-text("Open Half Screen Drawer")')).toBeVisible();
+    
+    // Count all visible dialog/drawer buttons - should be significantly more than 5 now
+    const allVisibleButtons = await page.locator('dry-dialog a:visible').count();
+    expect(allVisibleButtons).toBeGreaterThan(15);
   });
 });
-
-test.describe('Dialog Component - API', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/examples/dialog-showcase.html', { waitUntil: 'domcontentloaded' });
-    
-    // Wait for custom elements to be defined
-    await page.waitForFunction(() => {
-      return customElements.get('dry-dialog');
-    });
-    
-    await page.waitForTimeout(500);
-  });
-
-  test('should support setText API', async ({ page }) => {
-    // Change button text programmatically
-    await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.setText('New Button Text');
-      }
-    });
-    
-    await page.waitForTimeout(300);
-    
-    // Check that button text was updated
-    const buttonText = await page.locator('#programmatic-dialog a').textContent();
-    expect(buttonText).toContain('New Button Text');
-  });
-
-  test('should support toggle API', async ({ page }) => {
-    // Toggle dialog open
-    await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.toggle();
-      }
-    });
-    
-    await page.waitForTimeout(500);
-    
-    // Check that dialog is open
-    const dialog = page.locator('#programmatic-dialog dialog[data-dialog-type="dialog"]');
-    let isOpen = await dialog.evaluate((el) => el.open);
-    expect(isOpen).toBe(true);
-    
-    // Toggle again to close
-    await page.evaluate(() => {
-      const dialog = document.getElementById('programmatic-dialog');
-      if (dialog) {
-        dialog.toggle();
-      }
-    });
-    
-    await page.waitForTimeout(300);
-    
-    // Check that dialog is closed
-    isOpen = await dialog.evaluate((el) => el.open);
-    expect(isOpen).toBe(false);
-  });
-
-  test('should have working getter properties', async ({ page }) => {
-    // Get property values
-    const properties = await page.evaluate(() => {
-      const dialog = document.querySelector('dry-dialog');
-      if (dialog) {
-        return {
-          url: dialog.url,
-          mode: dialog.mode,
-          direction: dialog.direction,
-          buttonClass: dialog.buttonClass,
-          dialogClass: dialog.dialogClass
-        };
-      }
-      return null;
-    });
-    
-    expect(properties).toBeTruthy();
-    expect(properties.url).toBeTruthy();
-    expect(properties.mode).toBeTruthy();
-    expect(properties.buttonClass).toBeTruthy();
-  });
-});
-

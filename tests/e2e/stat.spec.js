@@ -136,5 +136,119 @@ test.describe('DRY Stat Component', () => {
     const textContent = await firstStat.textContent();
     expect(textContent.trim().length).toBeGreaterThan(0);
   });
+
+  test('should render with correct colors on light backgrounds', async ({ page }) => {
+    // Navigate to a specific stat with light background
+    const lightBgStat = page.locator('.stat-card.bg-white dry-stat').first();
+    await expect(lightBgStat).toBeVisible();
+    
+    // Check that value text has dark color classes
+    const valueElement = lightBgStat.locator('.text-2xl');
+    await expect(valueElement).toBeVisible();
+    
+    const classes = await valueElement.getAttribute('class');
+    // Should contain gray-900 for dark text on light background
+    expect(classes).toContain('text-gray-900');
+  });
+
+  test('should render with correct colors on dark backgrounds', async ({ page }) => {
+    // Find a stat with text-white class (for dark backgrounds)
+    const darkBgStat = page.locator('dry-stat[class*="text-white"]').first();
+    
+    if (await darkBgStat.count() > 0) {
+      await expect(darkBgStat).toBeVisible();
+      
+      // Check that value text has inherit or light color classes
+      const valueElement = darkBgStat.locator('.text-2xl');
+      await expect(valueElement).toBeVisible();
+      
+      const classes = await valueElement.getAttribute('class');
+      // Should contain text-inherit for light text on dark background
+      expect(classes).toContain('text-inherit');
+    }
+  });
+
+  test('should detect light theme and apply correct text colors', async ({ page }) => {
+    // Create a test stat with text-white class
+    await page.evaluate(() => {
+      const container = document.createElement('div');
+      container.className = 'p-6 bg-gray-900 rounded-lg';
+      container.style.position = 'absolute';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.id = 'test-dark-stat';
+      
+      const stat = document.createElement('dry-stat');
+      stat.setAttribute('value', '12345');
+      stat.setAttribute('label', 'Test Stat');
+      stat.setAttribute('class', 'text-white');
+      
+      container.appendChild(stat);
+      document.body.appendChild(container);
+    });
+    
+    await page.waitForTimeout(500);
+    
+    const testStat = page.locator('#test-dark-stat dry-stat');
+    await expect(testStat).toBeVisible();
+    
+    // Check that the inner value element has text-inherit class
+    const valueElement = testStat.locator('.text-2xl');
+    const classes = await valueElement.getAttribute('class');
+    expect(classes).toContain('text-inherit');
+    
+    // Cleanup
+    await page.evaluate(() => {
+      document.getElementById('test-dark-stat')?.remove();
+    });
+  });
+
+  test('should handle color theme switching dynamically', async ({ page }) => {
+    const stat = page.locator('dry-stat').first();
+    
+    // Initially check default classes
+    let valueElement = stat.locator('.text-2xl');
+    let initialClasses = await valueElement.getAttribute('class');
+    
+    // Add text-white class to trigger light theme
+    await stat.evaluate((el) => {
+      el.setAttribute('class', 'text-white');
+    });
+    
+    await page.waitForTimeout(500);
+    
+    // Check that classes changed
+    valueElement = stat.locator('.text-2xl');
+    const newClasses = await valueElement.getAttribute('class');
+    expect(newClasses).toContain('text-inherit');
+    
+    // Remove text-white class
+    await stat.evaluate((el) => {
+      el.removeAttribute('class');
+    });
+    
+    await page.waitForTimeout(500);
+    
+    // Check that it reverted to default dark text
+    valueElement = stat.locator('.text-2xl');
+    const revertedClasses = await valueElement.getAttribute('class');
+    expect(revertedClasses).toContain('text-gray-900');
+  });
+
+  test('should display trend colors correctly on both light and dark backgrounds', async ({ page }) => {
+    // Check trend on light background
+    const lightTrendStat = page.locator('dry-stat[trend="up"]').first();
+    if (await lightTrendStat.count() > 0) {
+      const trendElement = lightTrendStat.locator('.text-green-600, .text-green-400').first();
+      await expect(trendElement).toBeVisible();
+    }
+    
+    // Check trend on dark background (if exists)
+    const darkTrendStat = page.locator('dry-stat[class*="text-white"][trend="up"]').first();
+    if (await darkTrendStat.count() > 0) {
+      const trendElement = darkTrendStat.locator('.text-green-600, .text-green-400').first();
+      await expect(trendElement).toBeVisible();
+    }
+  });
 });
 

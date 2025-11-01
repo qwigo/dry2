@@ -201,6 +201,16 @@ class DryStat extends BaseElement {
     const customClass = this.getAttribute('class') || '';
     const processedIcon = this.processIcon(this.icon);
 
+    // Check if custom color theme is applied (look for text-white or other light text colors)
+    const hasLightTheme = customClass.includes('text-white') || 
+                          customClass.includes('text-gray-50') || 
+                          customClass.includes('text-gray-100');
+    
+    // Set default text colors based on theme
+    const valueColor = hasLightTheme ? 'text-inherit' : 'text-gray-900 dark:text-gray-100';
+    const labelColor = hasLightTheme ? 'text-inherit opacity-90' : 'text-gray-600 dark:text-gray-400';
+    const comparisonColor = hasLightTheme ? 'text-inherit opacity-75' : 'text-gray-500 dark:text-gray-400';
+
     let html = '';
 
     if (isHorizontal) {
@@ -210,8 +220,8 @@ class DryStat extends BaseElement {
                     <div class="flex items-center space-x-3">
                         ${processedIcon ? `<div class="flex-shrink-0">${processedIcon}</div>` : ''}
                         <div>
-                            <div class="text-sm font-medium text-gray-600 dark:text-gray-400">${this.label}</div>
-                            <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">${formattedValue}</div>
+                            <div class="text-sm font-medium ${labelColor}">${this.label}</div>
+                            <div class="text-2xl font-bold ${valueColor}">${formattedValue}</div>
                         </div>
                     </div>
                     <div class="text-right">
@@ -222,7 +232,7 @@ class DryStat extends BaseElement {
                             </div>
                         ` : ''}
                         ${this.comparison ? `
-                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${this.comparison}</div>
+                             <div class="text-xs ${comparisonColor} mt-1">${this.comparison}</div>
                          ` : ''}
                      </div>
                  </div>
@@ -232,8 +242,8 @@ class DryStat extends BaseElement {
        html = `
                  <div class="${customClass}">
                      ${processedIcon ? `<div class="mb-3">${processedIcon}</div>` : ''}
-                     <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">${formattedValue}</div>
-                     <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">${this.label}</div>
+                     <div class="text-2xl font-bold ${valueColor} mb-1">${formattedValue}</div>
+                     <div class="text-sm font-medium ${labelColor} mb-2">${this.label}</div>
                      ${this.trend && this.trendValue ? `
                          <div class="flex items-center ${trendColor}">
                              ${trendIcon}
@@ -241,7 +251,7 @@ class DryStat extends BaseElement {
                          </div>
                      ` : ''}
                      ${this.comparison ? `
-                         <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${this.comparison}</div>
+                         <div class="text-xs ${comparisonColor} mt-1">${this.comparison}</div>
                      ` : ''}
                  </div>
              `;
