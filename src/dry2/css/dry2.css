@@ -208,6 +208,124 @@
     --stem-font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --stem-font-family-serif: Georgia, Cambria, "Times New Roman", Times, serif;
     --stem-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* ========================================
+     * COLORS
+     * ======================================== */
+
+    /**
+     * Primary color palette
+     *
+     * Main brand colors used for primary actions, links, and emphasis
+     *
+     * Usage:
+     * .primary-button {
+     *     background-color: var(--stem-color-primary);
+     * }
+     * .primary-button:hover {
+     *     background-color: var(--stem-color-primary-dark);
+     * }
+     */
+    --stem-color-primary: #3b82f6;        /* Blue - primary brand color */
+    --stem-color-primary-light: #60a5fa;  /* Light blue - hover states, accents */
+    --stem-color-primary-dark: #2563eb;   /* Dark blue - pressed states, emphasis */
+
+    /**
+     * Success color palette
+     *
+     * Used for positive feedback, success states, and confirmations
+     *
+     * Usage:
+     * .success-message {
+     *     color: var(--stem-color-success);
+     * }
+     */
+    --stem-color-success: #10b981;        /* Green - success states */
+    --stem-color-success-light: #34d399;  /* Light green - success backgrounds */
+    --stem-color-success-dark: #059669;   /* Dark green - success emphasis */
+
+    /**
+     * Warning color palette
+     *
+     * Used for warnings, cautions, and attention-needed states
+     *
+     * Usage:
+     * .warning-banner {
+     *     background-color: var(--stem-color-warning-light);
+     *     color: var(--stem-color-warning-dark);
+     * }
+     */
+    --stem-color-warning: #f59e0b;        /* Amber - warning states */
+    --stem-color-warning-light: #fbbf24;  /* Light amber - warning backgrounds */
+    --stem-color-warning-dark: #d97706;   /* Dark amber - warning emphasis */
+
+    /**
+     * Error color palette
+     *
+     * Used for errors, destructive actions, and critical states
+     *
+     * Usage:
+     * .error-message {
+     *     color: var(--stem-color-error);
+     * }
+     * .delete-button {
+     *     background-color: var(--stem-color-error);
+     * }
+     */
+    --stem-color-error: #ef4444;          /* Red - error states */
+    --stem-color-error-light: #f87171;    /* Light red - error backgrounds */
+    --stem-color-error-dark: #dc2626;     /* Dark red - error emphasis */
+
+    /**
+     * Text color palette
+     *
+     * Semantic text colors for different content types
+     *
+     * Usage:
+     * body {
+     *     color: var(--stem-color-text-base);
+     * }
+     * .muted {
+     *     color: var(--stem-color-text-muted);
+     * }
+     */
+    --stem-color-text-base: #1f2937;      /* Dark gray - primary text */
+    --stem-color-text-muted: #6b7280;     /* Medium gray - secondary text, labels */
+    --stem-color-text-inverted: #ffffff;  /* White - text on dark backgrounds */
+
+    /**
+     * Background color palette
+     *
+     * Semantic background colors for different surfaces
+     *
+     * Usage:
+     * body {
+     *     background-color: var(--stem-color-bg-surface);
+     * }
+     * .card {
+     *     background-color: var(--stem-color-bg-primary);
+     * }
+     */
+    --stem-color-bg-surface: #ffffff;     /* White - page background */
+    --stem-color-bg-primary: #f9fafb;     /* Very light gray - card backgrounds */
+    --stem-color-bg-secondary: #f3f4f6;   /* Light gray - secondary surfaces */
+
+    /**
+     * Border color palette
+     *
+     * Semantic border colors for different emphasis levels
+     *
+     * Usage:
+     * .input {
+     *     border-color: var(--stem-color-border-base);
+     * }
+     * .divider {
+     *     border-color: var(--stem-color-border-light);
+     * }
+     */
+    --stem-color-border-base: #d1d5db;    /* Medium gray - default borders */
+    --stem-color-border-light: #e5e7eb;   /* Light gray - subtle dividers */
+    --stem-color-border-dark: #9ca3af;    /* Dark gray - emphasized borders */
 }
 
 /* ========================================
