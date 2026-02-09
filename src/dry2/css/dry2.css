@@ -1274,6 +1274,122 @@ header > nav {
     background-color: var(--stem-color-error);
 }
 
+/* ----------------------------------------
+ * Border Width Utilities
+ * ---------------------------------------- */
+
+/**
+ * Base border (1px)
+ * Common uses: Standard borders on cards, inputs, dividers
+ */
+.border {
+    border-width: var(--stem-border-width);
+    border-style: solid;
+}
+
+/**
+ * Thick border (2px)
+ * Common uses: Emphasized borders, focus states
+ */
+.border-2 {
+    border-width: var(--stem-border-width-2);
+    border-style: solid;
+}
+
+/* ----------------------------------------
+ * Directional Border Utilities
+ * ---------------------------------------- */
+
+/**
+ * Top border only
+ * Common uses: Section dividers, header separators
+ */
+.border-t {
+    border-top-width: var(--stem-border-width);
+    border-top-style: solid;
+}
+
+/**
+ * Bottom border only
+ * Common uses: Footer separators, list item dividers
+ */
+.border-b {
+    border-bottom-width: var(--stem-border-width);
+    border-bottom-style: solid;
+}
+
+/* ----------------------------------------
+ * Border Radius Utilities
+ * ---------------------------------------- */
+
+/**
+ * Base border radius (0.375rem / 6px)
+ * Common uses: Standard rounded corners on buttons, cards
+ */
+.rounded {
+    border-radius: var(--stem-border-radius);
+}
+
+/**
+ * Small border radius (0.25rem / 4px)
+ * Common uses: Subtle rounded corners on small elements
+ */
+.rounded-sm {
+    border-radius: var(--stem-border-radius-sm);
+}
+
+/**
+ * Large border radius (0.5rem / 8px)
+ * Common uses: More pronounced rounded corners on cards
+ */
+.rounded-lg {
+    border-radius: var(--stem-border-radius-lg);
+}
+
+/**
+ * Full border radius (9999px)
+ * Common uses: Circular elements like avatars, pills
+ */
+.rounded-full {
+    border-radius: var(--stem-border-radius-full);
+}
+
+/* ----------------------------------------
+ * Shadow Utilities
+ * ---------------------------------------- */
+
+/**
+ * Small shadow
+ * Common uses: Subtle elevation for hover states
+ */
+.shadow-sm {
+    box-shadow: var(--stem-shadow-sm);
+}
+
+/**
+ * Base shadow
+ * Common uses: Cards, dropdowns, modals
+ */
+.shadow {
+    box-shadow: var(--stem-shadow);
+}
+
+/**
+ * Large shadow
+ * Common uses: Elevated cards, prominent modals
+ */
+.shadow-lg {
+    box-shadow: var(--stem-shadow-lg);
+}
+
+/**
+ * Extra large shadow
+ * Common uses: High elevation popovers, overlays
+ */
+.shadow-xl {
+    box-shadow: var(--stem-shadow-xl);
+}
+
 /* ========================================
  * GRID SYSTEM
  * ======================================== */
