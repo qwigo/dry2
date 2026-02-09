@@ -12,6 +12,17 @@ class DryCard extends BaseElement {
     return ['variant', 'elevation', 'orientation', 'interactive', 'bordered'];
   }
 
+  /**
+   * Elevation map for dry2.css shadow utilities
+   */
+  static ELEVATION_MAP = {
+    'none': [],
+    'sm': ['shadow-sm'],
+    'md': ['shadow'],      // dry2.css uses .shadow for medium elevation
+    'lg': ['shadow-lg'],
+    'xl': ['shadow-xl']
+  };
+
   constructor() {
     super();
     this._slots = {};
@@ -151,7 +162,7 @@ class DryCard extends BaseElement {
 
     // Create content container
     const contentDiv = document.createElement('div');
-    contentDiv.className = `card-content ${orientation === 'horizontal' ? 'flex-1 flex flex-col' : ''}`;
+    contentDiv.className = `card-content ${orientation === 'horizontal' ? 'flex flex-col' : ''}`;
 
     // Create header section if exists
     if (this._slots.header) {
@@ -192,39 +203,34 @@ class DryCard extends BaseElement {
   }
 
   /**
-   * Get card-specific classes
+   * Get card-specific classes using dry2.css utilities
    */
   _getCardClasses(variant, elevation, orientation, interactive, bordered) {
-    const classes = ['card', 'relative', 'bg-white', 'rounded-lg', 'transition-all', 'duration-200'];
+    // Base card class from dry2.css (background, border-radius, default shadow)
+    const classes = ['card', 'relative'];
 
-    // Elevation classes
-    const elevationMap = {
-      'none': [],
-      'sm': ['shadow-sm'],
-      'md': ['shadow-md'],
-      'lg': ['shadow-lg'],
-      'xl': ['shadow-xl']
-    };
-    classes.push(...(elevationMap[elevation] || elevationMap.md));
+    // Apply elevation using dry2.css shadow utilities
+    const elevationClasses = DryCard.ELEVATION_MAP[elevation] || DryCard.ELEVATION_MAP.md;
+    classes.push(...elevationClasses);
 
-    // Border
+    // Add border if requested
     if (bordered) {
-      classes.push('border', 'border-gray-200');
+      classes.push('border');
     }
 
-    // Interactive states
+    // Interactive state (cursor pointer only - hover effects handled via CSS)
     if (interactive) {
-      classes.push('cursor-pointer', 'hover:shadow-lg', 'hover:-translate-y-0.5');
+      classes.push('cursor-pointer');
     }
 
-    // Orientation
+    // Horizontal orientation (responsive flex layout)
     if (orientation === 'horizontal') {
-      classes.push('flex');
+      classes.push('flex', 'flex-col');
     }
 
-    // Variant styles
+    // Variant-specific styling
     if (variant === 'outlined') {
-      classes.push('bg-transparent', 'border', 'border-gray-300', 'shadow-none');
+      classes.push('border');
     } else if (variant === 'elevated') {
       classes.push('shadow-xl');
     }
@@ -233,16 +239,19 @@ class DryCard extends BaseElement {
   }
 
   /**
-   * Get section-specific classes
+   * Get section-specific classes with dry2.css spacing utilities
+   *
+   * Uses .p-*, .px-*, and .py-* utilities (no .pt-* or .pb-* in dry2.css)
    */
   _getSectionClasses(section, orientation) {
     const isHorizontal = orientation === 'horizontal';
 
+    // Define spacing patterns for each section
     const sectionClassMap = {
-      header: isHorizontal ? ['p-6'] : ['px-6', 'pt-6', 'pb-0'],
-      media: isHorizontal ? ['flex-shrink-0', 'w-48'] : ['w-full'],
-      body: isHorizontal ? ['flex-1', 'p-6'] : ['px-6', 'py-4'],
-      footer: isHorizontal ? ['p-6', 'pt-0'] : ['px-6', 'pb-6', 'pt-0']
+      header: isHorizontal ? ['p-lg'] : ['px-lg', 'py-sm'],
+      media: isHorizontal ? [] : [],
+      body: isHorizontal ? ['p-lg'] : ['px-lg', 'py-md'],
+      footer: isHorizontal ? ['p-lg'] : ['px-lg', 'py-sm']
     };
 
     return (sectionClassMap[section] || []).join(' ');
