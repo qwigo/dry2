@@ -1391,6 +1391,352 @@ header > nav {
 }
 
 /* ========================================
+ * SPACING UTILITIES
+ * ======================================== */
+
+/**
+ * Spacing utility classes for consistent padding and margin
+ *
+ * Uses the spacing scale variables defined in :root
+ * Follows a mobile-first approach with logical properties
+ *
+ * Scale:
+ * - xs: 0.5rem (8px) - tight spacing
+ * - sm: 0.75rem (12px) - compact spacing
+ * - md: 1rem (16px) - default spacing
+ * - lg: 1.5rem (24px) - comfortable spacing
+ * - xl: 2rem (32px) - generous spacing
+ */
+
+/* ----------------------------------------
+ * Padding Utilities - All Sides
+ * ---------------------------------------- */
+
+/**
+ * Extra small padding (8px) on all sides
+ * Common uses: Compact buttons, tight containers
+ */
+.p-xs {
+    padding: var(--stem-spacing-xs);
+}
+
+/**
+ * Small padding (12px) on all sides
+ * Common uses: Small cards, compact forms
+ */
+.p-sm {
+    padding: var(--stem-spacing-sm);
+}
+
+/**
+ * Medium padding (16px) on all sides
+ * Common uses: Standard cards, default containers
+ */
+.p-md {
+    padding: var(--stem-spacing-md);
+}
+
+/**
+ * Large padding (24px) on all sides
+ * Common uses: Comfortable sections, spacious cards
+ */
+.p-lg {
+    padding: var(--stem-spacing-lg);
+}
+
+/**
+ * Extra large padding (32px) on all sides
+ * Common uses: Hero sections, generous spacing
+ */
+.p-xl {
+    padding: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Padding Utilities - Horizontal (X-axis)
+ * ---------------------------------------- */
+
+/**
+ * Horizontal padding utilities
+ * Apply padding to left and right sides only
+ */
+
+.px-xs {
+    padding-left: var(--stem-spacing-xs);
+    padding-right: var(--stem-spacing-xs);
+}
+
+.px-sm {
+    padding-left: var(--stem-spacing-sm);
+    padding-right: var(--stem-spacing-sm);
+}
+
+.px-md {
+    padding-left: var(--stem-spacing-md);
+    padding-right: var(--stem-spacing-md);
+}
+
+.px-lg {
+    padding-left: var(--stem-spacing-lg);
+    padding-right: var(--stem-spacing-lg);
+}
+
+.px-xl {
+    padding-left: var(--stem-spacing-xl);
+    padding-right: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Padding Utilities - Vertical (Y-axis)
+ * ---------------------------------------- */
+
+/**
+ * Vertical padding utilities
+ * Apply padding to top and bottom sides only
+ */
+
+.py-xs {
+    padding-top: var(--stem-spacing-xs);
+    padding-bottom: var(--stem-spacing-xs);
+}
+
+.py-sm {
+    padding-top: var(--stem-spacing-sm);
+    padding-bottom: var(--stem-spacing-sm);
+}
+
+.py-md {
+    padding-top: var(--stem-spacing-md);
+    padding-bottom: var(--stem-spacing-md);
+}
+
+.py-lg {
+    padding-top: var(--stem-spacing-lg);
+    padding-bottom: var(--stem-spacing-lg);
+}
+
+.py-xl {
+    padding-top: var(--stem-spacing-xl);
+    padding-bottom: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Margin Utilities - All Sides
+ * ---------------------------------------- */
+
+/**
+ * Extra small margin (8px) on all sides
+ * Common uses: Tight element spacing
+ */
+.m-xs {
+    margin: var(--stem-spacing-xs);
+}
+
+/**
+ * Small margin (12px) on all sides
+ * Common uses: Compact element spacing
+ */
+.m-sm {
+    margin: var(--stem-spacing-sm);
+}
+
+/**
+ * Medium margin (16px) on all sides
+ * Common uses: Standard element spacing
+ */
+.m-md {
+    margin: var(--stem-spacing-md);
+}
+
+/**
+ * Large margin (24px) on all sides
+ * Common uses: Comfortable section spacing
+ */
+.m-lg {
+    margin: var(--stem-spacing-lg);
+}
+
+/**
+ * Extra large margin (32px) on all sides
+ * Common uses: Generous section separation
+ */
+.m-xl {
+    margin: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Margin Utilities - Horizontal (X-axis)
+ * ---------------------------------------- */
+
+/**
+ * Horizontal margin utilities
+ * Apply margin to left and right sides only
+ */
+
+.mx-xs {
+    margin-left: var(--stem-spacing-xs);
+    margin-right: var(--stem-spacing-xs);
+}
+
+.mx-sm {
+    margin-left: var(--stem-spacing-sm);
+    margin-right: var(--stem-spacing-sm);
+}
+
+.mx-md {
+    margin-left: var(--stem-spacing-md);
+    margin-right: var(--stem-spacing-md);
+}
+
+.mx-lg {
+    margin-left: var(--stem-spacing-lg);
+    margin-right: var(--stem-spacing-lg);
+}
+
+.mx-xl {
+    margin-left: var(--stem-spacing-xl);
+    margin-right: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Margin Utilities - Vertical (Y-axis)
+ * ---------------------------------------- */
+
+/**
+ * Vertical margin utilities
+ * Apply margin to top and bottom sides only
+ */
+
+.my-xs {
+    margin-top: var(--stem-spacing-xs);
+    margin-bottom: var(--stem-spacing-xs);
+}
+
+.my-sm {
+    margin-top: var(--stem-spacing-sm);
+    margin-bottom: var(--stem-spacing-sm);
+}
+
+.my-md {
+    margin-top: var(--stem-spacing-md);
+    margin-bottom: var(--stem-spacing-md);
+}
+
+.my-lg {
+    margin-top: var(--stem-spacing-lg);
+    margin-bottom: var(--stem-spacing-lg);
+}
+
+.my-xl {
+    margin-top: var(--stem-spacing-xl);
+    margin-bottom: var(--stem-spacing-xl);
+}
+
+/* ----------------------------------------
+ * Margin Utilities - Individual Sides
+ * ---------------------------------------- */
+
+/**
+ * Top margin utilities
+ * Apply margin to top side only
+ */
+
+.mt-xs {
+    margin-top: var(--stem-spacing-xs);
+}
+
+.mt-sm {
+    margin-top: var(--stem-spacing-sm);
+}
+
+.mt-md {
+    margin-top: var(--stem-spacing-md);
+}
+
+.mt-lg {
+    margin-top: var(--stem-spacing-lg);
+}
+
+.mt-xl {
+    margin-top: var(--stem-spacing-xl);
+}
+
+/**
+ * Bottom margin utilities
+ * Apply margin to bottom side only
+ */
+
+.mb-xs {
+    margin-bottom: var(--stem-spacing-xs);
+}
+
+.mb-sm {
+    margin-bottom: var(--stem-spacing-sm);
+}
+
+.mb-md {
+    margin-bottom: var(--stem-spacing-md);
+}
+
+.mb-lg {
+    margin-bottom: var(--stem-spacing-lg);
+}
+
+.mb-xl {
+    margin-bottom: var(--stem-spacing-xl);
+}
+
+/**
+ * Left margin utilities
+ * Apply margin to left side only
+ */
+
+.ml-xs {
+    margin-left: var(--stem-spacing-xs);
+}
+
+.ml-sm {
+    margin-left: var(--stem-spacing-sm);
+}
+
+.ml-md {
+    margin-left: var(--stem-spacing-md);
+}
+
+.ml-lg {
+    margin-left: var(--stem-spacing-lg);
+}
+
+.ml-xl {
+    margin-left: var(--stem-spacing-xl);
+}
+
+/**
+ * Right margin utilities
+ * Apply margin to right side only
+ */
+
+.mr-xs {
+    margin-right: var(--stem-spacing-xs);
+}
+
+.mr-sm {
+    margin-right: var(--stem-spacing-sm);
+}
+
+.mr-md {
+    margin-right: var(--stem-spacing-md);
+}
+
+.mr-lg {
+    margin-right: var(--stem-spacing-lg);
+}
+
+.mr-xl {
+    margin-right: var(--stem-spacing-xl);
+}
+
+/* ========================================
  * GRID SYSTEM
  * ======================================== */
 
