@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge Integration Tests with dry2.css</title>
+
+    <!-- Test Framework -->
+    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css">
+    <script src="https://unpkg.com/chai@4/chai.js"></script>
+    <script src="https://unpkg.com/mocha/mocha.js"></script>
+
+    <!-- DRY2 CSS Framework -->
+    <link rel="stylesheet" href="src/dry2/css/dry2.css">
+
+    <!-- Component code to test -->
+    <script src="src/dry2/base-element.js"></script>
+    <script src="src/dry2/badge.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+        }
+        #mocha {
+            margin-top: 2rem;
+        }
+        h1 {
+            margin: 0 0 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Badge Component Integration Tests</h1>
+    <p>Testing dry-badge component with dry2.css classes (no Tailwind)</p>
+
+    <div id="mocha"></div>
+
+    <script>
+        mocha.setup('bdd');
+        var assert = chai.assert;
+    </script>
+
+    <!-- Include test file -->
+    <script src="tests/integration/badge-dry2css.test.js"></script>
+
+    <script>
+        // Run tests after components are loaded
+        mocha.checkLeaks();
+        mocha.run();
+    </script>
+</body>
+</html>
