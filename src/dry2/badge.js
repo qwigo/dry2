@@ -178,6 +178,21 @@ class DryBadge extends BaseElement {
     badge.className = allClasses;
     badge.textContent = displayContent;
 
+    // Apply inline styles for dot badges to control size
+    if (isDot) {
+      const dotSizes = {
+        sm: { width: '0.5rem', height: '0.5rem' },  // 8px
+        md: { width: '0.75rem', height: '0.75rem' },  // 12px
+        lg: { width: '1rem', height: '1rem' }  // 16px
+      };
+      const sizeStyles = dotSizes[size] || dotSizes.md;
+      badge.style.width = sizeStyles.width;
+      badge.style.height = sizeStyles.height;
+      badge.style.minWidth = sizeStyles.width;
+      badge.style.minHeight = sizeStyles.height;
+      badge.style.padding = '0';
+    }
+
     wrapper.appendChild(badge);
     this.appendChild(wrapper);
 
@@ -189,7 +204,7 @@ class DryBadge extends BaseElement {
    * Get base badge classes
    */
   _getBaseClasses() {
-    return 'badge inline-flex items-center justify-center font-medium leading-none transition-all duration-200 rounded-full';
+    return 'badge';
   }
 
   /**
@@ -197,11 +212,11 @@ class DryBadge extends BaseElement {
    */
   _getVariantClasses(variant) {
     const variants = {
-      primary: 'bg-gray-800 text-white',
-      success: 'bg-green-500 text-white',
-      danger: 'bg-red-500 text-white',
-      warning: 'bg-yellow-500 text-yellow-900',
-      info: 'bg-blue-500 text-white'
+      primary: '',  // Primary is the default badge style
+      success: 'badge-success',
+      danger: 'badge-error',
+      warning: 'badge-warning',
+      info: 'badge-info'
     };
     return variants[variant] || variants.primary;
   }
@@ -210,30 +225,22 @@ class DryBadge extends BaseElement {
    * Get size-specific classes
    */
   _getSizeClasses(size, isDot) {
+    // dry2.css badge class handles all sizing via CSS variables
+    // Size differences are handled by inline styles for dot badges
     if (isDot) {
-      const dotSizes = {
-        sm: 'w-2 h-2',
-        md: 'w-3 h-3',
-        lg: 'w-4 h-4'
-      };
-      return dotSizes[size] || dotSizes.md;
+      return '';  // Will be handled by inline styles
     }
 
-    const sizes = {
-      sm: 'px-1.5 py-0.5 text-xs min-h-[1.125rem]',
-      md: 'px-2 py-0.5 text-xs min-h-[1.25rem]',
-      lg: 'px-3 py-1 text-sm min-h-[1.75rem]'
-    };
-    return sizes[size] || sizes.md;
+    // dry2.css badge class provides default sizing
+    return '';
   }
 
   /**
    * Get position-specific classes (without absolute positioning, handled on custom element)
    */
   _getPositionClasses(position) {
-    if (position === 'standalone') return '';
-    // Return z-index class only, positioning handled at custom element level
-    return 'z-10';
+    // Positioning is handled entirely by inline styles on the custom element
+    return '';
   }
 
   /**
@@ -241,10 +248,10 @@ class DryBadge extends BaseElement {
    */
   _getPositionStyles(position) {
     const positions = {
-      'top-right': { top: '-0.5rem', right: '-0.5rem' },
-      'top-left': { top: '-0.5rem', left: '-0.5rem' },
-      'bottom-right': { bottom: '-0.5rem', right: '-0.5rem' },
-      'bottom-left': { bottom: '-0.5rem', left: '-0.5rem' }
+      'top-right': { top: '-0.5rem', right: '-0.5rem', zIndex: '10' },
+      'top-left': { top: '-0.5rem', left: '-0.5rem', zIndex: '10' },
+      'bottom-right': { bottom: '-0.5rem', right: '-0.5rem', zIndex: '10' },
+      'bottom-left': { bottom: '-0.5rem', left: '-0.5rem', zIndex: '10' }
     };
     return positions[position] || {};
   }
