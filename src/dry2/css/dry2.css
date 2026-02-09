@@ -326,6 +326,101 @@
     --stem-color-border-base: #d1d5db;    /* Medium gray - default borders */
     --stem-color-border-light: #e5e7eb;   /* Light gray - subtle dividers */
     --stem-color-border-dark: #9ca3af;    /* Dark gray - emphasized borders */
+
+    /* ========================================
+     * BORDER PROPERTIES
+     * ======================================== */
+
+    /**
+     * Border width values
+     *
+     * Usage:
+     * .element {
+     *     border-width: var(--stem-border-width-1);
+     * }
+     * .element-emphasis {
+     *     border-width: var(--stem-border-width-4);
+     * }
+     */
+    --stem-border-width-1: 1px;   /* Default border width */
+    --stem-border-width-2: 2px;   /* Medium border width */
+    --stem-border-width-4: 4px;   /* Heavy border width */
+
+    /**
+     * Border radius values for rounded corners
+     *
+     * Usage:
+     * .card {
+     *     border-radius: var(--stem-border-radius-md);
+     * }
+     * .avatar {
+     *     border-radius: var(--stem-border-radius-full);
+     * }
+     */
+    --stem-border-radius-sm: 4px;     /* Small rounded corners */
+    --stem-border-radius-md: 8px;     /* Medium rounded corners */
+    --stem-border-radius-lg: 12px;    /* Large rounded corners */
+    --stem-border-radius-xl: 16px;    /* Extra large rounded corners */
+    --stem-border-radius-full: 9999px; /* Fully rounded (pill shape, circles) */
+
+    /* ========================================
+     * SHADOW EFFECTS
+     * ======================================== */
+
+    /**
+     * Box shadow values for elevation effects
+     *
+     * Usage:
+     * .card {
+     *     box-shadow: var(--stem-shadow-md);
+     * }
+     * .modal {
+     *     box-shadow: var(--stem-shadow-xl);
+     * }
+     *
+     * Shadows create visual hierarchy and depth
+     */
+    --stem-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);                           /* Subtle shadow */
+    --stem-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);                            /* Default shadow */
+    --stem-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);  /* Elevated shadow */
+    --stem-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.04); /* High elevation shadow */
+
+    /* ========================================
+     * TRANSITION PROPERTIES
+     * ======================================== */
+
+    /**
+     * Transition duration values
+     *
+     * Usage:
+     * .button {
+     *     transition: background-color var(--stem-transition-duration-fast);
+     * }
+     * .modal {
+     *     transition: opacity var(--stem-transition-duration-slow);
+     * }
+     */
+    --stem-transition-duration-fast: 150ms; /* Fast transitions (micro-interactions) */
+    --stem-transition-duration-base: 200ms; /* Default transition speed */
+    --stem-transition-duration-slow: 300ms; /* Slow transitions (emphasis) */
+
+    /**
+     * Transition easing functions
+     *
+     * Usage:
+     * .element {
+     *     transition: transform var(--stem-transition-duration-base) var(--stem-transition-ease-out);
+     * }
+     *
+     * - ease: General purpose, smooth acceleration and deceleration
+     * - ease-in: Starts slow, good for elements moving off screen
+     * - ease-out: Ends slow, good for elements entering screen
+     * - ease-in-out: Symmetric, good for elements changing position
+     */
+    --stem-transition-ease: ease;             /* Default easing - smooth curve */
+    --stem-transition-ease-in: ease-in;       /* Accelerates into the transition */
+    --stem-transition-ease-out: ease-out;     /* Decelerates at the end */
+    --stem-transition-ease-in-out: ease-in-out; /* Smooth start and end */
 }
 
 /* ========================================
