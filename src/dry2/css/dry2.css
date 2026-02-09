@@ -2953,3 +2953,181 @@ header > nav {
         gap: 0 !important;
     }
 }
+
+/* ========================================
+ * THEME SYSTEM
+ * ======================================== */
+
+/**
+ * Dark mode theme support with automatic and manual switching
+ *
+ * Two ways to enable dark mode:
+ * 1. Automatic: Respects user's system preference via prefers-color-scheme
+ * 2. Manual: Add .dark class to <html> or <body> element
+ *
+ * Usage (Automatic):
+ * Dark mode activates automatically when user has dark mode enabled in their OS
+ *
+ * Usage (Manual):
+ * <html class="dark">
+ *     <!-- Your content automatically switches to dark theme -->
+ * </html>
+ *
+ * Or toggle with JavaScript:
+ * document.documentElement.classList.toggle('dark');
+ *
+ * Customization:
+ * Override specific colors for your brand:
+ * :root {
+ *     --stem-color-primary: #8b5cf6;
+ * }
+ * .dark {
+ *     --stem-color-primary: #a78bfa;
+ * }
+ */
+
+/* ----------------------------------------
+ * Dark Mode - Automatic (System Preference)
+ * ---------------------------------------- */
+
+/**
+ * Automatic dark mode based on user's system settings
+ *
+ * This media query detects when the user has dark mode enabled
+ * in their operating system and automatically applies dark theme
+ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* ========================================
+         * DARK MODE COLOR OVERRIDES
+         * ======================================== */
+
+        /**
+         * Primary color palette (lighter for dark backgrounds)
+         */
+        --stem-color-primary: #60a5fa;        /* Lighter blue */
+        --stem-color-primary-light: #93c5fd;  /* Very light blue */
+        --stem-color-primary-dark: #3b82f6;   /* Medium blue */
+
+        /**
+         * Success color palette (lighter for dark backgrounds)
+         */
+        --stem-color-success: #34d399;        /* Lighter green */
+        --stem-color-success-light: #6ee7b7;  /* Very light green */
+        --stem-color-success-dark: #10b981;   /* Medium green */
+
+        /**
+         * Warning color palette (lighter for dark backgrounds)
+         */
+        --stem-color-warning: #fbbf24;        /* Lighter amber */
+        --stem-color-warning-light: #fcd34d;  /* Very light amber */
+        --stem-color-warning-dark: #f59e0b;   /* Medium amber */
+
+        /**
+         * Error color palette (lighter for dark backgrounds)
+         */
+        --stem-color-error: #f87171;          /* Lighter red */
+        --stem-color-error-light: #fca5a5;    /* Very light red */
+        --stem-color-error-dark: #ef4444;     /* Medium red */
+
+        /**
+         * Text color palette (inverted for dark mode)
+         */
+        --stem-color-text-base: #f9fafb;      /* Very light gray - primary text */
+        --stem-color-text-muted: #d1d5db;     /* Light gray - secondary text */
+        --stem-color-text-inverted: #1f2937;  /* Dark gray - text on light backgrounds */
+
+        /**
+         * Background color palette (dark backgrounds)
+         */
+        --stem-color-bg-surface: #111827;     /* Very dark gray - page background */
+        --stem-color-bg-primary: #1f2937;     /* Dark gray - card backgrounds */
+        --stem-color-bg-secondary: #374151;   /* Medium dark gray - secondary surfaces */
+
+        /**
+         * Border color palette (lighter for visibility on dark)
+         */
+        --stem-color-border-base: #4b5563;    /* Medium gray - default borders */
+        --stem-color-border-light: #374151;   /* Dark gray - subtle dividers */
+        --stem-color-border-dark: #6b7280;    /* Light gray - emphasized borders */
+    }
+}
+
+/* ----------------------------------------
+ * Dark Mode - Manual (.dark class)
+ * ---------------------------------------- */
+
+/**
+ * Manual dark mode via .dark class
+ *
+ * Add the .dark class to the <html> or <body> element
+ * to enable dark mode regardless of system preference
+ *
+ * This is useful for:
+ * - Giving users explicit theme control
+ * - Testing dark mode in development
+ * - Forcing dark mode in specific contexts
+ *
+ * Usage:
+ * <html class="dark">
+ *     <!-- Content in dark mode -->
+ * </html>
+ *
+ * Note: Using :root.dark selector for higher specificity
+ * to ensure it overrides the default :root variables
+ */
+:root.dark,
+.dark {
+    /* ========================================
+     * DARK MODE COLOR OVERRIDES
+     * ======================================== */
+
+    /**
+     * Primary color palette (lighter for dark backgrounds)
+     */
+    --stem-color-primary: #60a5fa;        /* Lighter blue */
+    --stem-color-primary-light: #93c5fd;  /* Very light blue */
+    --stem-color-primary-dark: #3b82f6;   /* Medium blue */
+
+    /**
+     * Success color palette (lighter for dark backgrounds)
+     */
+    --stem-color-success: #34d399;        /* Lighter green */
+    --stem-color-success-light: #6ee7b7;  /* Very light green */
+    --stem-color-success-dark: #10b981;   /* Medium green */
+
+    /**
+     * Warning color palette (lighter for dark backgrounds)
+     */
+    --stem-color-warning: #fbbf24;        /* Lighter amber */
+    --stem-color-warning-light: #fcd34d;  /* Very light amber */
+    --stem-color-warning-dark: #f59e0b;   /* Medium amber */
+
+    /**
+     * Error color palette (lighter for dark backgrounds)
+     */
+    --stem-color-error: #f87171;          /* Lighter red */
+    --stem-color-error-light: #fca5a5;    /* Very light red */
+    --stem-color-error-dark: #ef4444;     /* Medium red */
+
+    /**
+     * Text color palette (inverted for dark mode)
+     */
+    --stem-color-text-base: #f9fafb;      /* Very light gray - primary text */
+    --stem-color-text-muted: #d1d5db;     /* Light gray - secondary text */
+    --stem-color-text-inverted: #1f2937;  /* Dark gray - text on light backgrounds */
+
+    /**
+     * Background color palette (dark backgrounds)
+     */
+    --stem-color-bg-surface: #111827;     /* Very dark gray - page background */
+    --stem-color-bg-primary: #1f2937;     /* Dark gray - card backgrounds */
+    --stem-color-bg-secondary: #374151;   /* Medium dark gray - secondary surfaces */
+
+    /**
+     * Border color palette (lighter for visibility on dark)
+     */
+    --stem-color-border-base: #4b5563;    /* Medium gray - default borders */
+    --stem-color-border-light: #374151;   /* Dark gray - subtle dividers */
+    --stem-color-border-dark: #6b7280;    /* Light gray - emphasized borders */
+}
