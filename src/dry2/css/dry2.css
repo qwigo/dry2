@@ -1935,6 +1935,39 @@ header > nav {
     border-color: transparent;
 }
 
+/* ----------------------------------------
+ * Card Components
+ * ---------------------------------------- */
+
+/**
+ * Base card class
+ *
+ * Provides a container for grouping related content with visual separation
+ * Cards are commonly used for displaying discrete pieces of information,
+ * such as product listings, user profiles, or content previews
+ *
+ * Usage:
+ * <div class="card">
+ *     <h3>Card Title</h3>
+ *     <p>Card content goes here.</p>
+ * </div>
+ */
+.card {
+    /* Display & Layout */
+    display: block;
+
+    /* Spacing */
+    padding: var(--stem-spacing-lg);
+
+    /* Visual Style */
+    background-color: var(--stem-color-bg-surface);
+    border-radius: var(--stem-border-radius-lg);
+    box-shadow: var(--stem-shadow-md);
+
+    /* Ensure content doesn't overflow */
+    overflow: hidden;
+}
+
 /* ========================================
  * GRID SYSTEM
  * ======================================== */
