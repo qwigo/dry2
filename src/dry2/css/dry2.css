@@ -1,0 +1,1736 @@
+/**
+ * Stem - A minimalist CSS framework for SaaS applications
+ *
+ * Mobile-first, semantic HTML, themeable via CSS variables
+ *
+ * Philosophy:
+ * - All values defined as CSS variables for easy theming
+ * - Mobile-first responsive design (base styles for mobile, scale up for larger screens)
+ * - Semantic HTML over utility classes where possible
+ * - Accessible by default
+ */
+
+:root {
+    /* ========================================
+     * BREAKPOINTS
+     * ======================================== */
+
+    /**
+     * Mobile-first breakpoint values (in pixels)
+     *
+     * Usage in media queries:
+     * @media (min-width: calc(var(--stem-breakpoint-md) * 1px)) {
+     *     .element { ... }
+     * }
+     *
+     * Or use with JavaScript:
+     * const md = parseInt(getComputedStyle(document.documentElement)
+     *     .getPropertyValue('--stem-breakpoint-md'));
+     */
+    --stem-breakpoint-sm: 640;   /* Small devices (landscape phones) */
+    --stem-breakpoint-md: 768;   /* Medium devices (tablets) */
+    --stem-breakpoint-lg: 1024;  /* Large devices (desktops) */
+    --stem-breakpoint-xl: 1280;  /* Extra large devices (wide screens) */
+
+    /* ========================================
+     * SPACING SCALE
+     * ======================================== */
+
+    /**
+     * Mobile-first spacing values
+     *
+     * Usage:
+     * .element {
+     *     padding: var(--stem-spacing-md);
+     *     margin-bottom: var(--stem-spacing-lg);
+     * }
+     *
+     * Scale follows a consistent ratio for visual harmony
+     */
+    --stem-spacing-xs: 0.5rem;   /* 8px - tight spacing */
+    --stem-spacing-sm: 0.75rem;  /* 12px - compact spacing */
+    --stem-spacing-md: 1rem;     /* 16px - default spacing */
+    --stem-spacing-lg: 1.5rem;   /* 24px - comfortable spacing */
+    --stem-spacing-xl: 2rem;     /* 32px - generous spacing */
+
+    /* ========================================
+     * LAYOUT DIMENSIONS
+     * ======================================== */
+
+    /**
+     * Top navigation height
+     *
+     * Usage:
+     * header {
+     *     min-height: var(--stem-topnav-height);
+     * }
+     */
+    --stem-topnav-height: 4rem;  /* 64px - standard top nav height */
+
+    /**
+     * Sidebar widths for side navigation patterns
+     *
+     * Usage:
+     * .sidebar {
+     *     width: var(--stem-sidebar-width);
+     * }
+     * .sidebar.collapsed {
+     *     width: var(--stem-sidebar-width-collapsed);
+     * }
+     */
+    --stem-sidebar-width: 16rem;           /* 256px - full sidebar width */
+    --stem-sidebar-width-collapsed: 4rem;  /* 64px - collapsed sidebar (icon-only) */
+
+    /**
+     * Gap spacing for flex/grid layouts
+     *
+     * Usage:
+     * .flex-container {
+     *     display: flex;
+     *     gap: var(--stem-gap);
+     * }
+     * .grid-container {
+     *     display: grid;
+     *     gap: var(--stem-gap-lg);
+     * }
+     */
+    --stem-gap: 1rem;      /* 16px - default gap */
+    --stem-gap-sm: 0.5rem; /* 8px - tight gap */
+    --stem-gap-lg: 1.5rem; /* 24px - comfortable gap */
+
+    /* ========================================
+     * Z-INDEX SCALE
+     * ======================================== */
+
+    /**
+     * Z-index layering for overlays and navigation
+     *
+     * Provides consistent stacking order across components
+     */
+    --stem-z-sidebar: 40;      /* Responsive sidebar drawers */
+    --stem-z-backdrop: 50;     /* Modal/sidebar backdrop */
+    --stem-z-overlay: 60;      /* Overlay sidebars above backdrop */
+    --stem-z-header: 50;       /* Sticky/fixed headers */
+
+    /* ========================================
+     * CONTAINER DIMENSIONS
+     * ======================================== */
+
+    /**
+     * Container max-widths at different breakpoints
+     *
+     * Mobile-first approach: containers are full-width on mobile,
+     * then constrained at larger viewports to improve readability
+     */
+    --stem-container-max-width-sm: 640px;   /* Small screens */
+    --stem-container-max-width-md: 720px;   /* Tablet */
+    --stem-container-max-width-lg: 960px;   /* Desktop */
+    --stem-container-max-width-xl: 1200px;  /* Wide screens */
+
+    /**
+     * Container horizontal padding at different breakpoints
+     *
+     * Padding increases at larger viewports to maintain
+     * appropriate gutters relative to content width
+     */
+    --stem-container-padding-mobile: 1rem;    /* 16px on mobile */
+    --stem-container-padding-tablet: 1.5rem;  /* 24px on tablet */
+    --stem-container-padding-desktop: 2rem;   /* 32px on desktop */
+
+    /* ========================================
+     * TYPOGRAPHY
+     * ======================================== */
+
+    /**
+     * Font size scale
+     *
+     * Progressive scale for consistent typography hierarchy
+     * Uses rem units for accessibility (respects user font size preferences)
+     *
+     * Usage:
+     * .small-text {
+     *     font-size: var(--stem-font-size-sm);
+     * }
+     */
+    --stem-font-size-xs: 0.75rem;    /* 12px - Fine print, captions */
+    --stem-font-size-sm: 0.875rem;   /* 14px - Small text, labels */
+    --stem-font-size-base: 1rem;     /* 16px - Body text (default) */
+    --stem-font-size-md: 1.125rem;   /* 18px - Emphasized body text */
+    --stem-font-size-lg: 1.25rem;    /* 20px - Small headings */
+    --stem-font-size-xl: 1.5rem;     /* 24px - Medium headings */
+    --stem-font-size-2xl: 2rem;      /* 32px - Large headings */
+    --stem-font-size-3xl: 2.5rem;    /* 40px - Hero headings */
+
+    /**
+     * Font weight scale
+     *
+     * Standard font weight values for typography hierarchy
+     *
+     * Usage:
+     * .emphasis {
+     *     font-weight: var(--stem-font-weight-semibold);
+     * }
+     */
+    --stem-font-weight-normal: 400;    /* Regular text */
+    --stem-font-weight-medium: 500;    /* Slightly emphasized */
+    --stem-font-weight-semibold: 600;  /* Headings, important text */
+    --stem-font-weight-bold: 700;      /* Strong emphasis */
+
+    /**
+     * Line height scale
+     *
+     * Unitless values for consistent vertical rhythm
+     * Unitless line-heights scale proportionally with font size
+     *
+     * Usage:
+     * .dense-text {
+     *     line-height: var(--stem-line-height-tight);
+     * }
+     */
+    --stem-line-height-tight: 1.25;    /* Headings, compact text */
+    --stem-line-height-normal: 1.5;    /* Body text (default) */
+    --stem-line-height-relaxed: 1.75;  /* Comfortable reading */
+
+    /**
+     * Font family stacks
+     *
+     * System font stacks for optimal performance and native appearance
+     * Falls back through multiple options for cross-platform compatibility
+     *
+     * Usage:
+     * body {
+     *     font-family: var(--stem-font-family-sans);
+     * }
+     * code {
+     *     font-family: var(--stem-font-family-mono);
+     * }
+     */
+    --stem-font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --stem-font-family-serif: Georgia, Cambria, "Times New Roman", Times, serif;
+    --stem-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* ========================================
+ * CONTAINER SYSTEM
+ * ======================================== */
+
+/**
+ * Container class for centering and constraining content width
+ *
+ * Usage:
+ * <div class="container">
+ *     <p>Your content here</p>
+ * </div>
+ *
+ * Or with semantic HTML:
+ * <main class="container">
+ *     <article>Your content</article>
+ * </main>
+ *
+ * Features:
+ * - Full-width on mobile with horizontal padding
+ * - Responsive max-width that increases at larger breakpoints
+ * - Automatic centering on tablet and larger
+ * - Nested containers supported (no double-padding)
+ */
+.container {
+    /* Full width by default (mobile-first) */
+    width: 100%;
+
+    /* Center the container (logical property for LTR/RTL support) */
+    margin-inline: auto;
+
+    /* Horizontal padding for mobile (logical property for LTR/RTL support) */
+    padding-inline: var(--stem-container-padding-mobile);
+
+    /* No max-width on mobile (uses full width) */
+}
+
+/* Tablet and larger: increase padding and set max-width */
+@media (min-width: 768px) {
+    .container {
+        max-width: var(--stem-container-max-width-md);
+        padding-inline: var(--stem-container-padding-tablet);
+    }
+}
+
+/* Desktop: wider max-width and more padding */
+@media (min-width: 1024px) {
+    .container {
+        max-width: var(--stem-container-max-width-lg);
+        padding-inline: var(--stem-container-padding-desktop);
+    }
+}
+
+/* Wide screens: maximum width cap */
+@media (min-width: 1280px) {
+    .container {
+        max-width: var(--stem-container-max-width-xl);
+    }
+}
+
+/* Nested containers: prevent double-padding */
+.container .container {
+    /* Remove padding from nested containers */
+    padding-inline: 0;
+
+    /* Remove max-width constraints (fill parent) */
+    max-width: none;
+}
+
+/* ========================================
+ * FLEXBOX SYSTEM
+ * ======================================== */
+
+/**
+ * Flexbox layout system with semantic-first approach
+ *
+ * Philosophy:
+ * - Semantic HTML elements get automatic flexbox styling
+ * - Utility classes available for overrides and variations
+ * - Mobile-first with responsive variants (md:)
+ * - Uses CSS variables for gap spacing
+ *
+ * Most common patterns work automatically:
+ * <header>           → flex, space-between, items-center
+ * <nav>              → flex with gap for links
+ * <main> + <aside>   → sidebar layout
+ *
+ * Use utilities when you need to override:
+ * <header class="justify-center">  → centered header
+ * <nav class="flex-col">            → vertical nav
+ */
+
+/* ----------------------------------------
+ * Semantic Flexbox Patterns
+ * ---------------------------------------- */
+
+/**
+ * Header: Horizontal layout with space-between
+ *
+ * Common pattern: Logo on left, navigation on right
+ *
+ * Usage:
+ * <header>
+ *     <div class="logo">Brand</div>
+ *     <nav>
+ *         <a href="#">Home</a>
+ *         <a href="#">About</a>
+ *     </nav>
+ * </header>
+ */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--stem-gap);
+    min-height: var(--stem-topnav-height);
+    padding-inline: var(--stem-spacing-md);
+}
+
+/**
+ * Navigation: Horizontal links with gap
+ *
+ * Base styles for all <nav> elements (standalone or in headers)
+ * For responsive behavior, use utility classes: class="hidden md:flex"
+ *
+ * Usage:
+ * <nav>
+ *     <a href="#">Link 1</a>
+ *     <a href="#">Link 2</a>
+ *     <a href="#">Link 3</a>
+ * </nav>
+ */
+nav {
+    display: flex;
+    gap: var(--stem-gap);
+    align-items: center;
+}
+
+/**
+ * Smart default: Hide navigation inside header on mobile to prevent overflow
+ * Automatically show on desktop (md breakpoint: 768px+)
+ *
+ * This provides sensible mobile-first defaults for simple headers without classes.
+ * For explicit control, use utility classes: <nav class="hidden md:flex">
+ */
+header > nav {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    header > nav {
+        display: flex;
+    }
+}
+
+/* ----------------------------------------
+ * Core Flexbox
+ * ---------------------------------------- */
+
+/**
+ * Enable flexbox layout
+ *
+ * Usage:
+ * <div class="flex">
+ *     <div>Item 1</div>
+ *     <div>Item 2</div>
+ * </div>
+ */
+.flex {
+    display: flex;
+}
+
+/* ----------------------------------------
+ * Direction
+ * ---------------------------------------- */
+
+/**
+ * Flex direction: row (default)
+ *
+ * Items arranged horizontally (left to right)
+ */
+.flex-row {
+    flex-direction: row;
+}
+
+/**
+ * Flex direction: column
+ *
+ * Items arranged vertically (top to bottom)
+ *
+ * Usage:
+ * <div class="flex flex-col">
+ *     <div>Item 1</div>
+ *     <div>Item 2</div>
+ * </div>
+ */
+.flex-col {
+    flex-direction: column;
+}
+
+/* ----------------------------------------
+ * Wrap
+ * ---------------------------------------- */
+
+/**
+ * Allow items to wrap to multiple rows
+ *
+ * Usage for card grids:
+ * <div class="flex flex-wrap gap">
+ *     <div>Card 1</div>
+ *     <div>Card 2</div>
+ *     <div>Card 3</div>
+ * </div>
+ */
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+/**
+ * Prevent items from wrapping (default)
+ */
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
+/* ----------------------------------------
+ * Justify Content (main axis alignment)
+ * ---------------------------------------- */
+
+/**
+ * Align items to the start of the main axis
+ */
+.justify-start {
+    justify-content: flex-start;
+}
+
+/**
+ * Center items along the main axis
+ */
+.justify-center {
+    justify-content: center;
+}
+
+/**
+ * Align items to the end of the main axis
+ */
+.justify-end {
+    justify-content: flex-end;
+}
+
+/**
+ * Distribute items with space between them
+ *
+ * Common for header layouts: logo on left, nav on right
+ *
+ * Usage:
+ * <header class="flex justify-between items-center">
+ *     <div>Logo</div>
+ *     <nav>Links</nav>
+ * </header>
+ */
+.justify-between {
+    justify-content: space-between;
+}
+
+/**
+ * Distribute items with space around them
+ */
+.justify-around {
+    justify-content: space-around;
+}
+
+/* ----------------------------------------
+ * Align Items (cross axis alignment)
+ * ---------------------------------------- */
+
+/**
+ * Align items to the start of the cross axis
+ */
+.items-start {
+    align-items: flex-start;
+}
+
+/**
+ * Center items along the cross axis
+ *
+ * Common for vertically centering content
+ *
+ * Usage:
+ * <div class="flex items-center">
+ *     <label>Email:</label>
+ *     <input type="email">
+ * </div>
+ */
+.items-center {
+    align-items: center;
+}
+
+/**
+ * Align items to the end of the cross axis
+ */
+.items-end {
+    align-items: flex-end;
+}
+
+/**
+ * Stretch items to fill the cross axis (default)
+ *
+ * Common for sidebar layouts where both columns should be same height
+ */
+.items-stretch {
+    align-items: stretch;
+}
+
+/* ----------------------------------------
+ * Gap (spacing between flex items)
+ * ---------------------------------------- */
+
+/**
+ * Default gap between flex items
+ *
+ * Uses --stem-gap variable (1rem/16px)
+ *
+ * Usage:
+ * <div class="flex gap">
+ *     <button>Save</button>
+ *     <button>Cancel</button>
+ * </div>
+ */
+.gap {
+    gap: var(--stem-gap);
+}
+
+/**
+ * Small gap between flex items
+ *
+ * Uses --stem-gap-sm variable (0.5rem/8px)
+ */
+.gap-sm {
+    gap: var(--stem-gap-sm);
+}
+
+/**
+ * Large gap between flex items
+ *
+ * Uses --stem-gap-lg variable (1.5rem/24px)
+ */
+.gap-lg {
+    gap: var(--stem-gap-lg);
+}
+
+/* ----------------------------------------
+ * Responsive Utilities (Tablet and larger)
+ * ---------------------------------------- */
+
+/**
+ * Responsive flexbox utilities for tablet and larger screens
+ *
+ * Mobile-first approach: apply column layout on mobile,
+ * then switch to row layout on tablet+
+ *
+ * Usage:
+ * <div class="flex flex-col md:flex-row">
+ *     <div>Item 1</div>
+ *     <div>Item 2</div>
+ * </div>
+ *
+ * This creates a vertical stack on mobile, horizontal row on tablet+
+ */
+@media (min-width: 768px) {
+    /* Direction */
+    .md\:flex-row {
+        flex-direction: row;
+    }
+
+    .md\:flex-col {
+        flex-direction: column;
+    }
+
+    /* Justify Content */
+    .md\:justify-start {
+        justify-content: flex-start;
+    }
+
+    .md\:justify-center {
+        justify-content: center;
+    }
+
+    .md\:justify-end {
+        justify-content: flex-end;
+    }
+
+    .md\:justify-between {
+        justify-content: space-between;
+    }
+
+    .md\:justify-around {
+        justify-content: space-around;
+    }
+
+    /* Align Items */
+    .md\:items-start {
+        align-items: flex-start;
+    }
+
+    .md\:items-center {
+        align-items: center;
+    }
+
+    .md\:items-end {
+        align-items: flex-end;
+    }
+
+    .md\:items-stretch {
+        align-items: stretch;
+    }
+
+    /* Gap */
+    .md\:gap {
+        gap: var(--stem-gap);
+    }
+
+    .md\:gap-sm {
+        gap: var(--stem-gap-sm);
+    }
+
+    .md\:gap-lg {
+        gap: var(--stem-gap-lg);
+    }
+}
+
+/* ========================================
+ * DISPLAY UTILITIES
+ * ======================================== */
+
+/**
+ * Display utilities for showing/hiding elements responsively
+ *
+ * Philosophy:
+ * - Mobile-first with Tailwind-style naming
+ * - .hidden hides on all breakpoints
+ * - .md:hidden hides on tablet and larger
+ * - .md:block shows on tablet and larger
+ * - .md:flex shows with flexbox on tablet and larger
+ *
+ * Common patterns:
+ * <button class="md:hidden">☰</button>         <!-- Mobile hamburger -->
+ * <nav class="hidden md:flex">Links</nav>      <!-- Desktop nav -->
+ * <div class="hidden md:block">Search</div>    <!-- Desktop search -->
+ */
+
+/* ----------------------------------------
+ * Base Display Utilities
+ * ---------------------------------------- */
+
+/**
+ * Hide element completely (display: none)
+ */
+.hidden {
+    display: none !important;
+}
+
+/**
+ * Show as block element
+ */
+.block {
+    display: block !important;
+}
+
+/**
+ * Show as inline element
+ */
+.inline {
+    display: inline !important;
+}
+
+/**
+ * Show as inline-block element
+ */
+.inline-block {
+    display: inline-block !important;
+}
+
+/* ----------------------------------------
+ * Responsive Display Utilities (Tablet)
+ * ---------------------------------------- */
+
+/**
+ * Display utilities for tablet and larger (md breakpoint: 768px+)
+ */
+@media (min-width: 768px) {
+    /**
+     * Hide element on tablet and larger
+     */
+    .md\:hidden {
+        display: none !important;
+    }
+
+    /**
+     * Show as block on tablet and larger
+     */
+    .md\:block {
+        display: block !important;
+    }
+
+    /**
+     * Show as inline on tablet and larger
+     */
+    .md\:inline {
+        display: inline !important;
+    }
+
+    /**
+     * Show as inline-block on tablet and larger
+     */
+    .md\:inline-block {
+        display: inline-block !important;
+    }
+
+    /**
+     * Show as flex on tablet and larger
+     */
+    .md\:flex {
+        display: flex !important;
+    }
+}
+
+/* ----------------------------------------
+ * Responsive Display Utilities (Desktop)
+ * ---------------------------------------- */
+
+/**
+ * Display utilities for desktop (lg breakpoint: 1024px+)
+ */
+@media (min-width: 1024px) {
+    .lg\:hidden {
+        display: none !important;
+    }
+
+    .lg\:block {
+        display: block !important;
+    }
+
+    .lg\:inline {
+        display: inline !important;
+    }
+
+    .lg\:inline-block {
+        display: inline-block !important;
+    }
+
+    .lg\:flex {
+        display: flex !important;
+    }
+}
+
+/* ----------------------------------------
+ * Responsive Display Utilities (Extra Large)
+ * ---------------------------------------- */
+
+/**
+ * Display utilities for extra large screens (xl breakpoint: 1280px+)
+ */
+@media (min-width: 1280px) {
+    .xl\:hidden {
+        display: none !important;
+    }
+
+    .xl\:block {
+        display: block !important;
+    }
+
+    .xl\:inline {
+        display: inline !important;
+    }
+
+    .xl\:inline-block {
+        display: inline-block !important;
+    }
+
+    .xl\:flex {
+        display: flex !important;
+    }
+}
+
+/* ========================================
+ * SPACING UTILITIES
+ * ======================================== */
+
+/**
+ * Margin utilities for positioning
+ *
+ * Common use case: pushing elements to the right side
+ * <div class="ml-auto">Pushed right</div>
+ */
+
+/**
+ * Margin-left: auto (push element to the right)
+ */
+.ml-auto {
+    margin-left: auto;
+}
+
+/**
+ * Margin-right: auto (push element to the left)
+ */
+.mr-auto {
+    margin-right: auto;
+}
+
+/**
+ * Margin-inline: auto (center element horizontally)
+ */
+.mx-auto {
+    margin-inline: auto;
+}
+
+/* ========================================
+ * GRID SYSTEM
+ * ======================================== */
+
+/**
+ * CSS Grid layout system with mobile-first approach
+ *
+ * Philosophy:
+ * - Mobile-first: 1 column by default, add columns at larger breakpoints
+ * - Uses CSS variables for gap spacing (consistent with flexbox)
+ * - Responsive column variants: grid-cols-{n}-{breakpoint}
+ * - Auto-fit for fluid responsive grids
+ * - Column span utilities for complex layouts
+ *
+ * Common patterns:
+ * <div class="grid grid-cols-1 grid-cols-2-md grid-cols-3-lg">
+ *     <!-- Items arranged in responsive grid -->
+ * </div>
+ *
+ * Compatible with dry2 web components - works with any element type
+ */
+
+/* ----------------------------------------
+ * Core Grid
+ * ---------------------------------------- */
+
+/**
+ * Enable CSS Grid layout
+ *
+ * Usage:
+ * <div class="grid">
+ *     <div>Item 1</div>
+ *     <div>Item 2</div>
+ *     <div>Item 3</div>
+ * </div>
+ */
+.grid {
+    display: grid;
+}
+
+/* ----------------------------------------
+ * Grid Columns (Mobile - Base)
+ * ---------------------------------------- */
+
+/**
+ * Single column grid (default mobile layout)
+ *
+ * Usage:
+ * <div class="grid grid-cols-1">
+ *     <!-- Items stack vertically on mobile -->
+ * </div>
+ */
+.grid-cols-1 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+/**
+ * Two column grid
+ */
+.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/**
+ * Three column grid
+ */
+.grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/**
+ * Four column grid
+ */
+.grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/**
+ * Six column grid (for complex layouts)
+ */
+.grid-cols-6 {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+/**
+ * Twelve column grid (for highly flexible layouts)
+ */
+.grid-cols-12 {
+    grid-template-columns: repeat(12, 1fr);
+}
+
+/* ----------------------------------------
+ * Gap Utilities (Shared with Flexbox)
+ * ---------------------------------------- */
+
+/**
+ * Gap utilities for grid spacing
+ *
+ * Note: These are the same gap utilities used with flexbox.
+ * The `gap` property works with both display: flex and display: grid.
+ *
+ * Usage:
+ * <div class="grid grid-cols-3 gap">       <!-- Default gap -->
+ * <div class="grid grid-cols-3 gap-sm">    <!-- Small gap -->
+ * <div class="grid grid-cols-3 gap-lg">    <!-- Large gap -->
+ *
+ * Values:
+ * - .gap    → var(--stem-gap)    → 1rem (16px)
+ * - .gap-sm → var(--stem-gap-sm) → 0.5rem (8px)
+ * - .gap-lg → var(--stem-gap-lg) → 1.5rem (24px)
+ *
+ * See Flexbox section for definitions
+ */
+
+/* ----------------------------------------
+ * Auto-Fit Grid (Fluid Responsive)
+ * ---------------------------------------- */
+
+/**
+ * Auto-fit grid with minimum column width
+ *
+ * Automatically creates as many columns as will fit based on minimum width.
+ * No media queries needed - grid adapts fluidly to viewport.
+ *
+ * Uses 250px minimum by default (good for cards, products)
+ *
+ * Usage:
+ * <div class="grid grid-auto-fit">
+ *     <!-- Grid automatically adapts columns to viewport -->
+ * </div>
+ */
+.grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* ----------------------------------------
+ * Column Span Utilities
+ * ---------------------------------------- */
+
+/**
+ * Span utilities for making items take up multiple columns
+ *
+ * Usage:
+ * <div class="grid grid-cols-4">
+ *     <div class="col-span-2">Takes up 2 columns</div>
+ *     <div>1 column</div>
+ *     <div>1 column</div>
+ * </div>
+ */
+.col-span-1 {
+    grid-column: span 1;
+}
+
+.col-span-2 {
+    grid-column: span 2;
+}
+
+.col-span-3 {
+    grid-column: span 3;
+}
+
+.col-span-4 {
+    grid-column: span 4;
+}
+
+.col-span-6 {
+    grid-column: span 6;
+}
+
+.col-span-12 {
+    grid-column: span 12;
+}
+
+/**
+ * Full width span (works in any grid)
+ */
+.col-span-full {
+    grid-column: 1 / -1;
+}
+
+/* ----------------------------------------
+ * Responsive Grid Columns (Tablet)
+ * ---------------------------------------- */
+
+/**
+ * Grid column utilities for tablet and larger (md breakpoint: 768px+)
+ *
+ * Mobile-first approach: define mobile layout first,
+ * then switch to more columns on tablet+
+ *
+ * Usage:
+ * <div class="grid grid-cols-1 grid-cols-2-md grid-cols-3-lg">
+ *     <!-- 1 col mobile, 2 cols tablet, 3 cols desktop -->
+ * </div>
+ */
+@media (min-width: 768px) {
+    .grid-cols-1-md {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .grid-cols-2-md {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-3-md {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-cols-4-md {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .grid-cols-6-md {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .grid-cols-12-md {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    /* Column span utilities for tablet */
+    .col-span-1-md {
+        grid-column: span 1;
+    }
+
+    .col-span-2-md {
+        grid-column: span 2;
+    }
+
+    .col-span-3-md {
+        grid-column: span 3;
+    }
+
+    .col-span-4-md {
+        grid-column: span 4;
+    }
+
+    .col-span-6-md {
+        grid-column: span 6;
+    }
+
+    .col-span-12-md {
+        grid-column: span 12;
+    }
+
+    .col-span-full-md {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ----------------------------------------
+ * Responsive Grid Columns (Desktop)
+ * ---------------------------------------- */
+
+/**
+ * Grid column utilities for desktop (lg breakpoint: 1024px+)
+ */
+@media (min-width: 1024px) {
+    .grid-cols-1-lg {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .grid-cols-2-lg {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-3-lg {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-cols-4-lg {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .grid-cols-6-lg {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .grid-cols-12-lg {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    /* Column span utilities for desktop */
+    .col-span-1-lg {
+        grid-column: span 1;
+    }
+
+    .col-span-2-lg {
+        grid-column: span 2;
+    }
+
+    .col-span-3-lg {
+        grid-column: span 3;
+    }
+
+    .col-span-4-lg {
+        grid-column: span 4;
+    }
+
+    .col-span-6-lg {
+        grid-column: span 6;
+    }
+
+    .col-span-12-lg {
+        grid-column: span 12;
+    }
+
+    .col-span-full-lg {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ----------------------------------------
+ * Responsive Grid Columns (Extra Large)
+ * ---------------------------------------- */
+
+/**
+ * Grid column utilities for extra large screens (xl breakpoint: 1280px+)
+ */
+@media (min-width: 1280px) {
+    .grid-cols-1-xl {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .grid-cols-2-xl {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-3-xl {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-cols-4-xl {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .grid-cols-6-xl {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .grid-cols-12-xl {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    /* Column span utilities for extra large */
+    .col-span-1-xl {
+        grid-column: span 1;
+    }
+
+    .col-span-2-xl {
+        grid-column: span 2;
+    }
+
+    .col-span-3-xl {
+        grid-column: span 3;
+    }
+
+    .col-span-4-xl {
+        grid-column: span 4;
+    }
+
+    .col-span-6-xl {
+        grid-column: span 6;
+    }
+
+    .col-span-12-xl {
+        grid-column: span 12;
+    }
+
+    .col-span-full-xl {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ========================================
+ * PRINT STYLES
+ * ======================================== */
+
+/**
+ * Print stylesheet optimization
+ *
+ * Philosophy:
+ * - Hide navigation, interactive elements, and decorative content
+ * - Remove background colors and images to save ink
+ * - Force high-contrast black text on white background
+ * - Control page breaks to avoid awkward content splits
+ * - Show URLs after links for reference
+ * - Optimize typography and spacing for paper
+ * - Set appropriate page margins
+ *
+ * These styles ensure web content prints cleanly and readably
+ * while saving ink and improving the printed document quality.
+ */
+
+@media print {
+    /* ----------------------------------------
+     * Page Setup
+     * ---------------------------------------- */
+
+    /**
+     * Set page margins and size
+     *
+     * Standard margins for comfortable reading and printer compatibility
+     */
+    @page {
+        margin: 2cm;
+        size: A4; /* Use letter for US: size: letter; */
+    }
+
+    /**
+     * Reset body margins for print
+     *
+     * Remove screen-specific margins and max-widths
+     */
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+        color: black;
+    }
+
+    /* ----------------------------------------
+     * Hide Interactive and Navigation Elements
+     * ---------------------------------------- */
+
+    /**
+     * Hide navigation elements
+     *
+     * Navigation menus are not useful in print
+     */
+    nav,
+    header > nav {
+        display: none !important;
+    }
+
+    /**
+     * Hide semantic header elements (unless containing main content)
+     *
+     * Typically contains navigation and branding that's not needed in print
+     */
+    header {
+        display: none !important;
+    }
+
+    /**
+     * Hide semantic footer elements
+     *
+     * Footer content like copyright, links are typically not needed in print
+     */
+    footer {
+        display: none !important;
+    }
+
+    /**
+     * Hide sidebars
+     *
+     * Side navigation and panels are not useful in print
+     */
+    aside,
+    .sidebar {
+        display: none !important;
+    }
+
+    /**
+     * Hide buttons and interactive elements
+     *
+     * These elements are not functional in print
+     */
+    button,
+    [type="button"],
+    [type="submit"],
+    [type="reset"] {
+        display: none !important;
+    }
+
+    /**
+     * Hide form inputs (unless specifically needed for printing forms)
+     *
+     * Most web forms are not meant to be printed
+     */
+    input,
+    textarea,
+    select {
+        display: none !important;
+    }
+
+    /**
+     * Hide elements with common screen-only classes
+     */
+    .no-print,
+    .screen-only,
+    .screen-only-notice {
+        display: none !important;
+    }
+
+    /* ----------------------------------------
+     * Show Main Content Full Width
+     * ---------------------------------------- */
+
+    /**
+     * Ensure main content takes full page width
+     *
+     * Remove side navigation layout constraints
+     */
+    .sidenav-layout {
+        display: block !important;
+        grid-template-columns: none !important;
+    }
+
+    main,
+    .sidenav-layout > main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /**
+     * Remove container constraints for full-width printing
+     */
+    .container {
+        max-width: none !important;
+        padding-inline: 0 !important;
+    }
+
+    /* ----------------------------------------
+     * Remove Colors and Backgrounds
+     * ---------------------------------------- */
+
+    /**
+     * Force white background and remove decorative effects
+     *
+     * Ensures maximum contrast and saves ink
+     * Targets body and common containers rather than universal selector
+     */
+    body,
+    article,
+    section,
+    div,
+    main,
+    [class*="card"],
+    [class*="box"],
+    [class*="container"] {
+        background: white !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /**
+     * Force black text for readability
+     */
+    body,
+    p,
+    li,
+    td,
+    th,
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important;
+    }
+
+    /**
+     * Add light borders to boxes to show structure
+     *
+     * Replaces colored backgrounds with simple borders
+     */
+    .demo-card,
+    .demo-colored-box,
+    .test-section,
+    [class*="card"],
+    [class*="box"] {
+        border: 1px solid #ccc !important;
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* ----------------------------------------
+     * Page Break Control
+     * ---------------------------------------- */
+
+    /**
+     * Avoid breaking these elements across pages
+     */
+    article,
+    section,
+    .test-section,
+    .demo-card,
+    .article-content,
+    [class*="card"],
+    table,
+    figure,
+    img,
+    pre,
+    blockquote {
+        page-break-inside: avoid;
+    }
+
+    /**
+     * Keep headings with their following content
+     */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    /**
+     * Allow page breaks before major sections
+     */
+    h1 {
+        page-break-before: always;
+    }
+
+    /**
+     * First heading should not create a page break
+     */
+    h1:first-child {
+        page-break-before: avoid;
+    }
+
+    /**
+     * Avoid breaking list items
+     */
+    li {
+        page-break-inside: avoid;
+    }
+
+    /* ----------------------------------------
+     * Typography Optimization
+     * ---------------------------------------- */
+
+    /**
+     * Optimize font sizes for print readability
+     *
+     * 12pt minimum for body text (16px = 12pt)
+     */
+    body {
+        font-size: 12pt;
+        line-height: 1.6;
+    }
+
+    /**
+     * Optimize heading sizes for print hierarchy
+     */
+    h1 {
+        font-size: 24pt;
+        margin: 1em 0 0.5em 0;
+    }
+
+    h2 {
+        font-size: 18pt;
+        margin: 1em 0 0.5em 0;
+    }
+
+    h3 {
+        font-size: 14pt;
+        margin: 1em 0 0.5em 0;
+    }
+
+    h4 {
+        font-size: 12pt;
+        margin: 1em 0 0.5em 0;
+    }
+
+    /**
+     * Optimize paragraph spacing for print
+     */
+    p {
+        margin: 0 0 1em 0;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /**
+     * Optimize list spacing
+     */
+    ul, ol {
+        margin: 0 0 1em 1.5em;
+    }
+
+    li {
+        margin-bottom: 0.5em;
+    }
+
+    /**
+     * Preserve code formatting with monospace
+     */
+    code, pre {
+        font-family: monospace;
+        background: #f5f5f5 !important;
+        border: 1px solid #ddd !important;
+    }
+
+    pre {
+        padding: 0.5em;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /**
+     * Optimize blockquote styling for print
+     */
+    blockquote {
+        margin: 1em 2em;
+        padding: 0.5em 1em;
+        border-left: 3px solid #333 !important;
+        font-style: italic;
+    }
+
+    /* ----------------------------------------
+     * Link Handling - Show URLs
+     * ---------------------------------------- */
+
+    /**
+     * Display URLs after links
+     *
+     * Allows readers to reference links from printed document
+     */
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.875em;
+        color: #666 !important;
+        word-wrap: break-word;
+    }
+
+    /**
+     * Don't show URLs for anchor links (same page)
+     */
+    a[href^="#"]::after {
+        content: "";
+    }
+
+    /**
+     * Don't show URLs for JavaScript links
+     */
+    a[href^="javascript:"]::after {
+        content: "";
+    }
+
+    /**
+     * Don't show URLs for relative links starting with /
+     * (optional - remove if you want all URLs shown)
+     */
+    a[href^="/"]::after {
+        content: "";
+    }
+
+    /**
+     * Remove link underlines and colors for cleaner print
+     */
+    a {
+        text-decoration: underline;
+        color: black !important;
+    }
+
+    /* ----------------------------------------
+     * Table Optimization
+     * ---------------------------------------- */
+
+    /**
+     * Optimize table styling for print
+     *
+     * Uses solid borders with proper thickness for clear printing
+     */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid black !important;
+        margin: 1em 0;
+    }
+
+    thead {
+        display: table-header-group; /* Repeat header on each page */
+    }
+
+    tfoot {
+        display: table-footer-group; /* Repeat footer on each page */
+    }
+
+    th, td {
+        padding: 0.5em 0.75em;
+        border: 1px solid black !important;
+        text-align: left;
+        background: white !important;
+        vertical-align: top;
+    }
+
+    th {
+        font-weight: bold;
+        border-bottom: 2px solid black !important;
+    }
+
+    /**
+     * Remove alternating row colors (use borders for structure)
+     */
+    tr:nth-child(even) {
+        background: white !important;
+    }
+
+    /**
+     * Slightly thicker borders for table rows for better visual separation
+     */
+    tbody tr {
+        border-top: 1px solid #666 !important;
+    }
+
+    /* ----------------------------------------
+     * Image Handling
+     * ---------------------------------------- */
+
+    /**
+     * Optimize images for print
+     */
+    img {
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+
+    /**
+     * Hide decorative background images
+     */
+    .demo-image,
+    [class*="banner"],
+    [class*="hero"] {
+        display: none !important;
+    }
+
+    /* ----------------------------------------
+     * Grid and Flexbox Adjustments
+     * ---------------------------------------- */
+
+    /**
+     * Simplify grid layouts for print
+     *
+     * Convert multi-column grids to single column for easier reading
+     */
+    .grid,
+    [class*="grid-cols"] {
+        display: block !important;
+        grid-template-columns: none !important;
+    }
+
+    .grid > * {
+        width: 100% !important;
+        margin-bottom: 1em;
+    }
+
+    /**
+     * Simplify flexbox layouts for print
+     */
+    .flex,
+    [class*="flex"] {
+        display: block !important;
+        flex-direction: column !important;
+    }
+
+    .flex > * {
+        width: 100% !important;
+        margin-bottom: 0.5em;
+    }
+
+    /* ----------------------------------------
+     * Test Page Specific (for development)
+     * ---------------------------------------- */
+
+    /**
+     * Hide test page indicators and helpers
+     */
+    .test-header,
+    .test-description,
+    .expected,
+    .page-break-indicator,
+    .viewport-indicator,
+    [class*="demo-nav"],
+    [class*="demo-button"],
+    [class*="demo-hamburger"] {
+        display: none !important;
+    }
+
+    /**
+     * Show demo content clearly
+     */
+    .demo-content-block,
+    .article-content {
+        display: block !important;
+        margin-bottom: 1em;
+    }
+
+    /* ----------------------------------------
+     * Utility Overrides for Print
+     * ---------------------------------------- */
+
+    /**
+     * Ensure hidden elements stay hidden in print
+     */
+    .hidden,
+    [hidden] {
+        display: none !important;
+    }
+
+    /**
+     * Remove gaps and spacing utilities for denser print layout
+     */
+    .gap,
+    .gap-sm,
+    .gap-lg {
+        gap: 0 !important;
+    }
+}
