@@ -1170,6 +1170,110 @@ header > nav {
     font-weight: var(--stem-font-weight-bold);
 }
 
+/* ----------------------------------------
+ * Text Color Utilities
+ * ---------------------------------------- */
+
+/**
+ * Primary text color (blue)
+ * Common uses: Links, primary brand text, emphasized content
+ */
+.text-primary {
+    color: var(--stem-color-primary);
+}
+
+/**
+ * Muted text color (medium gray)
+ * Common uses: Secondary text, labels, captions
+ */
+.text-muted {
+    color: var(--stem-color-text-muted);
+}
+
+/**
+ * Success text color (green)
+ * Common uses: Success messages, positive indicators
+ */
+.text-success {
+    color: var(--stem-color-success);
+}
+
+/**
+ * Warning text color (amber)
+ * Common uses: Warning messages, cautionary text
+ */
+.text-warning {
+    color: var(--stem-color-warning);
+}
+
+/**
+ * Error text color (red)
+ * Common uses: Error messages, destructive actions
+ */
+.text-error {
+    color: var(--stem-color-error);
+}
+
+/**
+ * Inverted text color (white)
+ * Common uses: Text on dark backgrounds, overlays
+ */
+.text-inverted {
+    color: var(--stem-color-text-inverted);
+}
+
+/* ----------------------------------------
+ * Background Color Utilities
+ * ---------------------------------------- */
+
+/**
+ * Surface background (white)
+ * Page background, base layer
+ */
+.bg-surface {
+    background-color: var(--stem-color-bg-surface);
+}
+
+/**
+ * Primary background (very light gray)
+ * Common uses: Card backgrounds, panels
+ */
+.bg-primary {
+    background-color: var(--stem-color-bg-primary);
+}
+
+/**
+ * Secondary background (light gray)
+ * Common uses: Secondary surfaces, alternating rows
+ */
+.bg-secondary {
+    background-color: var(--stem-color-bg-secondary);
+}
+
+/**
+ * Success background (green)
+ * Common uses: Success message backgrounds
+ */
+.bg-success {
+    background-color: var(--stem-color-success);
+}
+
+/**
+ * Warning background (amber)
+ * Common uses: Warning message backgrounds
+ */
+.bg-warning {
+    background-color: var(--stem-color-warning);
+}
+
+/**
+ * Error background (red)
+ * Common uses: Error message backgrounds
+ */
+.bg-error {
+    background-color: var(--stem-color-error);
+}
+
 /* ========================================
  * GRID SYSTEM
  * ======================================== */
