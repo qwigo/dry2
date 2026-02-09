@@ -1040,6 +1040,137 @@ header > nav {
 }
 
 /* ========================================
+ * TYPOGRAPHY UTILITIES
+ * ======================================== */
+
+/**
+ * Typography utility classes for font sizing and font weights
+ *
+ * Philosophy:
+ * - Mobile-first design
+ * - Uses CSS variables for consistent theming
+ * - Semantic size names matching variable names
+ * - Font weight utilities for emphasis control
+ *
+ * Font Size Usage:
+ * <p class="text-xs">Extra small text</p>
+ * <p class="text-sm">Small text</p>
+ * <p class="text-base">Base text (default)</p>
+ * <p class="text-lg">Large text</p>
+ * <h1 class="text-3xl">Hero heading</h1>
+ *
+ * Font Weight Usage:
+ * <p class="font-normal">Normal text (400)</p>
+ * <p class="font-medium">Medium emphasis (500)</p>
+ * <p class="font-semibold">Semibold (600)</p>
+ * <p class="font-bold">Bold emphasis (700)</p>
+ */
+
+/* ----------------------------------------
+ * Font Size Utilities
+ * ---------------------------------------- */
+
+/**
+ * Extra small text size (12px)
+ * Common uses: Fine print, captions, labels
+ */
+.text-xs {
+    font-size: var(--stem-font-size-xs);
+}
+
+/**
+ * Small text size (14px)
+ * Common uses: Secondary text, small labels
+ */
+.text-sm {
+    font-size: var(--stem-font-size-sm);
+}
+
+/**
+ * Base text size (16px)
+ * Default body text size
+ */
+.text-base {
+    font-size: var(--stem-font-size-base);
+}
+
+/**
+ * Medium text size (18px)
+ * Common uses: Emphasized body text, lead paragraphs
+ */
+.text-md {
+    font-size: var(--stem-font-size-md);
+}
+
+/**
+ * Large text size (20px)
+ * Common uses: Small headings, section titles
+ */
+.text-lg {
+    font-size: var(--stem-font-size-lg);
+}
+
+/**
+ * Extra large text size (24px)
+ * Common uses: Medium headings, card titles
+ */
+.text-xl {
+    font-size: var(--stem-font-size-xl);
+}
+
+/**
+ * 2X large text size (32px)
+ * Common uses: Large headings, page titles
+ */
+.text-2xl {
+    font-size: var(--stem-font-size-2xl);
+}
+
+/**
+ * 3X large text size (40px)
+ * Common uses: Hero headings, landing page titles
+ */
+.text-3xl {
+    font-size: var(--stem-font-size-3xl);
+}
+
+/* ----------------------------------------
+ * Font Weight Utilities
+ * ---------------------------------------- */
+
+/**
+ * Normal font weight (400)
+ * Default body text weight
+ */
+.font-normal {
+    font-weight: var(--stem-font-weight-normal);
+}
+
+/**
+ * Medium font weight (500)
+ * Subtle emphasis for slightly important text
+ */
+.font-medium {
+    font-weight: var(--stem-font-weight-medium);
+}
+
+/**
+ * Semibold font weight (600)
+ * Common uses: Headings, important text, navigation items
+ */
+.font-semibold {
+    font-weight: var(--stem-font-weight-semibold);
+}
+
+/**
+ * Bold font weight (700)
+ * Strong emphasis for critical information
+ */
+.font-bold {
+    font-weight: var(--stem-font-weight-bold);
+}
+
+/* ========================================
  * GRID SYSTEM
  * ======================================== */
 
