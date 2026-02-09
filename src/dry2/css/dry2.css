@@ -1968,6 +1968,83 @@ header > nav {
     overflow: hidden;
 }
 
+/* ----------------------------------------
+ * Badge Components
+ * ---------------------------------------- */
+
+/**
+ * Base badge class
+ *
+ * Provides core badge styling for inline status indicators
+ * Usage:
+ * <span class="badge">Default Badge</span>
+ * <span class="badge badge-success">Success</span>
+ * <span class="badge badge-warning">Warning</span>
+ */
+.badge {
+    /* Display & Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Spacing */
+    padding: var(--stem-spacing-xs) var(--stem-spacing-sm);
+
+    /* Typography */
+    font-family: var(--stem-font-family-sans);
+    font-size: var(--stem-font-size-xs);
+    font-weight: var(--stem-font-weight-medium);
+    line-height: var(--stem-line-height-tight);
+
+    /* Visual Style */
+    background-color: var(--stem-color-bg-secondary);
+    color: var(--stem-color-text-base);
+    border-radius: var(--stem-border-radius-full);
+
+    /* Text behavior */
+    white-space: nowrap;
+}
+
+/* ----------------------------------------
+ * Badge Style Variants
+ * ---------------------------------------- */
+
+/**
+ * Success badge
+ * Positive status indicators like "Active", "Completed", "Approved"
+ */
+.badge-success {
+    background-color: var(--stem-color-success-light);
+    color: var(--stem-color-success-dark);
+}
+
+/**
+ * Warning badge
+ * Cautionary status indicators like "Pending", "Expiring Soon", "Review"
+ */
+.badge-warning {
+    background-color: var(--stem-color-warning-light);
+    color: var(--stem-color-warning-dark);
+}
+
+/**
+ * Error badge
+ * Error or critical status indicators like "Failed", "Rejected", "Critical"
+ */
+.badge-error {
+    background-color: var(--stem-color-error-light);
+    color: var(--stem-color-error-dark);
+}
+
+/**
+ * Info badge
+ * Informational status indicators like "New", "Info", "Draft"
+ */
+.badge-info {
+    background-color: var(--stem-color-primary-light);
+    color: var(--stem-color-primary-dark);
+}
+
 /* ========================================
  * GRID SYSTEM
  * ======================================== */
