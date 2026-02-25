@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dry2 CSS Button Showcase</title>
+    <link rel="stylesheet" href="src/dry2/css/dry2.css">
+    <style>
+        /* Custom styles for the showcase */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--stem-color-bg-surface);
+            color: var(--stem-color-text-base);
+            line-height: 1.6;
+        }
+
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .showcase-header h1 {
+            font-size: var(--stem-font-size-3xl);
+            margin-bottom: 1rem;
+            color: var(--stem-color-primary);
+        }
+
+        .showcase-section {
+            margin-bottom: 3rem;
+            background: var(--stem-color-bg-surface);
+            border-radius: var(--stem-border-radius-lg);
+            box-shadow: var(--stem-shadow-md);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--stem-color-bg-primary);
+            padding: var(--stem-spacing-md) var(--stem-spacing-lg);
+            border-bottom: 1px solid var(--stem-color-border-light);
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: var(--stem-font-size-xl);
+            color: var(--stem-color-text-base);
+        }
+
+        .section-content {
+            padding: var(--stem-spacing-lg);
+        }
+
+        .button-showcase {
+            display: flex;
+            gap: var(--stem-spacing-md);
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: var(--stem-spacing-lg);
+            padding: var(--stem-spacing-md);
+            background: var(--stem-color-bg-primary);
+            border-radius: var(--stem-border-radius-md);
+        }
+
+        .button-showcase:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-block {
+            background: var(--stem-color-bg-secondary);
+            border: 1px solid var(--stem-color-border-base);
+            border-radius: var(--stem-border-radius-sm);
+            padding: var(--stem-spacing-md);
+            font-family: var(--stem-font-family-mono);
+            font-size: var(--stem-font-size-sm);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .description {
+            margin-bottom: var(--stem-spacing-md);
+            color: var(--stem-color-text-muted);
+        }
+
+        .section-subtitle {
+            font-size: var(--stem-font-size-lg);
+            font-weight: var(--stem-font-weight-semibold);
+            margin-bottom: var(--stem-spacing-sm);
+            color: var(--stem-color-text-base);
+        }
+
+        .grid-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--stem-spacing-lg);
+            margin-bottom: var(--stem-spacing-lg);
+        }
+
+        .grid-item {
+            background: var(--stem-color-bg-primary);
+            padding: var(--stem-spacing-md);
+            border-radius: var(--stem-border-radius-md);
+            border: 1px solid var(--stem-color-border-light);
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--stem-color-bg-secondary);
+            border: 1px solid var(--stem-color-border-base);
+            border-radius: var(--stem-border-radius-full);
+            padding: var(--stem-spacing-sm);
+            cursor: pointer;
+            transition: all var(--stem-transition-duration-base);
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--stem-color-border-base);
+        }
+
+        @media (max-width: 768px) {
+            .showcase-container {
+                padding: 1rem;
+            }
+            
+            .button-showcase {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .grid-showcase {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Dark mode support */
+        html.dark .showcase-section {
+            background: var(--stem-color-bg-primary);
+        }
+
+        html.dark .section-header {
+            background: var(--stem-color-bg-secondary);
+        }
+
+        html.dark .button-showcase,
+        html.dark .grid-item {
+            background: var(--stem-color-bg-secondary);
+        }
+
+        html.dark .code-block {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+            🌙
+        </div>
+
+        <div class="showcase-container">
+            <section class="showcase-header">
+                <h1>Dry2 CSS Button Showcase</h1>
+                <p>Comprehensive examples of all available button styles and configurations</p>
+            </section>
+        </div>
+    </header>
+
+    <main>
+        <div class="showcase-container">
+            <!-- Basic Variants -->
+            <section class="showcase-section">
+                <div class="section-header">
+                    <h2>Basic Variants</h2>
+                </div>
+                <div class="section-content">
+                    <div class="description">Core button variants with different semantic meanings</div>
+                    
+                    <div class="section-subtitle">Default Button</div>
+                    <div class="button-showcase">
+                        <button class="btn">Default Button</button>
+                        <button class="btn" disabled>Disabled Default</button>
+                    </div>
+                    <div class="code-block"><button class="btn">Default Button</button>
+<button class="btn" disabled>Disabled Default</button></div>
+
+                    <div class="section-subtitle">Primary Button</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-primary">Primary Button</button>
+                        <button class="btn btn-primary" disabled>Disabled Primary</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-primary">Primary Button</button>
+<button class="btn btn-primary" disabled>Disabled Primary</button></div>
+
+                    <div class="section-subtitle">Success Button</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-success">Success Button</button>
+                        <button class="btn btn-success" disabled>Disabled Success</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-success">Success Button</button>
+<button class="btn btn-success" disabled>Disabled Success</button></div>
+
+                    <div class="section-subtitle">Danger Button</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-danger">Danger Button</button>
+                        <button class="btn btn-danger" disabled>Disabled Danger</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-danger">Danger Button</button>
+<button class="btn btn-danger" disabled>Disabled Danger</button></div>
+
+                    <div class="section-subtitle">Outline Button</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-outline">Outline Button</button>
+                        <button class="btn btn-outline" disabled>Disabled Outline</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-outline">Outline Button</button>
+<button class="btn btn-outline" disabled>Disabled Outline</button></div>
+
+                    <div class="section-subtitle">Ghost Button</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-ghost">Ghost Button</button>
+                        <button class="btn btn-ghost" disabled>Disabled Ghost</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-ghost">Ghost Button</button>
+<button class="btn btn-ghost" disabled>Disabled Ghost</button></div>
+                </div>
+            </section>
+
+            <!-- Size Variants -->
+            <section class="showcase-section">
+                <div class="section-header">
+                    <h2>Size Variants</h2>
+                </div>
+                <div class="section-content">
+                    <div class="description">Buttons in different sizes for various use cases</div>
+                    
+                    <div class="grid-showcase">
+                        <div class="grid-item">
+                            <div class="section-subtitle">Small (btn-sm)</div>
+                            <div class="button-showcase" style="flex-direction: column; align-items: flex-start;">
+                                <button class="btn btn-sm">Small Button</button>
+                                <button class="btn btn-sm btn-primary">Primary</button>
+                                <button class="btn btn-sm btn-success">Success</button>
+                                <button class="btn btn-sm btn-danger">Danger</button>
+                                <button class="btn btn-sm btn-outline">Outline</button>
+                            </div>
+                            <div class="code-block"><button class="btn btn-sm">Small Button</button></div>
+                        </div>
+
+                        <div class="grid-item">
+                            <div class="section-subtitle">Medium (default)</div>
+                            <div class="button-showcase" style="flex-direction: column; align-items: flex-start;">
+                                <button class="btn">Medium Button</button>
+                                <button class="btn btn-primary">Primary</button>
+                                <button class="btn btn-success">Success</button>
+                                <button class="btn btn-danger">Danger</button>
+                                <button class="btn btn-outline">Outline</button>
+                            </div>
+                            <div class="code-block"><button class="btn">Medium Button</button></div>
+                        </div>
+
+                        <div class="grid-item">
+                            <div class="section-subtitle">Large (btn-lg)</div>
+                            <div class="button-showcase" style="flex-direction: column; align-items: flex-start;">
+                                <button class="btn btn-lg">Large Button</button>
+                                <button class="btn btn-lg btn-primary">Primary</button>
+                                <button class="btn btn-lg btn-success">Success</button>
+                                <button class="btn btn-lg btn-danger">Danger</button>
+                                <button class="btn btn-lg btn-outline">Outline</button>
+                            </div>
+                            <div class="code-block"><button class="btn btn-lg">Large Button</button></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Combinations -->
+            <section class="showcase-section">
+                <div class="section-header">
+                    <h2>Combinations</h2>
+                </div>
+                <div class="section-content">
+                    <div class="description">Combining different variants and sizes for specific use cases</div>
+                    
+                    <div class="section-subtitle">Primary Action Sets</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-lg btn-primary">Large Primary</button>
+                        <button class="btn btn-primary">Primary</button>
+                        <button class="btn btn-sm btn-outline">Small Outline</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-lg btn-primary">Large Primary</button>
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-sm btn-outline">Small Outline</button></div>
+
+                    <div class="section-subtitle">Secondary Action Sets</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-lg btn-success">Large Success</button>
+                        <button class="btn btn-success">Success</button>
+                        <button class="btn btn-sm btn-ghost">Small Ghost</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-lg btn-success">Large Success</button>
+<button class="btn btn-success">Success</button>
+<button class="btn btn-sm btn-ghost">Small Ghost</button></div>
+
+                    <div class="section-subtitle">Destructive Action Sets</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-lg btn-danger">Large Danger</button>
+                        <button class="btn btn-danger">Danger</button>
+                        <button class="btn btn-sm btn-danger">Small Danger</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-lg btn-danger">Large Danger</button>
+<button class="btn btn-danger">Danger</button>
+<button class="btn btn-sm btn-danger">Small Danger</button></div>
+                </div>
+            </section>
+
+            <!-- Usage Examples -->
+            <section class="showcase-section">
+                <div class="section-header">
+                    <h2>Usage Examples</h2>
+                </div>
+                <div class="section-content">
+                    <div class="description">Common patterns and use cases for buttons</div>
+                    
+                    <div class="section-subtitle">Form Actions</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-primary">Save Changes</button>
+                        <button class="btn btn-outline">Cancel</button>
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-primary">Save Changes</button>
+<button class="btn btn-outline">Cancel</button>
+<button class="btn btn-danger btn-sm">Delete</button></div>
+
+                    <div class="section-subtitle">Confirmation Dialog</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-primary">Yes, Continue</button>
+                        <button class="btn btn-outline">Go Back</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-primary">Yes, Continue</button>
+<button class="btn btn-outline">Go Back</button></div>
+
+                    <div class="section-subtitle">Navigation</div>
+                    <div class="button-showcase">
+                        <button class="btn btn-ghost">← Previous</button>
+                        <button class="btn btn-ghost">Next →</button>
+                    </div>
+                    <div class="code-block"><button class="btn btn-ghost">← Previous</button>
+<button class="btn btn-ghost">Next →</button></div>
+                </div>
+            </section>
+
+            <!-- Responsive Behavior -->
+            <section class="showcase-section">
+                <div class="section-header">
+                    <h2>Responsive Behavior</h2>
+                </div>
+                <div class="section-content">
+                    <div class="description">How buttons adapt to different screen sizes</div>
+                    
+                    <div class="section-subtitle">Stack on Mobile</div>
+                    <div class="button-showcase" style="flex-direction: column; gap: 0.5rem;">
+                        <button class="btn btn-primary btn-lg" style="width: 100%; max-width: 300px;">Full Width Primary</button>
+                        <button class="btn btn-outline" style="width: 100%; max-width: 300px;">Full Width Outline</button>
+                        <button class="btn btn-success" style="width: 100%; max-width: 300px;">Full Width Success</button>
+                    </div>
+                    <div class="code-block">/* Buttons automatically adapt to container width */
+.button-showcase {
+    display: flex;
+    gap: var(--stem-spacing-md);
+    flex-wrap: wrap;
+    align-items: center;
+}</div>
+                </div>
+            </section>
+
+            <!-- CSS Variables Reference -->
+            <section class="showcase-section">
+                <header class="section-header">
+                    <h2>CSS Variables Reference</h2>
+                </header>
+                <div class="section-content">
+                    <div class="description">The CSS variables used for button styling</div>
+                    
+                    <div class="code-block">/* Button Styling Variables */
+--stem-color-primary: #3b82f6;
+--stem-color-primary-dark: #2563eb;
+--stem-color-success: #10b981;
+--stem-color-success-dark: #059669;
+--stem-color-error: #ef4444;
+--stem-color-error-dark: #dc2626;
+
+/* Spacing Variables */
+--stem-spacing-xs: 0.5rem;
+--stem-spacing-sm: 0.75rem;
+--stem-spacing-md: 1rem;
+--stem-spacing-lg: 1.5rem;
+
+/* Border Radius Variables */
+--stem-border-radius-md: 8px;
+--stem-border-radius-sm: 4px;
+--stem-border-radius-lg: 12px;
+
+/* Typography Variables */
+--stem-font-size-sm: 0.875rem;
+--stem-font-size-base: 1rem;
+--stem-font-size-lg: 1.25rem;
+
+/* Transition Variables */
+--stem-transition-duration-fast: 150ms;
+--stem-transition-duration-base: 200ms;</div>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section class="showcase-section">
+                <header class="section-header">
+                    <h2>Features</h2>
+                </header>
+                <div class="section-content">
+                    <div class="description">Key features of the dry2 button system</div>
+                    
+                    <div class="grid-showcase">
+                        <div class="grid-item">
+                            <div class="section-subtitle">CSS Variables</div>
+                            <p>All values use CSS variables for easy theming and customization</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="section-subtitle">Dark Mode Support</div>
+                            <p>Automatic and manual dark mode switching with proper color adjustments</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="section-subtitle">Responsive Design</div>
+                            <p>Buttons adapt to different screen sizes and container widths</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="section-subtitle">Accessibility</div>
+                            <p>Proper contrast ratios, focus states, and disabled styling</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="section-subtitle">Semantic Variants</div>
+                            <p>Semantic class names (primary, success, danger) for clear meaning</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="section-subtitle">Flexible Sizing</div>
+                            <p>Multiple size variants from small to large for different contexts</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const button = document.querySelector('.dark-mode-toggle');
+            button.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+        }
+
+        // Add click handlers to demonstrate button functionality
+        document.querySelectorAll('.btn').forEach(button => {
+            if (!button.disabled) {
+                button.addEventListener('click', function() {
+                    // Create a temporary visual feedback
+                    const original = this.style.outline;
+                    this.style.outline = '2px solid var(--stem-color-primary)';
+                    setTimeout(() => {
+                        this.style.outline = original;
+                    }, 200);
+                });
+            }
+        });
+
+        // Check for system dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            document.querySelector('.dark-mode-toggle').textContent = '☀️';
+        }
+    </script>
+</body>
+</html>
