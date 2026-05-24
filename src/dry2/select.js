@@ -136,7 +136,10 @@ class DrySelect extends BaseElement {
            @keydown.escape="isOpen = false; updateSearchDisplay()">
            
         <!-- Main Button -->
-        <div 
+        <div
+            role="combobox"
+            :aria-expanded="isOpen"
+            aria-haspopup="listbox"
             class="${buttonClass} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}"
             @mousedown="isClickingButton = true"
             @mouseup="setTimeout(() => isClickingButton = false, 10)"
@@ -200,7 +203,7 @@ class DrySelect extends BaseElement {
         </div>
         
         <!-- Dropdown -->
-        <div 
+        <div
             x-show="isOpen"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="transform opacity-0 scale-95"
@@ -208,6 +211,8 @@ class DrySelect extends BaseElement {
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="transform opacity-100 scale-100"
             x-transition:leave-end="transform opacity-0 scale-95"
+            role="listbox"
+            :aria-label="placeholder"
             class="${dropdownClass}"
             style="max-height: ${maxHeight}">
             
@@ -226,7 +231,9 @@ class DrySelect extends BaseElement {
             </template>
             
             <template x-for="(option, index) in availableOptions" :key="option.value">
-                <div 
+                <div
+                    role="option"
+                    :aria-selected="selectedValues.includes(option.value)"
                     class="px-3 py-2 cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between"
                     :class="{
                         'bg-blue-50': index === focusedIndex,

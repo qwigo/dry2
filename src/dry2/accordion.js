@@ -200,18 +200,6 @@ class DryAccordion extends BaseElement {
     this._accordionEl = container;
   }
 
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
-  /**
-   * Set Alpine.js data on container element safely
-   */
   _setAlpineData(container) {
     const openItems = this._accordionState.getOpenItems();
     const multiple = this._accordionState.multiple;
@@ -453,27 +441,28 @@ class DryAccordion extends BaseElement {
   // Public API Methods with improved error handling
   openItem(itemId) {
     if (!this._validateItemId(itemId)) return;
-    
     const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && !alpineData.disabled && !alpineData.isOpen(itemId)) {
+    if (alpineData && !alpineData.disabled &&
+        typeof alpineData.isOpen === 'function' && !alpineData.isOpen(itemId) &&
+        typeof alpineData.toggle === 'function') {
       alpineData.toggle(itemId);
     }
   }
 
   closeItem(itemId) {
     if (!this._validateItemId(itemId)) return;
-    
     const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && alpineData.isOpen(itemId)) {
+    if (alpineData &&
+        typeof alpineData.isOpen === 'function' && alpineData.isOpen(itemId) &&
+        typeof alpineData.toggle === 'function') {
       alpineData.toggle(itemId);
     }
   }
 
   toggleItem(itemId) {
     if (!this._validateItemId(itemId)) return;
-    
     const alpineData = this._getAlpineDataSecurely();
-    if (alpineData && !alpineData.disabled) {
+    if (alpineData && !alpineData.disabled && typeof alpineData.toggle === 'function') {
       alpineData.toggle(itemId);
     }
   }

@@ -21,12 +21,14 @@ class DryAvatar extends BaseElement {
   }
 
   _render(originalContent) {
-    const src = this.src;
-    const name = this.name;
-    const initials = this.initials || this._generateInitials(name);
-    const size = this.size;
-    const shape = this.shape;
-    const alt = this.alt || `Avatar for ${name || 'user'}`;
+    const src = this._escapeForJs(this.src);
+    const name = this._escapeForJs(this.name);
+    const initials = this._escapeForJs(this.initials || this._generateInitials(this.name));
+    const validSizes = ['xs', 'sm', 'md', 'lg', 'xl'];
+    const size = validSizes.includes(this.size) ? this.size : 'md';
+    const validShapes = ['circle', 'square', 'rounded'];
+    const shape = validShapes.includes(this.shape) ? this.shape : 'circle';
+    const alt = this._escapeForJs(this.alt || `Avatar for ${this.name || 'user'}`);
 
     this.innerHTML = `
             <div x-data="{

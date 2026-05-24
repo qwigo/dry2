@@ -22,19 +22,19 @@ class DryDrawer extends BaseElement {
   }
 
   render() {
-    const headerContent = this.querySelector('[slot="header"]')?.innerHTML || this.headerContent;
+    const headerSlotEl = this.querySelector('[slot="header"]');
     const contentSlot = this.querySelector('[slot="content"]')?.outerHTML || '<slot name="content"></slot>';
 
     this.innerHTML = `
         <div class="drawer-container">
             <button type="button" class="trigger-button ${this.buttonClass}">
-                ${this.triggerContent}
+                ${this._escapeHtml(this.triggerContent)}
             </button>
             <div class="drawer-wrapper fixed inset-0 z-50 pointer-events-none">
                 <div class="drawer-backdrop fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out opacity-0 pointer-events-none ${this.backdropClass}"></div>
                 <div class="drawer fixed ${this.position === 'left' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full'} top-0 h-full transition-transform duration-300 ease-in-out pointer-events-auto shadow-xl ${this.drawerClass}">
                     <div class="drawer-header flex items-center justify-between p-4 border-b ${this.headerClass}">
-                        <div class="drawer-title">${headerContent}</div>
+                        <div class="drawer-title"></div>
                         <svg viewBox="0 0 24 24" class="drawer-close cursor-pointer h-6 w-6 text-gray-500 hover:text-gray-700">
                             <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                         </svg>
@@ -46,6 +46,14 @@ class DryDrawer extends BaseElement {
             </div>
         </div>
         `;
+
+    // Set header title safely via DOM to avoid HTML injection
+    const titleEl = this.querySelector('.drawer-title');
+    if (headerSlotEl) {
+      titleEl.appendChild(headerSlotEl.cloneNode(true));
+    } else {
+      titleEl.textContent = this.headerContent;
+    }
   }
 
   attachEventListeners() {
@@ -190,24 +198,25 @@ class AjaxDrawer extends BaseElement {
   }
 
   render() {
-    const headerContent = this.querySelector('[slot="header"]')?.innerHTML || this.headerContent;
+    const headerSlotEl = this.querySelector('[slot="header"]');
+    const contentId = this.contentId;
 
     this.innerHTML = `
         <div class="drawer-container">
-            <button type="button" class="trigger-button ${this.buttonClass}" hx-get="${this.url}" hx-trigger="${this.triggerType}" hx-target="#${this.contentId}">
-                ${this.triggerContent}
+            <button type="button" class="trigger-button ${this.buttonClass}">
+                ${this._escapeHtml(this.triggerContent)}
             </button>
             <div class="drawer-wrapper fixed inset-0 z-50 pointer-events-none">
                 <div class="drawer-backdrop fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out opacity-0 pointer-events-none ${this.backdropClass}"></div>
                 <div class="drawer fixed ${this.position === 'left' ? 'left-0 -translate-x-full' : 'right-0 translate-x-full'} top-0 h-full transition-transform duration-300 ease-in-out pointer-events-auto shadow-xl ${this.drawerClass}">
                     <div class="drawer-header flex items-center justify-between p-4 border-b ${this.headerClass}">
-                        <div class="drawer-title">${headerContent}</div>
+                        <div class="drawer-title"></div>
                         <svg viewBox="0 0 24 24" class="drawer-close cursor-pointer h-6 w-6 text-gray-500 hover:text-gray-700">
                             <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
                         </svg>
                     </div>
                     <div class="drawer-content p-4">
-                        <div id="${this.contentId}" class="drawer-ajax-content"></div>
+                        <div class="drawer-ajax-content"></div>
                         <div class="drawer-loading hidden flex justify-center items-center p-8">
                             <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -223,6 +232,26 @@ class AjaxDrawer extends BaseElement {
             </div>
         </div>
         `;
+
+    // Set attributes via DOM to avoid HTML injection
+    const btn = this.querySelector('.trigger-button');
+    if (btn) {
+      btn.setAttribute('hx-get', this.url);
+      btn.setAttribute('hx-trigger', this.triggerType);
+      btn.setAttribute('hx-target', `#${contentId}`);
+    }
+    const ajaxContent = this.querySelector('.drawer-ajax-content');
+    if (ajaxContent) {
+      ajaxContent.id = contentId;
+    }
+    const titleEl = this.querySelector('.drawer-title');
+    if (titleEl) {
+      if (headerSlotEl) {
+        titleEl.appendChild(headerSlotEl.cloneNode(true));
+      } else {
+        titleEl.textContent = this.headerContent;
+      }
+    }
   }
 
   attachEventListeners() {
@@ -233,7 +262,7 @@ class AjaxDrawer extends BaseElement {
     this.drawerWrapper = this.querySelector('.drawer-wrapper');
     this.loadingElement = this.querySelector('.drawer-loading');
     this.errorElement = this.querySelector('.drawer-error');
-    this.contentElement = this.querySelector(`#${this.contentId}`);
+    this.contentElement = this.querySelector('.drawer-ajax-content');
 
     // Store bound methods
     this.boundClose = this.close.bind(this);
@@ -399,7 +428,11 @@ class AjaxDrawer extends BaseElement {
   }
 
   get contentId() {
-    return this._getAttributeWithDefault('content-id', `drawer-content-${Math.floor(Math.random() * 10000)}`);
+    if (!this._contentId) {
+      this._contentId = this.getAttribute('content-id') ||
+        `drawer-content-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
+    }
+    return this._contentId;
   }
 }
 

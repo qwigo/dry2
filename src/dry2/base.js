@@ -8,6 +8,8 @@ class BaseElement extends HTMLElement {
     this._isInitialized = false;
     this._componentData = {};
     this._originalContent = null;
+    this._pendingTimeouts = [];
+    this._childrenObserver = null;
   }
 
   connectedCallback() {
@@ -56,32 +58,35 @@ class BaseElement extends HTMLElement {
    */
   _waitForChildrenAndInitialize() {
     const observer = new MutationObserver((mutations) => {
-      // Check if children were added
       const hasChildren = mutations.some(mutation => mutation.addedNodes.length > 0);
       if (hasChildren && this.children.length > 0) {
         observer.disconnect();
+        this._childrenObserver = null;
         this._originalContent = this.innerHTML;
         this._waitForAlpineAndInitialize();
       }
     });
 
+    this._childrenObserver = observer;
     observer.observe(this, { childList: true, subtree: true });
 
-    // Fallback: if children are already present, initialize immediately
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
       if (this.children.length > 0) {
         observer.disconnect();
+        this._childrenObserver = null;
         this._originalContent = this.innerHTML;
         this._waitForAlpineAndInitialize();
       } else {
-        // No children found, try again with longer delay
-        setTimeout(() => {
+        const t2 = setTimeout(() => {
           observer.disconnect();
+          this._childrenObserver = null;
           this._originalContent = this.innerHTML;
           this._waitForAlpineAndInitialize();
         }, 500);
+        this._pendingTimeouts.push(t2);
       }
     }, 100);
+    this._pendingTimeouts.push(t1);
   }
 
   /**
@@ -330,16 +335,38 @@ class BaseElement extends HTMLElement {
     this._handleAttributeChange(name, oldValue, newValue);
   }
 
-  /**
-   * Common cleanup method - override in child classes if needed
-   */
+  _escapeHtml(str) {
+    if (typeof str !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  _escapeForJs(str) {
+    if (typeof str !== 'string') return '';
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  }
+
   disconnectedCallback() {
-    // Cleanup logic can be added here
+    this._pendingTimeouts.forEach(id => clearTimeout(id));
+    this._pendingTimeouts = [];
+    if (this._childrenObserver) {
+      this._childrenObserver.disconnect();
+      this._childrenObserver = null;
+    }
   }
 }
 
 // Make BaseElement globally available
-window.BaseElement = BaseElement; 
+window.BaseElement = BaseElement;
+window.DRY2 = window.DRY2 || {};
+window.DRY2.BaseElement = BaseElement;
 
 /**
  * Alpine.js Utilities for DRY2 Components
