@@ -11,7 +11,12 @@ const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>', 
 // Make DOM available globally
 global.window = dom.window;
 global.document = dom.window.document;
-global.navigator = dom.window.navigator;
+// In Node 22+, navigator is a read-only getter; use defineProperty to override
+try {
+  global.navigator = dom.window.navigator;
+} catch (_) {
+  Object.defineProperty(global, 'navigator', { value: dom.window.navigator, writable: true, configurable: true });
+}
 global.HTMLElement = dom.window.HTMLElement;
 global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
@@ -138,6 +143,8 @@ class BaseElement extends HTMLElement {
     this._isInitialized = false;
     this._componentData = {};
     this._originalContent = null;
+    this._pendingTimeouts = [];
+    this._childrenObserver = null;
   }
 
   connectedCallback() {
@@ -148,18 +155,16 @@ class BaseElement extends HTMLElement {
   }
 
   _waitForAlpineAndInitialize() {
-    // For testing, skip Alpine.js wait and initialize immediately
     this._initializeComponent();
   }
 
   _waitForChildrenAndInitialize() {
-    // For testing, initialize immediately
     this._initializeComponent();
   }
 
-  _initializeComponent() {
-    // To be implemented by child classes
-  }
+  _ensureAlpineProcessing() {}
+
+  _initializeComponent() {}
 
   _extractContent() {
     return this.textContent.trim();
@@ -173,9 +178,22 @@ class BaseElement extends HTMLElement {
     return this.getAttribute(name) || defaultValue;
   }
 
+  _getNumericAttribute(name, defaultValue = 0) {
+    const value = this.getAttribute(name);
+    return value !== null ? parseInt(value, 10) || defaultValue : defaultValue;
+  }
+
   _setAttribute(name, value) {
     if (value !== null && value !== undefined && value !== '') {
       this.setAttribute(name, value);
+    } else {
+      this.removeAttribute(name);
+    }
+  }
+
+  _setNumericAttribute(name, value) {
+    if (typeof value === 'number' && !isNaN(value)) {
+      this.setAttribute(name, value.toString());
     } else {
       this.removeAttribute(name);
     }
@@ -193,6 +211,19 @@ class BaseElement extends HTMLElement {
     }
   }
 
+  _dispatchEvent(eventName, detail = {}) {
+    const event = new CustomEvent(eventName, { detail, bubbles: true, cancelable: true });
+    this.dispatchEvent(event);
+  }
+
+  _getAlpineData() {
+    const el = this.querySelector('[x-data]');
+    if (el && window.Alpine) {
+      return el._x_dataStack?.[0] || el.__x?.$data || null;
+    }
+    return null;
+  }
+
   _handleAttributeChange(name, oldValue, newValue) {
     if (oldValue !== newValue && this._isInitialized) {
       this._render && this._render();
@@ -205,22 +236,48 @@ class BaseElement extends HTMLElement {
   }
 
   _extractSlotContent(selector) {
-    // Mock slot content extraction
     if (!selector) {
       return this.innerHTML || '';
     }
-    
     const element = this.querySelector(selector);
     return element ? element.innerHTML : '';
   }
 
+  _escapeHtml(str) {
+    if (typeof str !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  _escapeForJs(str) {
+    if (typeof str !== 'string') return '';
+    return str
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
+  }
+
   disconnectedCallback() {
-    // Cleanup logic
+    this._pendingTimeouts.forEach(id => clearTimeout(id));
+    this._pendingTimeouts = [];
+    if (this._childrenObserver) {
+      this._childrenObserver.disconnect();
+      this._childrenObserver = null;
+    }
   }
 }
 
 // Make BaseElement globally available
 global.BaseElement = BaseElement;
 global.window.BaseElement = BaseElement;
+
+// Initialise DRY2 namespace
+global.window.DRY2 = global.window.DRY2 || {};
+global.window.DRY2.BaseElement = BaseElement;
+global.DRY2 = global.window.DRY2;
 
 console.log('Test environment setup complete');

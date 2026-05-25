@@ -291,5 +291,7 @@ class Toast {
 
 // Make Toast available globally
 window.Toast = Toast;
+window.DRY2 = window.DRY2 || {};
+window.DRY2.Toast = Toast;
 
 customElements.define('dry-toast', DryToast);

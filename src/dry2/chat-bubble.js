@@ -28,7 +28,16 @@ class DryChatBubble extends BaseElement {
   }
 
   _extractContent() {
-    return this.innerHTML.trim();
+    return this._sanitizeContent(this.innerHTML.trim());
+  }
+
+  _sanitizeContent(content) {
+    if (typeof content !== 'string') return '';
+    return content
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+      .replace(/javascript:/gi, '');
   }
 
   _render() {
