@@ -1,4 +1,7 @@
 /CLAUDE.md
+.DS_Store
+/carcamp
+/.cline/
 /node_modules/
 /dist/
 /screenshots/
