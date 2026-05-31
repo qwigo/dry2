@@ -18,6 +18,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "mocha tests/unit/**/*.test.js --require tests/unit/setup.js",
     "test:unit:coverage": "c8 --reporter=text --reporter=html --reporter=json mocha tests/unit/**/*.test.js --require tests/unit/setup.js",
+    "test:unit:coverage:ci": "c8 mocha tests/unit/**/*.test.js --require tests/unit/setup.js",
     "test:unit:watch": "mocha tests/unit/**/*.test.js --require tests/unit/setup.js --watch",
     "test:unit:component": "node -e \"const component = process.argv[1]; require('child_process').spawn('mocha', [`tests/unit/components/${component}.test.js`, '--require', 'tests/unit/setup.js'], {stdio: 'inherit'})\"",
     "test:integration": "karma start tests/integration/karma.conf.js",
