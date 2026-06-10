@@ -11,7 +11,11 @@ const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>', 
 // Make DOM available globally
 global.window = dom.window;
 global.document = dom.window.document;
-global.navigator = dom.window.navigator;
+Object.defineProperty(global, 'navigator', {
+  value: dom.window.navigator,
+  writable: true,
+  configurable: true
+});
 global.HTMLElement = dom.window.HTMLElement;
 global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
@@ -138,6 +142,7 @@ class BaseElement extends HTMLElement {
     this._isInitialized = false;
     this._componentData = {};
     this._originalContent = null;
+    this._managedListeners = new Map();
   }
 
   connectedCallback() {
@@ -191,6 +196,98 @@ class BaseElement extends HTMLElement {
     } else {
       this.removeAttribute(name);
     }
+  }
+
+  _getNumericAttribute(name, defaultValue = 0) {
+    const value = this.getAttribute(name);
+    if (value === null) {
+      return defaultValue;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? defaultValue : parsed;
+  }
+
+  _setNumericAttribute(name, value) {
+    if (typeof value === 'number' && !isNaN(value)) {
+      this.setAttribute(name, value.toString());
+    } else {
+      this.removeAttribute(name);
+    }
+  }
+
+  _updateComponentData(attributeName, newValue) {
+    if (this._componentData && Object.prototype.hasOwnProperty.call(this._componentData, attributeName)) {
+      this._componentData[attributeName] = newValue;
+      this._refresh();
+    }
+  }
+
+  _refresh() {
+    if (typeof this._render === 'function') {
+      this._render();
+    }
+  }
+
+  _createClassString(baseClasses, conditionalClasses = {}) {
+    let classes = Array.isArray(baseClasses) ? baseClasses.join(' ') : baseClasses;
+    Object.entries(conditionalClasses).forEach(([className, condition]) => {
+      if (condition) {
+        classes += ` ${className}`;
+      }
+    });
+    return classes.trim();
+  }
+
+  _getSizeClasses(sizeMap = {}) {
+    const size = this._getAttributeWithDefault('size', 'md');
+    return sizeMap[size] || sizeMap.md || '';
+  }
+
+  _getVariantClasses(variantMap = {}) {
+    const variant = this._getAttributeWithDefault('variant', 'primary');
+    return variantMap[variant] || variantMap.primary || '';
+  }
+
+  _addEventListeners(eventMap = {}) {
+    if (!this._managedListeners) {
+      this._managedListeners = new Map();
+    }
+    Object.entries(eventMap).forEach(([event, handler]) => {
+      const previous = this._managedListeners.get(event);
+      if (previous) {
+        this.removeEventListener(event, previous);
+      }
+      const bound = handler.bind(this);
+      this._managedListeners.set(event, bound);
+      this.addEventListener(event, bound);
+    });
+  }
+
+  _removeEventListeners() {
+    if (!this._managedListeners) {
+      return;
+    }
+    this._managedListeners.forEach((handler, event) => {
+      this.removeEventListener(event, handler);
+    });
+    this._managedListeners.clear();
+  }
+
+  _dispatchEvent(eventName, detail = {}) {
+    const event = new CustomEvent(eventName, {
+      detail,
+      bubbles: true,
+      cancelable: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  _ensureAlpineProcessing() {
+    // No-op in tests; Alpine is mocked
+  }
+
+  _getAlpineData() {
+    return null;
   }
 
   _handleAttributeChange(name, oldValue, newValue) {

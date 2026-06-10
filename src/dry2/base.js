@@ -8,6 +8,14 @@ class BaseElement extends HTMLElement {
     this._isInitialized = false;
     this._componentData = {};
     this._originalContent = null;
+    this._managedListeners = new Map();
+  }
+
+  /**
+   * Maximum time (ms) to wait for Alpine.js before initializing without it
+   */
+  static get ALPINE_WAIT_TIMEOUT() {
+    return 10000;
   }
 
   connectedCallback() {
@@ -18,36 +26,38 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Wait for Alpine.js to be ready, then initialize the component
+   * Wait for Alpine.js to be ready, then initialize the component.
+   * Polling is bounded by ALPINE_WAIT_TIMEOUT so components still
+   * initialize (without Alpine) if Alpine never loads.
    */
   _waitForAlpineAndInitialize() {
-    // Check if Alpine.js is loaded
     if (window.Alpine && window.Alpine.version) {
       // Alpine is loaded, initialize immediately
       this._initializeComponent();
-    } else {
-      // Alpine not loaded yet, wait for it
-      if (!window.alpineLoadPromise) {
-        window.alpineLoadPromise = new Promise(resolve => {
+      return;
+    }
+
+    // Alpine not loaded yet, share a single polling promise across components
+    if (!window.alpineLoadPromise) {
+      window.alpineLoadPromise = new Promise(resolve => {
+        const startedAt = Date.now();
+        const checkAlpine = () => {
           if (window.Alpine && window.Alpine.version) {
-            resolve();
+            resolve(true);
+          } else if (Date.now() - startedAt >= BaseElement.ALPINE_WAIT_TIMEOUT) {
+            console.warn('Alpine.js was not detected within the timeout; DRY2 components will initialize without Alpine.');
+            resolve(false);
           } else {
-            const checkAlpine = () => {
-              if (window.Alpine && window.Alpine.version) {
-                resolve();
-              } else {
-                setTimeout(checkAlpine, 10);
-              }
-            };
-            checkAlpine();
+            setTimeout(checkAlpine, 10);
           }
-        });
-      }
-      
-      window.alpineLoadPromise.then(() => {
-        this._initializeComponent();
+        };
+        checkAlpine();
       });
     }
+
+    window.alpineLoadPromise.then(() => {
+      this._initializeComponent();
+    });
   }
 
   /**
@@ -55,13 +65,22 @@ class BaseElement extends HTMLElement {
    * Useful for components that need to process child elements
    */
   _waitForChildrenAndInitialize() {
-    const observer = new MutationObserver((mutations) => {
-      // Check if children were added
-      const hasChildren = mutations.some(mutation => mutation.addedNodes.length > 0);
-      if (hasChildren && this.children.length > 0) {
-        observer.disconnect();
-        this._originalContent = this.innerHTML;
-        this._waitForAlpineAndInitialize();
+    // Guard so the observer and the timer fallbacks can never
+    // initialize the same component twice
+    let initialized = false;
+    const initialize = () => {
+      if (initialized) {
+        return;
+      }
+      initialized = true;
+      observer.disconnect();
+      this._originalContent = this.innerHTML;
+      this._waitForAlpineAndInitialize();
+    };
+
+    const observer = new MutationObserver(() => {
+      if (this.children.length > 0) {
+        initialize();
       }
     });
 
@@ -70,16 +89,10 @@ class BaseElement extends HTMLElement {
     // Fallback: if children are already present, initialize immediately
     setTimeout(() => {
       if (this.children.length > 0) {
-        observer.disconnect();
-        this._originalContent = this.innerHTML;
-        this._waitForAlpineAndInitialize();
+        initialize();
       } else {
         // No children found, try again with longer delay
-        setTimeout(() => {
-          observer.disconnect();
-          this._originalContent = this.innerHTML;
-          this._waitForAlpineAndInitialize();
-        }, 500);
+        setTimeout(initialize, 500);
       }
     }, 100);
   }
@@ -88,11 +101,13 @@ class BaseElement extends HTMLElement {
    * Force Alpine to process this component
    */
   _ensureAlpineProcessing() {
-    if (window.Alpine && window.Alpine.initTree) {
+    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
       // Give Alpine a moment to process, then force init if needed
       setTimeout(() => {
-        const alpineData = this.querySelector('[x-data]');
-        if (alpineData && !alpineData.__x) {
+        const alpineRoot = this.querySelector('[x-data]');
+        // _x_dataStack is Alpine v3, __x is Alpine v2
+        const alreadyProcessed = alpineRoot && (alpineRoot._x_dataStack || alpineRoot.__x);
+        if (alpineRoot && !alreadyProcessed) {
           try {
             window.Alpine.initTree(this);
           } catch (e) {
@@ -100,7 +115,7 @@ class BaseElement extends HTMLElement {
             setTimeout(() => {
               try {
                 window.Alpine.initTree(this);
-              } catch (e) {
+              } catch (err) {
                 console.warn(`Alpine.js initialization delayed for ${this.tagName.toLowerCase()} component`);
               }
             }, 100);
@@ -123,13 +138,17 @@ class BaseElement extends HTMLElement {
    */
   _getAlpineData() {
     const alpineElement = this.querySelector('[x-data]');
-    if (alpineElement && window.Alpine) {
-      // Try multiple ways to access Alpine.js data
-      return alpineElement._x_dataStack?.[0] || 
-             alpineElement.__x?.$data || 
-             window.Alpine.$data(alpineElement);
+    if (!alpineElement || !window.Alpine) {
+      return null;
     }
-    return null;
+    try {
+      // _x_dataStack is Alpine v3, __x is Alpine v2
+      return alpineElement._x_dataStack?.[0] ||
+             alpineElement.__x?.$data ||
+             (typeof window.Alpine.$data === 'function' ? window.Alpine.$data(alpineElement) : null);
+    } catch (e) {
+      return null;
+    }
   }
 
   /**
@@ -143,11 +162,16 @@ class BaseElement extends HTMLElement {
    * Extract slot content for components that use slots
    */
   _extractSlotContent() {
-    const slots = {};
+    // Null prototype so slot names like "__proto__" or "constructor"
+    // cannot mutate the object's prototype chain
+    const slots = Object.create(null);
     const slotElements = this.querySelectorAll('[slot]');
-    
+
     slotElements.forEach(element => {
       const slotName = element.getAttribute('slot');
+      if (!slotName) {
+        return;
+      }
       slots[slotName] = element.outerHTML;
       element.remove();
     });
@@ -161,26 +185,75 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Utility method to create Alpine.js data object string
+   * Escape a string so it is safe inside a single-quoted JS string literal
+   * embedded in an HTML attribute (e.g. x-data="{ key: '...' }").
+   * Quotes and angle brackets are unicode-escaped so the value can neither
+   * terminate the surrounding attribute nor inject markup or script.
+   */
+  _escapeJsString(value) {
+    return String(value)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\u0022')
+      .replace(/</g, '\\u003C')
+      .replace(/>/g, '\\u003E')
+      .replace(/&/g, '\\u0026')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029');
+  }
+
+  /**
+   * Utility method to create Alpine.js data object string.
+   * All keys and string values are escaped so untrusted values cannot
+   * break out of the generated expression or the surrounding attribute.
    */
   _createAlpineDataString(dataObject) {
     const entries = Object.entries(dataObject).map(([key, value]) => {
-      if (typeof value === 'string') {
-        return `${key}: '${value.replace(/'/g, "\\'")}'`;
-      } else if (typeof value === 'boolean') {
-        return `${key}: ${value}`;
-      } else if (typeof value === 'number') {
-        return `${key}: ${value}`;
-      } else if (typeof value === 'function') {
-        return `${key}: ${value.toString()}`;
-      } else {
-        return `${key}: ${JSON.stringify(value)}`;
-      }
+      return `'${this._escapeJsString(key)}': ${this._serializeAlpineValue(value)}`;
     }).join(',\n        ');
-    
+
     return `{
         ${entries}
       }`;
+  }
+
+  /**
+   * Serialize a single value for use inside an Alpine.js expression
+   */
+  _serializeAlpineValue(value, seen = new WeakSet()) {
+    if (value === null) {
+      return 'null';
+    }
+    if (value === undefined) {
+      return 'undefined';
+    }
+    const type = typeof value;
+    if (type === 'string') {
+      return `'${this._escapeJsString(value)}'`;
+    }
+    if (type === 'boolean' || type === 'number') {
+      return String(value);
+    }
+    if (type === 'function') {
+      // Functions are developer-supplied code, serialized verbatim
+      return value.toString();
+    }
+    if (type === 'object') {
+      if (seen.has(value)) {
+        throw new Error('Cannot serialize circular structure for Alpine data');
+      }
+      seen.add(value);
+      if (Array.isArray(value)) {
+        return `[${value.map(item => this._serializeAlpineValue(item, seen)).join(', ')}]`;
+      }
+      const entries = Object.entries(value).map(([key, item]) => {
+        return `'${this._escapeJsString(key)}': ${this._serializeAlpineValue(item, seen)}`;
+      });
+      return `{ ${entries.join(', ')} }`;
+    }
+    return 'null';
   }
 
   /**
@@ -224,7 +297,11 @@ class BaseElement extends HTMLElement {
    */
   _getNumericAttribute(name, defaultValue = 0) {
     const value = this.getAttribute(name);
-    return value !== null ? parseInt(value, 10) || defaultValue : defaultValue;
+    if (value === null) {
+      return defaultValue;
+    }
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? defaultValue : parsed;
   }
 
   /**
@@ -242,7 +319,7 @@ class BaseElement extends HTMLElement {
    * Common method to handle attribute changes and update component data
    */
   _updateComponentData(attributeName, newValue) {
-    if (this._componentData && this._componentData.hasOwnProperty(attributeName)) {
+    if (this._componentData && Object.prototype.hasOwnProperty.call(this._componentData, attributeName)) {
       this._componentData[attributeName] = newValue;
       this._refresh();
     }
@@ -265,13 +342,13 @@ class BaseElement extends HTMLElement {
    */
   _createClassString(baseClasses, conditionalClasses = {}) {
     let classes = Array.isArray(baseClasses) ? baseClasses.join(' ') : baseClasses;
-    
+
     Object.entries(conditionalClasses).forEach(([className, condition]) => {
       if (condition) {
         classes += ` ${className}`;
       }
     });
-    
+
     return classes.trim();
   }
 
@@ -292,12 +369,36 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Add event listeners with automatic cleanup
+   * Add event listeners on this element. Repeated calls with the same event
+   * name replace the previous handler instead of stacking duplicates.
+   * Use _removeEventListeners() for explicit cleanup.
    */
   _addEventListeners(eventMap = {}) {
+    if (!this._managedListeners) {
+      this._managedListeners = new Map();
+    }
     Object.entries(eventMap).forEach(([event, handler]) => {
-      this.addEventListener(event, handler.bind(this));
+      const previous = this._managedListeners.get(event);
+      if (previous) {
+        this.removeEventListener(event, previous);
+      }
+      const bound = handler.bind(this);
+      this._managedListeners.set(event, bound);
+      this.addEventListener(event, bound);
     });
+  }
+
+  /**
+   * Remove all listeners registered through _addEventListeners
+   */
+  _removeEventListeners() {
+    if (!this._managedListeners) {
+      return;
+    }
+    this._managedListeners.forEach((handler, event) => {
+      this.removeEventListener(event, handler);
+    });
+    this._managedListeners.clear();
   }
 
   /**
@@ -339,76 +440,24 @@ class BaseElement extends HTMLElement {
 }
 
 // Make BaseElement globally available
-window.BaseElement = BaseElement; 
+window.BaseElement = BaseElement;
 
 /**
  * Alpine.js Utilities for DRY2 Components
  * Solves the "first component doesn't work" timing issue
  */
 
-// Global Alpine utilities - no ES6 modules needed
+// Global Alpine utilities - delegate to BaseElement to avoid duplicating logic
 window.DRY2AlpineUtils = {
-  // Alpine initialization methods that get mixed into components
-  _waitForAlpineAndInitialize() {
-    // Check if Alpine.js is loaded
-    if (window.Alpine && window.Alpine.version) {
-      // Alpine is loaded, initialize immediately
-      this._initializeComponent();
-    } else {
-      // Alpine not loaded yet, wait for it
-      if (!window.alpineLoadPromise) {
-        window.alpineLoadPromise = new Promise(resolve => {
-          if (window.Alpine && window.Alpine.version) {
-            resolve();
-          } else {
-            const checkAlpine = () => {
-              if (window.Alpine && window.Alpine.version) {
-                resolve();
-              } else {
-                setTimeout(checkAlpine, 10);
-              }
-            };
-            checkAlpine();
-          }
-        });
-      }
-      
-      window.alpineLoadPromise.then(() => {
-        this._initializeComponent();
-      });
-    }
-  },
-
-  _ensureAlpineProcessing() {
-    // Force Alpine to process this component if it's available
-    if (window.Alpine && window.Alpine.initTree) {
-      // Give Alpine a moment to process, then force init if needed
-      setTimeout(() => {
-        const alpineData = this.querySelector('[x-data]');
-        if (alpineData && !alpineData.__x) {
-          try {
-            window.Alpine.initTree(this);
-          } catch (e) {
-            // Fallback: try again in a moment
-            setTimeout(() => {
-              try {
-                window.Alpine.initTree(this);
-              } catch (e) {
-                console.warn(`Alpine.js initialization delayed for ${this.tagName.toLowerCase()} component`);
-              }
-            }, 100);
-          }
-        }
-      }, 50);
-    }
-  },
+  _waitForAlpineAndInitialize: BaseElement.prototype._waitForAlpineAndInitialize,
+  _ensureAlpineProcessing: BaseElement.prototype._ensureAlpineProcessing,
 
   // Helper function to apply Alpine mixin to a component class
   withAlpineInit(ComponentClass) {
     // Copy the Alpine methods to the component prototype
     ComponentClass.prototype._waitForAlpineAndInitialize = this._waitForAlpineAndInitialize;
     ComponentClass.prototype._ensureAlpineProcessing = this._ensureAlpineProcessing;
-    
+
     // Override connectedCallback to use Alpine initialization
     const originalConnectedCallback = ComponentClass.prototype.connectedCallback;
     ComponentClass.prototype.connectedCallback = function() {
@@ -416,13 +465,13 @@ window.DRY2AlpineUtils = {
         this._waitForAlpineAndInitialize();
         this._isInitialized = true;
       }
-      
+
       // Call original if it exists and has additional logic
       if (originalConnectedCallback && originalConnectedCallback !== this.connectedCallback) {
         originalConnectedCallback.call(this);
       }
     };
-    
+
     return ComponentClass;
   }
-}; 
+};
