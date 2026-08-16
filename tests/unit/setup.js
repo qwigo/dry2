@@ -143,91 +143,32 @@ global.cleanupDOM = () => {
 };
 
 // Setup BaseElement for component tests
-// Create BaseElement before any component imports
-class BaseElement extends HTMLElement {
-  constructor() {
-    super();
-    this._isInitialized = false;
-    this._componentData = {};
-    this._originalContent = null;
-  }
+//
+// This used to hand-roll a third, independent copy of BaseElement here
+// (in addition to the two that lived under src/), which drifted from the
+// real implementation and was missing methods like _dispatchEvent and
+// _ensureAlpineProcessing - any component that called them threw under
+// test even though they work fine in a browser. Import the real class
+// directly instead, so specs always exercise exactly what ships.
+//
+// Only the Alpine/children waiting methods are overridden below: they are
+// asynchronous by design (poll for window.Alpine, wait on a
+// MutationObserver), which would make every component test timer- and
+// observer-dependent for no benefit in jsdom, where Alpine never actually
+// attaches. Every other method - _dispatchEvent, _getNumericAttribute,
+// _createAlpineDataString, etc. - runs unmodified from src/dry2/base.js.
+await import('../../src/dry2/base.js');
+const RealBaseElement = global.window.BaseElement;
 
-  connectedCallback() {
-    if (!this._isInitialized) {
-      this._waitForAlpineAndInitialize();
-      this._isInitialized = true;
-    }
-  }
-
+class BaseElement extends RealBaseElement {
   _waitForAlpineAndInitialize() {
-    // For testing, skip Alpine.js wait and initialize immediately
+    // For testing, skip the Alpine.js wait and initialize immediately
     this._initializeComponent();
   }
 
   _waitForChildrenAndInitialize() {
-    // For testing, initialize immediately
+    // For testing, skip the MutationObserver wait and initialize immediately
     this._initializeComponent();
-  }
-
-  _initializeComponent() {
-    // To be implemented by child classes
-  }
-
-  _extractContent() {
-    return this.textContent.trim();
-  }
-
-  _getAttribute(name, defaultValue) {
-    return this.getAttribute(name) || defaultValue;
-  }
-
-  _getAttributeWithDefault(name, defaultValue) {
-    return this.getAttribute(name) || defaultValue;
-  }
-
-  _setAttribute(name, value) {
-    if (value !== null && value !== undefined && value !== '') {
-      this.setAttribute(name, value);
-    } else {
-      this.removeAttribute(name);
-    }
-  }
-
-  _getBooleanAttribute(name) {
-    return this.hasAttribute(name);
-  }
-
-  _setBooleanAttribute(name, value) {
-    if (value) {
-      this.setAttribute(name, '');
-    } else {
-      this.removeAttribute(name);
-    }
-  }
-
-  _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      this._render && this._render();
-      this._attachEventListeners && this._attachEventListeners();
-    }
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    this._handleAttributeChange(name, oldValue, newValue);
-  }
-
-  _extractSlotContent(selector) {
-    // Mock slot content extraction
-    if (!selector) {
-      return this.innerHTML || '';
-    }
-    
-    const element = this.querySelector(selector);
-    return element ? element.innerHTML : '';
-  }
-
-  disconnectedCallback() {
-    // Cleanup logic
   }
 }
 

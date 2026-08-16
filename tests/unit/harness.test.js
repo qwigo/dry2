@@ -1,4 +1,4 @@
-import '../setup.js';
+import './setup.js';
 
 // This spec exists to guarantee the mocha suite can boot at all under the
 // current Node version. tests/unit/setup.js used to assign global.navigator
