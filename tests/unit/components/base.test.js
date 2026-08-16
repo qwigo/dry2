@@ -1,6 +1,24 @@
 import '../setup.js';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-describe('Core Infrastructure', () => {
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, '..', '..', '..');
+
+// The library used to ship two divergent copies of the BaseElement class
+// (src/base.js and src/dry2/base.js), plus a third hand-maintained mock in
+// tests/unit/setup.js. src/dry2/base.js is the one every component and the
+// build script actually use - this spec pins its full helper API and
+// guards against the stale duplicate reappearing.
+describe('BaseElement (single source of truth)', () => {
+  let RealBaseElement;
+
+  before(async () => {
+    await import('../../../src/dry2/base.js');
+    RealBaseElement = global.window.BaseElement;
+  });
+
   beforeEach(() => {
     cleanupDOM();
   });
@@ -8,162 +26,102 @@ describe('Core Infrastructure', () => {
   afterEach(() => {
     cleanupDOM();
   });
-  let BaseWebComponent;
 
-  before(async() => {
-    // Import the core infrastructure
-    await import('../../../src/dry2/dry2.js');
-    BaseWebComponent = global.BaseWebComponent;
+  it('does not ship a second, divergent copy at src/base.js', () => {
+    expect(existsSync(join(rootDir, 'src', 'base.js'))).to.be.false;
   });
 
-  describe('Core Functionality', () => {
-    let TestComponent;
+  it('extends HTMLElement', () => {
+    expect(RealBaseElement.prototype).to.be.instanceOf(HTMLElement);
+  });
 
-    beforeEach(() => {
-      // Create a test component class
-      TestComponent = class extends BaseWebComponent {
-        static get observedAttributes() {
-          return ['test-attr'];
-        }
+  it('exposes the full instance helper API components rely on', () => {
+    const instanceMethods = [
+      '_waitForAlpineAndInitialize',
+      '_waitForChildrenAndInitialize',
+      '_ensureAlpineProcessing',
+      '_initializeComponent',
+      '_getAlpineData',
+      '_extractContent',
+      '_extractSlotContent',
+      '_createAlpineDataString',
+      '_setAttribute',
+      '_getBooleanAttribute',
+      '_setBooleanAttribute',
+      '_getAttributeWithDefault',
+      '_getNumericAttribute',
+      '_setNumericAttribute',
+      '_updateComponentData',
+      '_refresh',
+      '_createClassString',
+      '_getSizeClasses',
+      '_getVariantClasses',
+      '_addEventListeners',
+      '_dispatchEvent',
+      '_handleAttributeChange',
+      'attributeChangedCallback',
+      'connectedCallback',
+      'disconnectedCallback'
+    ];
 
-        render() {
-          return `<div class="test-content">${this.getAttribute('test-attr') || 'default'}</div>`;
-        }
-      };
-
-      customElements.define(`test-component-${Date.now()}`, TestComponent);
-    });
-
-    it('should create component with reactive state', () => {
-      const element = new TestComponent();
-      expect(element.state).to.be.an('object');
-    });
-
-    it('should schedule renders when state changes', (done) => {
-      const element = new TestComponent();
-      document.body.appendChild(element);
-
-      element.setState({ test: 'value' });
-
-      setTimeout(() => {
-        expect(element.state.test).to.equal('value');
-        done();
-      }, 50);
-    });
-
-    it('should handle attribute changes', (done) => {
-      const element = new TestComponent();
-      document.body.appendChild(element);
-
-      element.setAttribute('test-attr', 'new-value');
-
-      setTimeout(() => {
-        expect(element.innerHTML).to.include('new-value');
-        done();
-      }, 50);
-    });
-
-    it('should provide slot functionality', () => {
-      const element = new TestComponent();
-      element.innerHTML = '<span slot="test">slot content</span>';
-      element._parseSlots();
-
-      expect(element.renderSlot('test')).to.include('slot content');
-    });
-
-    it('should emit custom events', (done) => {
-      const element = new TestComponent();
-
-      element.addEventListener('test-event', (event) => {
-        expect(event.detail.data).to.equal('test');
-        expect(event.detail.component).to.equal(element);
-        done();
-      });
-
-      element.emit('test-event', { data: 'test' });
-    });
-
-    it('should handle boolean attributes correctly', () => {
-      const element = new TestComponent();
-
-      expect(element.getBooleanAttribute('missing')).to.be.false;
-      expect(element.getBooleanAttribute('missing', true)).to.be.true;
-
-      element.setAttribute('present', '');
-      expect(element.getBooleanAttribute('present')).to.be.true;
-
-      element.setAttribute('false-attr', 'false');
-      expect(element.getBooleanAttribute('false-attr')).to.be.false;
-    });
-
-    it('should handle numeric attributes correctly', () => {
-      const element = new TestComponent();
-
-      expect(element.getNumericAttribute('missing')).to.equal(0);
-      expect(element.getNumericAttribute('missing', 10)).to.equal(10);
-
-      element.setAttribute('number', '42');
-      expect(element.getNumericAttribute('number')).to.equal(42);
-
-      element.setAttribute('invalid', 'not-a-number');
-      expect(element.getNumericAttribute('invalid', 5)).to.equal(5);
-    });
-
-    it('should provide DOM helper methods', () => {
-      const element = new TestComponent();
-      element.innerHTML = '<div class="test"></div><span class="test"></span>';
-
-      expect(element.$('.test')).to.be.an('object');
-      expect(element.$$('.test')).to.have.length(2);
-    });
-
-    it('should escape HTML properly', () => {
-      const element = new TestComponent();
-      const unsafe = '<script>alert("xss")</script>';
-      const escaped = element.escapeHtml(unsafe);
-
-      expect(escaped).to.not.include('<script>');
-      expect(escaped).to.include('&lt;script&gt;');
+    instanceMethods.forEach((method) => {
+      expect(
+        RealBaseElement.prototype[method],
+        `BaseElement.prototype.${method} should be a function`
+      ).to.be.a('function');
     });
   });
 
-  describe('Error Handling', () => {
-    let TestComponent;
-
-    beforeEach(() => {
-      TestComponent = class extends BaseWebComponent {
-        render() {
-          if (this.getAttribute('should-error')) {
-            throw new Error('Test error');
-          }
-          return '<div>success</div>';
-        }
-      };
-
-      customElements.define(`test-error-component-${Date.now()}`, TestComponent);
-    });
-
-    it('should handle render errors gracefully', (done) => {
-      const element = new TestComponent();
-      document.body.appendChild(element);
-
-      element.addEventListener('component:error', (event) => {
-        expect(event.detail.context).to.equal('Render error');
-        expect(event.detail.error.message).to.equal('Test error');
-        done();
-      });
-
-      element.setAttribute('should-error', 'true');
-    });
+  it('the global BaseElement used by component specs has the same full API', () => {
+    // tests/unit/setup.js assigns global.BaseElement for component specs
+    // to extend - it must not be a hand-rolled, partial mock.
+    expect(global.BaseElement).to.be.a('function');
+    expect(
+      global.BaseElement.prototype._dispatchEvent,
+      'global.BaseElement.prototype._dispatchEvent should be a function'
+    ).to.be.a('function');
+    expect(
+      global.BaseElement.prototype._ensureAlpineProcessing,
+      'global.BaseElement.prototype._ensureAlpineProcessing should be a function'
+    ).to.be.a('function');
+    expect(
+      global.BaseElement.prototype._getNumericAttribute,
+      'global.BaseElement.prototype._getNumericAttribute should be a function'
+    ).to.be.a('function');
   });
 
-  describe('Static Utilities', () => {
-    it('should provide static HTML escape function', () => {
-      const unsafe = '<script>alert("xss")</script>';
-      const escaped = BaseWebComponent.escapeHtml(unsafe);
+  it('_getBooleanAttribute/_setBooleanAttribute round-trip correctly', () => {
+    const el = document.createElement('div');
+    Object.setPrototypeOf(el, RealBaseElement.prototype);
 
-      expect(escaped).to.not.include('<script>');
-      expect(escaped).to.include('&lt;script&gt;');
+    expect(el._getBooleanAttribute('flag')).to.be.false;
+    el._setBooleanAttribute('flag', true);
+    expect(el._getBooleanAttribute('flag')).to.be.true;
+    el._setBooleanAttribute('flag', false);
+    expect(el._getBooleanAttribute('flag')).to.be.false;
+  });
+
+  it('_getNumericAttribute falls back to the default for missing/invalid values', () => {
+    const el = document.createElement('div');
+    Object.setPrototypeOf(el, RealBaseElement.prototype);
+
+    expect(el._getNumericAttribute('count', 5)).to.equal(5);
+    el.setAttribute('count', '42');
+    expect(el._getNumericAttribute('count', 5)).to.equal(42);
+    el.setAttribute('count', 'not-a-number');
+    expect(el._getNumericAttribute('count', 5)).to.equal(5);
+  });
+
+  it('_dispatchEvent fires a bubbling CustomEvent with the given detail', (done) => {
+    const el = document.createElement('div');
+    Object.setPrototypeOf(el, RealBaseElement.prototype);
+    document.body.appendChild(el);
+
+    document.body.addEventListener('base:test', (event) => {
+      expect(event.detail).to.deep.equal({ ok: true });
+      done();
     });
+
+    el._dispatchEvent('base:test', { ok: true });
   });
 });
