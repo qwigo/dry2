@@ -4,18 +4,24 @@ Audit date: 2026-08-16. Scope: everything under `src/`, `scripts/`, `tests/`, pl
 Part 1 lists every bug and code-quality problem found, grouped by severity. Part 2 is an ordered
 red/green (failing-test-first) commit plan for fixing them.
 
+**Status (2026-08-16):** Phase 0 is complete — A1–A4 below are fixed, plus two related problems
+found while doing that work (A5, A6). See the commit log on this branch for the red/green pairs.
+Phases 1–4 are still open.
+
 ---
 
 ## Part 1 — Findings
 
 ### A. Blocking: the project's own tooling is broken
 
-| # | File | Problem |
-|---|------|---------|
-| A1 | `tests/unit/setup.js:14` | `global.navigator = dom.window.navigator` throws `TypeError: Cannot set property navigator ... which has only a getter` on Node ≥ 21 (repo engine allows `>=16`, CI/dev machines run 22). **The entire unit test suite fails to boot**, so `npm test` and `prepublishOnly` fail. |
-| A2 | *(missing file)* | There is **no ESLint config** (`.eslintrc*` / `eslint.config.js`), so `npm run lint` errors immediately ("Oops! Something went wrong"). `prepublishOnly` runs lint, so publishing is impossible. |
-| A3 | `index.html:13` | Loads `<script src="src/dry2/dry2.js">` — **that file does not exist**. The bundle only exists as `dist/dry2.js` after a build, and `dist/` is gitignored. The main demo page loads zero components. |
-| A4 | `src/base.js` vs `src/dry2/base.js` | Two divergent copies of `BaseElement`, both assigning `window.BaseElement`. `src/base.js` is a stale subset (missing `_getNumericAttribute`, `_waitForChildrenAndInitialize`, `_extractSlotContent`, `attributeChangedCallback` wiring). Any page loading the wrong one gets runtime errors (e.g. countdown/toast call `_getNumericAttribute`). |
+| # | File | Problem | Status |
+|---|------|---------|--------|
+| A1 | `tests/unit/setup.js:14` | `global.navigator = dom.window.navigator` throws `TypeError: Cannot set property navigator ... which has only a getter` on Node ≥ 21 (repo engine allows `>=16`, CI/dev machines run 22). **The entire unit test suite fails to boot**, so `npm test` and `prepublishOnly` fail. | ✅ Fixed |
+| A2 | *(missing file)* | There is **no ESLint config** (`.eslintrc*` / `eslint.config.js`), so `npm run lint` errors immediately ("Oops! Something went wrong"). `prepublishOnly` runs lint, so publishing is impossible. | ✅ Fixed |
+| A3 | `index.html:13` | Loads `<script src="src/dry2/dry2.js">` — **that file does not exist**. The bundle only exists as `dist/dry2.js` after a build, and `dist/` is gitignored. The main demo page loads zero components. `examples/index.html` has the same problem pointing at `../dist/dry2.js`. `index.html` additionally used four wrong tag names (`avatar-component`/`badge-component`/`stat-component`/`toast-component` instead of `dry-avatar`/`dry-badge`/`dry-stat`/`dry-toast`). | ✅ Fixed (script includes + tag names). Marketing copy on `index.html` still claims "21 production-ready components" and lists a carousel, date picker, super select, speed dial and WYSIWYG editor that don't exist under `src/` — left alone as a product decision, not a mechanical fix. |
+| A4 | `src/base.js` vs `src/dry2/base.js` | Two divergent copies of `BaseElement`, both assigning `window.BaseElement`. `src/base.js` is a stale subset (missing `_getNumericAttribute`, `_waitForChildrenAndInitialize`, `_extractSlotContent`, `attributeChangedCallback` wiring). Any page loading the wrong one gets runtime errors (e.g. countdown/toast call `_getNumericAttribute`). | ✅ Fixed — `src/base.js` deleted. |
+| A5 | `tests/unit/setup.js` (found while fixing A4) | A **third**, independent, hand-rolled copy of `BaseElement` lived here for component specs to extend, missing `_dispatchEvent`, `_ensureAlpineProcessing`, `_getNumericAttribute` and others. Once A1 no longer masked it, `npm run test:unit` crashed the whole Node process with an uncaught `TypeError` (`this._dispatchEvent is not a function`, thrown inside a `setTimeout` in `accordion.js`, outside mocha's own error handling). Two active (non-`.bak`) specs, `base.test.js` and `basic.test.js`'s "Core Infrastructure" block, also exclusively tested a `BaseWebComponent` class and `src/dry2/dry2.js` bundle removed by a prior refactor — they could never have passed. A third, `swap-working.test.js`, imported the same nonexistent bundle needlessly. | ✅ Fixed — `setup.js` now subclasses the real `src/dry2/base.js`; `base.test.js` rewritten to test the real class; the stale bundle imports removed. `npm run test:unit` went from crashing mid-run to a clean 262 passing / 23 failing — the 23 are real, pre-existing component bugs, tracked below (mostly section C). |
+| A6 | `tests/integration/karma.conf.js` (found while fixing A2/A5) | Points at `../../src/dry2/drawer-components.js`, `web-components.js` and `avatar-component.js` — none of which exist (components now live at `drawer.js`/`avatar.js`; `web-components.js` and its `DatePicker` component appear to have been removed entirely, yet `web-components.test.js` still asserts `DatePicker` is a function). The whole Karma integration suite (`npm run test:integration`) cannot run at all today. | ⬜ Open — not fixed. Lint was made to pass by scoping `no-undef` off for the one file with the dead `DatePicker` references (see `.eslintrc.cjs`) rather than fixing the suite, since repairing/rewriting the integration suite is a larger, separate effort. |
 
 ### B. Security: HTML/JS injection (XSS) — systemic
 
@@ -105,26 +111,38 @@ reproducing the defect (RED, CI expected to fail or the test marked as the new s
 before anything depends on it, security lands early, and refactors come last on top of a safety
 net. Run `npm run test:unit` between every commit.
 
-### Phase 0 — Make red/green possible (harness first)
+### Phase 0 — Make red/green possible (harness first) — ✅ Complete
 
-**Step 0.1 — Fix the test harness (A1)**
-- 🔴 `test: add smoke spec asserting the mocha suite boots on current Node`
-  (a trivial `tests/unit/harness.test.js` — currently the whole suite errors before any test runs, which *is* the red state)
-- 🟢 `fix(tests): stop assigning read-only globals in setup.js`
-  (use `Object.defineProperty`/`vmContext` or jsdom-global pattern for `navigator`; audit the other `global.*` assignments; suite boots green on Node 22)
+**Step 0.1 — Fix the test harness (A1)** — ✅ done
+- 🔴 `test: add harness smoke spec proving the suite can boot`
+- 🟢 `fix(tests): stop assigning read-only navigator global in setup.js`
+  (used `Object.defineProperty`; audited the other `global.*` assignments — only `navigator` lacked a setter on this Node version, `performance` etc. were already fine)
 
-**Step 0.2 — Restore lint (A2)**
-- 🔴 `test: add npm script check that eslint runs` (or simply document red: `npm run lint` exits non-zero today)
-- 🟢 `fix(tooling): add .eslintrc.cjs matching the existing code style; make npm run lint pass`
+**Step 0.2 — Restore lint (A2)** — ✅ done
+- 🔴 `test: add spec proving eslint has a usable configuration`
+- 🟢 `fix(tooling): add ESLint configuration so npm run lint is runnable`
+  (`.eslintrc.cjs`, `eslint:recommended` + overrides for `src/**` classic-script globals vs `tests/**` ESM/mocha globals vs `tests/integration/**` karma-chai/karma-sinon globals; remaining findings left as non-blocking warnings, see E3)
 
-**Step 0.3 — Single source of truth for BaseElement (A4)**
-- 🔴 `test: assert only one BaseElement definition is shipped and it has the full helper API`
-  (spec imports `src/dry2/base.js`, asserts `_getNumericAttribute`, `_extractSlotContent` etc. exist; a repo-level test asserts `src/base.js` is gone)
-- 🟢 `refactor: delete stale src/base.js; point all references at src/dry2/base.js`
+**Step 0.3 — Single source of truth for BaseElement (A4, A5)** — ✅ done
+- 🔴 `test: pin BaseElement as the single source of truth`
+  (rewrote the stale `base.test.js`, which tested a removed `BaseWebComponent`/`dry2.js` bundle, to test the real `src/dry2/base.js`; asserted `src/base.js` is gone and that `global.BaseElement` used by specs has the full method set)
+- 🟢 `refactor: delete stale src/base.js; make BaseElement single-sourced`
+  (`tests/unit/setup.js` now subclasses the real `BaseElement`, overriding only the two async Alpine/children-wait methods for synchronous test behavior, instead of hand-maintaining a third partial copy)
+- 🟢 `fix(tests): remove references to the nonexistent dry2.js bundle`
+  (follow-up: `basic.test.js` and `swap-working.test.js` also referenced the removed bundle/`BaseWebComponent`; no separate red commit needed since they were already red on a clean checkout)
 
-**Step 0.4 — Demo page loads real files (A3)**
-- 🔴 `test: link-check index.html script tags against the filesystem`
-- 🟢 `fix(examples): load individual src/dry2/*.js files (or dist bundle) in index.html`
+**Step 0.4 — Demo pages load real files (A3)** — ✅ done
+- 🔴 `test: link-check the flagship demo pages' script tags`
+  (`tests/unit/demo-pages.test.js`; covers both `index.html` and `examples/index.html`, plus tag-name/registration matching)
+- 🟢 `fix(examples): load individual component sources, not a nonexistent bundle`
+  (both pages now load each `src/dry2/*.js` file directly, `base.js` first, matching the pattern already used by `examples/*-showcase.html`; fixed the four wrong tag names on `index.html`)
+
+Net result of Phase 0: `npm run test:unit` went from crashing before a single spec ran (A1) to
+crashing partway through (A5) to a clean, complete run — **262 passing / 23 failing**. `npm run
+lint` went from erroring immediately to exiting 0. Both demo pages now render real, interactive
+components on a fresh checkout with no build step. The 23 remaining test failures are real,
+pre-existing component bugs (mostly section C below) and two orphaned Karma-related items (A6) —
+not fixed in Phase 0.
 
 ### Phase 1 — Security (systemic XSS)
 
