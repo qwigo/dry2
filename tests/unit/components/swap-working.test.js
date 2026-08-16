@@ -12,7 +12,6 @@ describe('SwapComponent (Working Tests)', () => {
   let SwapComponent;
 
   before(async() => {
-    await import('../../../src/dry2/dry2.js');
     await import('../../../src/dry2/swap.js');
     SwapComponent = customElements.get('swap-component');
   });

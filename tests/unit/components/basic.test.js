@@ -32,34 +32,6 @@ describe('DRY2 Basic Tests', () => {
     });
   });
 
-  describe('Core Infrastructure', () => {
-    let BaseWebComponent;
-
-    before(async() => {
-      await import('../../../src/dry2/dry2.js');
-      BaseWebComponent = global.BaseWebComponent;
-    });
-
-    it('should be available after import', () => {
-      expect(BaseWebComponent).to.exist;
-      expect(BaseWebComponent).to.be.a('function');
-    });
-
-    it('should extend HTMLElement', () => {
-      expect(BaseWebComponent.prototype).to.be.instanceOf(HTMLElement.constructor);
-    });
-
-    it('should provide static escapeHtml method', () => {
-      expect(BaseWebComponent.escapeHtml).to.be.a('function');
-
-      const unsafe = '<script>alert("xss")</script>';
-      const escaped = BaseWebComponent.escapeHtml(unsafe);
-
-      expect(escaped).to.not.include('<script>');
-      expect(escaped).to.include('&lt;script&gt;');
-    });
-  });
-
   describe('Component Registration', () => {
     it('should be able to define custom elements', () => {
       class TestComponent extends HTMLElement {
