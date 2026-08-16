@@ -10,7 +10,34 @@
     <!-- Include the components -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
-    <script src="src/dry2/dry2.js" defer></script>
+    <!--
+      There is no prebuilt src/dry2/dry2.js bundle - `npm run build` only
+      ever produces dist/dry2.js (gitignored, not committed). Load the
+      individual component sources directly instead, the same way every
+      examples/*-showcase.html page does, so this page works on a fresh
+      checkout with no build step. base.js must load first: every other
+      component extends the BaseElement class it defines.
+    -->
+    <script src="src/dry2/base.js"></script>
+    <script src="src/dry2/accordion.js"></script>
+    <script src="src/dry2/avatar.js"></script>
+    <script src="src/dry2/badge.js"></script>
+    <script src="src/dry2/breadcrumbs.js"></script>
+    <script src="src/dry2/button.js"></script>
+    <script src="src/dry2/card.js"></script>
+    <script src="src/dry2/chat-bubble.js"></script>
+    <script src="src/dry2/code.js"></script>
+    <script src="src/dry2/countdown.js"></script>
+    <script src="src/dry2/dialog.js"></script>
+    <script src="src/dry2/drawer.js"></script>
+    <script src="src/dry2/qr.js"></script>
+    <script src="src/dry2/select.js"></script>
+    <script src="src/dry2/stat.js"></script>
+    <script src="src/dry2/swap.js"></script>
+    <script src="src/dry2/tabs.js"></script>
+    <script src="src/dry2/timeline.js"></script>
+    <script src="src/dry2/toast.js"></script>
+    <script src="src/dry2/toggle-switch.js"></script>
 
     <style>
         /* Custom animations */
@@ -105,22 +132,22 @@
                         </div>
                         <div class="mb-4">
                             <div class="flex items-center space-x-3 mb-3">
-                                <avatar-component name="John Doe" size="md"></avatar-component>
-                                <avatar-component name="Jane Smith" size="md"></avatar-component>
-                                <avatar-component name="Alex Johnson" size="md"></avatar-component>
+                                <dry-avatar name="John Doe" size="md"></dry-avatar>
+                                <dry-avatar name="Jane Smith" size="md"></dry-avatar>
+                                <dry-avatar name="Alex Johnson" size="md"></dry-avatar>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <badge-component variant="success" position="standalone">Active</badge-component>
-                                <badge-component variant="primary" position="standalone">21 Components</badge-component>
+                                <dry-badge variant="success" position="standalone">Active</dry-badge>
+                                <dry-badge variant="primary" position="standalone">21 Components</dry-badge>
                             </div>
                         </div>
                         <div class="mb-4">
-                            <stat-component value="21" label="Components Available" trend="up" trend-value="Production Ready"></stat-component>
+                            <dry-stat value="21" label="Components Available" trend="up" trend-value="Production Ready"></dry-stat>
                         </div>
                         <div class="text-center">
-                            <toast-component type="success" auto-show duration="0">
+                            <dry-toast type="success" auto-show duration="0">
                                 🎉 All components loaded successfully!
-                            </toast-component>
+                            </dry-toast>
                         </div>
                     </div>
                 </div>

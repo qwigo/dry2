@@ -30,7 +30,34 @@
             -webkit-text-fill-color: transparent;
         }
     </style>
-    <script src="../dist/dry2.js"></script>
+    <!--
+      There is no prebuilt dist/dry2.js on a fresh checkout (`npm run
+      build` produces it, but dist/ is gitignored). Load the individual
+      component sources directly, the same way every
+      examples/*-showcase.html page linked from this one already does.
+      base.js must load first: every other component extends the
+      BaseElement class it defines.
+    -->
+    <script src="../src/dry2/base.js"></script>
+    <script src="../src/dry2/accordion.js"></script>
+    <script src="../src/dry2/avatar.js"></script>
+    <script src="../src/dry2/badge.js"></script>
+    <script src="../src/dry2/breadcrumbs.js"></script>
+    <script src="../src/dry2/button.js"></script>
+    <script src="../src/dry2/card.js"></script>
+    <script src="../src/dry2/chat-bubble.js"></script>
+    <script src="../src/dry2/code.js"></script>
+    <script src="../src/dry2/countdown.js"></script>
+    <script src="../src/dry2/dialog.js"></script>
+    <script src="../src/dry2/drawer.js"></script>
+    <script src="../src/dry2/qr.js"></script>
+    <script src="../src/dry2/select.js"></script>
+    <script src="../src/dry2/stat.js"></script>
+    <script src="../src/dry2/swap.js"></script>
+    <script src="../src/dry2/tabs.js"></script>
+    <script src="../src/dry2/timeline.js"></script>
+    <script src="../src/dry2/toast.js"></script>
+    <script src="../src/dry2/toggle-switch.js"></script>
 </head>
 <body class="bg-gray-100">
     <!-- Include Navigation -->
