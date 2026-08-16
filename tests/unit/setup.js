@@ -8,10 +8,22 @@ const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>', 
   resources: 'usable'
 });
 
+// Helper to (re)define a global that Node may already own as a read-only
+// getter (e.g. `navigator`, built in since Node 21). Direct assignment
+// throws "Cannot set property ... which has only a getter" in that case.
+function setGlobal(name, value) {
+  Object.defineProperty(global, name, {
+    value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  });
+}
+
 // Make DOM available globally
 global.window = dom.window;
 global.document = dom.window.document;
-global.navigator = dom.window.navigator;
+setGlobal('navigator', dom.window.navigator);
 global.HTMLElement = dom.window.HTMLElement;
 global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
