@@ -27,8 +27,15 @@ class DryChatBubble extends BaseElement {
     this._render();
   }
 
+  /**
+   * Message bodies are rendered with x-html, i.e. as live markup, and
+   * chat messages are the archetypal untrusted content - so sanitize
+   * rather than trust. Ordinary formatting (links, emphasis, images,
+   * line breaks) is preserved; scripts, event handlers and script-
+   * bearing URL schemes are not.
+   */
   _extractContent() {
-    return this.innerHTML.trim();
+    return this._sanitizeHtml(this.innerHTML.trim());
   }
 
   _render() {

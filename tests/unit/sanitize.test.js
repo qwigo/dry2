@@ -295,3 +295,55 @@ describe('dry-accordion content sanitization', () => {
     expect(el.querySelector('b'), 'formatting should survive').to.exist;
   });
 });
+
+describe('dry-chat-bubble content sanitization', () => {
+  before(async () => {
+    await import('../../src/dry2/chat-bubble.js');
+  });
+
+  beforeEach(() => cleanupDOM());
+  afterEach(() => cleanupDOM());
+
+  async function mountBubble(inner) {
+    const el = document.createElement('dry-chat-bubble');
+    el.innerHTML = inner;
+    document.body.appendChild(el);
+    await waitForComponent(el).catch(() => {});
+    return el;
+  }
+
+  // Chat messages are the archetypal untrusted-content case, and this
+  // component renders them with x-html - i.e. as live markup. The
+  // content should therefore be sanitized rather than trusted.
+  it('strips scripts and handlers from message content', async () => {
+    const el = await mountBubble('<p>hi</p><script>alert(1)</script><img src=x onerror="alert(2)">');
+    const content = el._chatData.content;
+    const host = document.createElement('div');
+    host.innerHTML = content;
+
+    expect(host.querySelector('script'), 'script must not survive').to.equal(null);
+    host.querySelectorAll('*').forEach((node) => {
+      node.getAttributeNames().forEach((name) => {
+        expect(name.toLowerCase().startsWith('on'), `left handler ${name}`).to.be.false;
+      });
+    });
+  });
+
+  it('drops javascript: links in message content', async () => {
+    const el = await mountBubble('<a href="javascript:alert(1)">click</a>');
+    const host = document.createElement('div');
+    host.innerHTML = el._chatData.content;
+
+    expect(host.querySelector('a').getAttribute('href')).to.equal(null);
+  });
+
+  it('preserves ordinary message formatting', async () => {
+    const el = await mountBubble('Hello <b>there</b>, see <a href="/docs">docs</a>');
+    const host = document.createElement('div');
+    host.innerHTML = el._chatData.content;
+
+    expect(host.querySelector('b'), 'bold should survive').to.exist;
+    expect(host.querySelector('a[href="/docs"]'), 'link should survive').to.exist;
+    expect(host.textContent).to.include('Hello');
+  });
+});
