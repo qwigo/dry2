@@ -3,6 +3,15 @@ class DryTabs extends BaseElement {
     return ['active-tab', 'orientation', 'variant', 'disabled'];
   }
 
+  constructor() {
+    super();
+    // The extracted tab model. Cached because rendering replaces
+    // innerHTML, which destroys the <tab-item> elements it was read
+    // from - without this, every post-render read returned [].
+    this._tabs = null;
+    this._childObserver = null;
+  }
+
   connectedCallback() {
     if (!this._isInitialized) {
       this._waitForChildrenAndInitialize();
@@ -11,18 +20,26 @@ class DryTabs extends BaseElement {
   }
 
   _initializeComponent() {
-    // Prevent multiple initializations
-    if (this._hasBeenProcessed) {
-      return;
-    }
-    
-    // Extract tab items
     const tabs = this._extractTabItems();
 
-    // Use the extracted tabs
-    const finalTabs = tabs;
+    // Watch for <tab-item>s appended after this point, so tab sets built
+    // up by script still work.
+    this._setupChildObserver();
 
-    // Remove error message - component should work even with 0 tabs
+    // With nothing to show, render nothing at all rather than leaving an
+    // empty rendered shell behind: markup appended a moment later would
+    // otherwise be competing with it in the DOM.
+    if (tabs.length === 0) return;
+
+    this._renderTabs();
+  }
+
+  /**
+   * Render from the cached tab model. Safe to call repeatedly - unlike
+   * _initializeComponent, it never re-reads the DOM for tab items.
+   */
+  _renderTabs() {
+    const finalTabs = this._extractTabItems();
 
     // Get initial active tab
     const activeTab = this.activeTab || (finalTabs.length > 0 ? finalTabs[0].id : '');
@@ -32,9 +49,6 @@ class DryTabs extends BaseElement {
 
     // Get the orientation
     const orientation = this.orientation || 'horizontal';
-
-    // Mark as processed before modifying innerHTML
-    this._hasBeenProcessed = true;
 
     // Create clean tabs with variant-specific styling
     this.innerHTML = `
@@ -104,7 +118,34 @@ class DryTabs extends BaseElement {
         `;
   }
 
+  /**
+   * Build the model for a single <tab-item>.
+   */
+  _createTabModel(tab, index) {
+    return {
+      id: tab.id || `tab-${index}`,
+      title: tab.getAttribute('title') || `Tab ${index + 1}`,
+      icon: tab.getAttribute('icon') || '',
+      disabled: tab.hasAttribute('disabled'),
+      badge: tab.getAttribute('badge') || '',
+      content: tab.innerHTML
+    };
+  }
+
+  /**
+   * Return the tab model, reading it out of the DOM only once.
+   *
+   * The cache is essential rather than an optimization: rendering
+   * replaces innerHTML, so the <tab-item> elements this reads from no
+   * longer exist afterwards. Without it every call after the first
+   * render returned [], which silently broke nextTab/previousTab and
+   * any caller inspecting the tab set.
+   */
   _extractTabItems() {
+    if (this._tabs) {
+      return this._tabs;
+    }
+
     // Try multiple approaches to find tab content
     let tabElements = [];
 
@@ -129,14 +170,58 @@ class DryTabs extends BaseElement {
       );
     }
 
-    return tabElements.map((tab, index) => ({
-      id: tab.id || `tab-${index}`,
-      title: tab.getAttribute('title') || `Tab ${index + 1}`,
-      icon: tab.getAttribute('icon') || '',
-      disabled: tab.hasAttribute('disabled'),
-      badge: tab.getAttribute('badge') || '',
-      content: tab.innerHTML
-    }));
+    this._tabs = tabElements.map((tab, index) => this._createTabModel(tab, index));
+    return this._tabs;
+  }
+
+  /**
+   * Watch for <tab-item> elements appended after the first render and
+   * fold them into the existing tab set.
+   *
+   * Newly added elements are appended to the cached model rather than
+   * triggering a re-read of the DOM: after a render the original
+   * <tab-item>s are gone, so re-reading would find only the new one and
+   * silently drop every existing tab.
+   *
+   * No feedback loop: the rendered output contains no <tab-item>
+   * elements, so this component's own renders never re-trigger it.
+   */
+  _setupChildObserver() {
+    if (this._childObserver) return;
+
+    this._childObserver = new MutationObserver((mutations) => {
+      const addedTabItems = [];
+
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE &&
+              node.tagName &&
+              node.tagName.toLowerCase() === 'tab-item') {
+            addedTabItems.push(node);
+          }
+        });
+      });
+
+      if (addedTabItems.length === 0) return;
+
+      const existing = this._extractTabItems();
+      addedTabItems.forEach((element, offset) => {
+        existing.push(this._createTabModel(element, existing.length + offset));
+      });
+
+      this._renderTabs();
+    });
+
+    this._childObserver.observe(this, { childList: true, subtree: false });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback && super.disconnectedCallback();
+
+    if (this._childObserver) {
+      this._childObserver.disconnect();
+      this._childObserver = null;
+    }
   }
 
   _createTabButtonHTML(tab) {
@@ -333,20 +418,30 @@ class DryTabs extends BaseElement {
     }
   }
 
-  nextTab() {
-    const tabs = this._extractTabItems();
-    const enabledTabs = tabs.filter(t => !t.disabled);
-    const currentIndex = enabledTabs.findIndex(t => t.id === this.activeTab);
+  /**
+   * The id of the tab currently shown - preferring the live Alpine
+   * scope over the attribute, since clicking a tab updates the scope.
+   */
+  _currentTabId() {
+    const alpineData = this._getAlpineData();
+    if (alpineData && alpineData.activeTab) {
+      return alpineData.activeTab;
+    }
+    return this.activeTab;
+  }
 
-    if (currentIndex < enabledTabs.length - 1) {
+  nextTab() {
+    const enabledTabs = this._extractTabItems().filter(t => !t.disabled);
+    const currentIndex = enabledTabs.findIndex(t => t.id === this._currentTabId());
+
+    if (currentIndex !== -1 && currentIndex < enabledTabs.length - 1) {
       this.switchTab(enabledTabs[currentIndex + 1].id);
     }
   }
 
   previousTab() {
-    const tabs = this._extractTabItems();
-    const enabledTabs = tabs.filter(t => !t.disabled);
-    const currentIndex = enabledTabs.findIndex(t => t.id === this.activeTab);
+    const enabledTabs = this._extractTabItems().filter(t => !t.disabled);
+    const currentIndex = enabledTabs.findIndex(t => t.id === this._currentTabId());
 
     if (currentIndex > 0) {
       this.switchTab(enabledTabs[currentIndex - 1].id);
@@ -386,21 +481,35 @@ class DryTabs extends BaseElement {
     this._setBooleanAttribute('disabled', value);
   }
 
+  /**
+   * Every branch here previously called _initializeComponent(), which
+   * latched _hasBeenProcessed on its first run and returned immediately
+   * ever after - so no attribute change did anything once rendered.
+   *
+   * active-tab is now applied to the live Alpine scope, leaving the DOM
+   * (and that scope) intact. The structural attributes genuinely change
+   * the markup, so they re-render from the cached tab model.
+   */
   _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      if (name === 'active-tab') {
-        this.activeTab = newValue;
-        this._initializeComponent();
-      } else if (name === 'orientation') {
-        this.orientation = newValue;
-        this._initializeComponent();
-      } else if (name === 'variant') {
-        this.variant = newValue;
-        this._initializeComponent();
-      } else if (name === 'disabled') {
-        this.disabled = newValue !== null && newValue !== 'false';
-        this._initializeComponent();
+    if (oldValue === newValue || !this._isInitialized) return;
+
+    // Nothing has been rendered yet (no tabs); the first render will
+    // pick these values up.
+    if (!this._tabs || this._tabs.length === 0) return;
+
+    if (name === 'active-tab') {
+      const alpineData = this._getAlpineData();
+      if (alpineData) {
+        alpineData.activeTab = newValue;
+      } else {
+        // No Alpine to drive the binding - rebuild with the new default.
+        this._renderTabs();
       }
+      return;
+    }
+
+    if (name === 'orientation' || name === 'variant' || name === 'disabled') {
+      this._renderTabs();
     }
   }
 }
