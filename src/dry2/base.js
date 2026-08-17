@@ -312,6 +312,98 @@ class BaseElement extends HTMLElement {
   }
 
   /**
+   * Sanitize a fragment of HTML that will be inserted as markup.
+   *
+   * Uses DOMPurify when the page provides it (it is an
+   * optionalDependency of this package); otherwise falls back to
+   * _sanitizeHtmlFallback below.
+   *
+   * Sanitizing must operate on parsed DOM, never on raw markup text.
+   * Deleting substrings from markup can *create* dangerous output by
+   * joining the remainder together - "javajavascript:script:" becomes
+   * "javascript:" once the inner match is removed - as well as missing
+   * anything the pattern didn't anticipate.
+   */
+  _sanitizeHtml(html, options = {}) {
+    const input = this._toEscapableString(html);
+    if (!input.trim()) return '';
+
+    if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+      return window.DOMPurify.sanitize(input, options.domPurifyConfig || {});
+    }
+
+    return this._sanitizeHtmlFallback(input);
+  }
+
+  /**
+   * Conservative DOM-based sanitizer used when DOMPurify is absent.
+   *
+   * Parsing happens in an inert document via DOMParser: scripts do not
+   * execute, resources are not fetched and handlers do not run, so it is
+   * safe to inspect hostile markup here. Working on parsed attributes
+   * also makes quoting irrelevant - an unquoted onerror= is just an
+   * attribute like any other by this point.
+   */
+  _sanitizeHtmlFallback(html) {
+    const doc = new window.DOMParser().parseFromString(html, 'text/html');
+
+    Array.from(doc.body.querySelectorAll('*')).forEach(element => {
+      const tagName = element.tagName.toLowerCase();
+
+      if (BaseElement.FORBIDDEN_ELEMENTS.has(tagName)) {
+        element.remove();
+        return;
+      }
+
+      Array.from(element.attributes).forEach(attribute => {
+        const name = attribute.name.toLowerCase();
+
+        // Every event handler, however it was quoted in the source.
+        if (name.startsWith('on')) {
+          element.removeAttribute(attribute.name);
+          return;
+        }
+
+        if (BaseElement.URL_ATTRIBUTES.has(name) && !this._isSafeUrl(attribute.value)) {
+          element.removeAttribute(attribute.name);
+        }
+      });
+    });
+
+    return doc.body.innerHTML;
+  }
+
+  /**
+   * Whether a URL is safe to keep in a link or resource attribute.
+   *
+   * Characters below U+0021 are stripped before testing the scheme
+   * because browsers ignore them when resolving one: "jav&#9;ascript:"
+   * decodes to a tab inside the scheme and still navigates.
+   */
+  _isSafeUrl(value) {
+    const normalized = this._toEscapableString(value)
+      // Matching control characters is precisely the point here:
+      // browsers ignore them when resolving a scheme, so "jav\tascript:"
+      // still navigates. Stripping them is what makes the scheme test
+      // below meaningful.
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u0020]+/g, '')
+      .toLowerCase();
+
+    if (/^(javascript|vbscript|livescript|mocha):/.test(normalized)) {
+      return false;
+    }
+
+    if (normalized.startsWith('data:')) {
+      // data: can carry executable content - image/svg+xml in
+      // particular can contain script - so allow only raster images.
+      return /^data:image\/(png|jpe?g|gif|webp|bmp|x-icon);/.test(normalized);
+    }
+
+    return true;
+  }
+
+  /**
    * Escape a value that will sit inside a JS string literal which is
    * itself inside an HTML attribute - i.e. the Alpine case:
    *
@@ -519,6 +611,24 @@ class BaseElement extends HTMLElement {
  * script by the widest range of tooling. Overridable by tests, and by
  * applications with unusually slow-loading Alpine bundles.
  */
+/**
+ * Elements removed outright by the fallback sanitizer: they execute
+ * script, load external documents, or can restyle/redirect the page.
+ */
+BaseElement.FORBIDDEN_ELEMENTS = new Set([
+  'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed',
+  'applet', 'base', 'link', 'meta', 'noscript', 'template'
+]);
+
+/**
+ * Attributes whose value is a URL, and therefore a possible script
+ * vector via the javascript: (and friends) schemes.
+ */
+BaseElement.URL_ATTRIBUTES = new Set([
+  'href', 'src', 'srcset', 'action', 'formaction', 'poster',
+  'background', 'data', 'ping', 'xlink:href'
+]);
+
 // How long to wait for Alpine before rendering without it.
 BaseElement.ALPINE_WAIT_TIMEOUT = 10000;
 // How long after connection to check for children parsed before upgrade.

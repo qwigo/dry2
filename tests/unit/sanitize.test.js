@@ -106,12 +106,24 @@ describe('BaseElement._sanitizeHtml', () => {
     it('does not reconstruct a javascript: URL from split input', () => {
       // The regex sanitizer deleted the inner "javascript:" and joined
       // "java" + "script:" back into a live scheme.
+      //
+      // The property that matters is the scheme the browser resolves,
+      // not whether the substring appears: "javajavascript:script:..."
+      // is an unknown scheme and therefore inert, so leaving it exactly
+      // as-is is a correct outcome. Rewriting it into "javascript:" is
+      // not.
       const out = el._sanitizeHtml('<a href="javajavascript:script:alert(1)">x</a>');
       const host = document.createElement('div');
       host.innerHTML = out;
-      const href = host.querySelector('a')?.getAttribute('href') || '';
-      expect(href.replace(/\s+/g, '').toLowerCase(), `produced: ${out}`)
-        .to.not.include('javascript:');
+      const href = (host.querySelector('a')?.getAttribute('href') || '')
+        // Control characters are deliberate here: browsers ignore them
+        // when resolving a URL scheme, so they must be stripped before
+        // the scheme is tested.
+        // eslint-disable-next-line no-control-regex
+        .replace(/[\u0000-\u0020]+/g, '')
+        .toLowerCase();
+
+      expect(href, `produced: ${out}`).to.not.match(/^javascript:/);
     });
 
     it('catches schemes obfuscated with control characters and whitespace', () => {
@@ -226,11 +238,18 @@ describe('dry-accordion content sanitization', () => {
       '</accordion-item>'
     );
 
-    const href = el.querySelector('a')?.getAttribute('href') || '';
+    // Asserted on the resolved scheme rather than substring presence:
+    // "javajavascript:script:..." is an unknown scheme and inert, so
+    // leaving it untouched is correct. Rewriting it into a real
+    // javascript: URL - which the regex sanitizer did - is not.
+    const href = (el.querySelector('a')?.getAttribute('href') || '')
+      .replace(/[ - ]+/g, '')
+      .toLowerCase();
+
     expect(
-      href.toLowerCase(),
+      href,
       'deleting the inner "javascript:" joins the remainder back into a live scheme'
-    ).to.not.include('javascript:');
+    ).to.not.match(/^javascript:/);
   });
 
   it('catches a scheme obfuscated with an encoded tab in item content', async function () {
@@ -241,12 +260,14 @@ describe('dry-accordion content sanitization', () => {
       '</accordion-item>'
     );
 
-    const href = el.querySelector('a')?.getAttribute('href') || '';
-    // Browsers ignore the tab when resolving the scheme, so this runs.
+    // Browsers ignore the tab when resolving the scheme, so the raw
+    // value navigates even though a literal /javascript:/ regex misses
+    // it. The attribute should be dropped outright.
+    const href = el.querySelector('a')?.getAttribute('href');
     expect(
-      href.replace(/[\u0000-\u0020]+/g, '').toLowerCase(),
+      href,
       'tab-obfuscated javascript: survives a literal /javascript:/ regex'
-    ).to.not.include('javascript:');
+    ).to.equal(null);
   });
 
   it('strips event handlers from item content', async function () {

@@ -533,35 +533,32 @@ class DryAccordion extends BaseElement {
   }
 
   _sanitizeIcon(icon) {
-    // Sanitize icon HTML - only allow SVG elements with safe attributes
+    // Icons are restricted to SVG by design, so keep that check...
     if (typeof icon !== 'string' || !icon.trim()) return '';
-    
-    // Basic validation: must be an SVG element
+
     if (!icon.trim().toLowerCase().startsWith('<svg')) {
       console.warn('Icon must be an SVG element');
       return '';
     }
-    
-    // Remove dangerous attributes and scripts
-    return icon
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/data:/gi, '')
-      .trim();
+
+    // ...then sanitize it like any other markup. The previous inline
+    // regexes also stripped every literal "data:", which silently broke
+    // legitimate data:image icons.
+    return this._sanitizeHtml(icon).trim();
   }
 
   _sanitizeContent(content) {
-    // Basic content sanitization - in production, use a proper sanitizer like DOMPurify
-    if (typeof content !== 'string') return '';
-    
-    // Remove script tags and dangerous attributes
-    return content
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-      .replace(/javascript:/gi, '');
+    // Delegates to BaseElement._sanitizeHtml, which prefers DOMPurify
+    // and otherwise walks an inert parsed document.
+    //
+    // This replaces a chain of regexes over raw markup that was
+    // bypassable in both directions. It missed anything the patterns did
+    // not anticipate, and - worse - it built working payloads out of
+    // inert input, because deleting a substring joins what surrounds it:
+    // "javajavascript:script:alert(1)" became "javascript:alert(1)", and
+    // "<scr<script>ipt>" became "<script>". Removing text from markup
+    // cannot be made safe; sanitizing has to happen on parsed DOM.
+    return this._sanitizeHtml(content);
   }
 
   _validateItemId(itemId) {

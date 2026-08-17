@@ -29,6 +29,9 @@ global.customElements = dom.window.customElements;
 global.CustomEvent = dom.window.CustomEvent;
 global.Event = dom.window.Event;
 global.MutationObserver = dom.window.MutationObserver;
+// Components parse untrusted markup in an inert document via DOMParser
+// (accordion's content sanitizing and _parseFromOriginalContent).
+global.DOMParser = dom.window.DOMParser;
 global.requestAnimationFrame = dom.window.requestAnimationFrame;
 global.cancelAnimationFrame = dom.window.cancelAnimationFrame;
 global.Node = dom.window.Node;
