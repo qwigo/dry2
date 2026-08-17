@@ -4,9 +4,17 @@ Audit date: 2026-08-16. Scope: everything under `src/`, `scripts/`, `tests/`, pl
 Part 1 lists every bug and code-quality problem found, grouped by severity. Part 2 is an ordered
 red/green (failing-test-first) commit plan for fixing them.
 
-**Status (2026-08-16):** Phase 0 is complete — A1–A4 below are fixed, plus two related problems
-found while doing that work (A5, A6). See the commit log on this branch for the red/green pairs.
-Phases 1–4 are still open.
+**Status (2026-08-17):** Phase 0 is complete (A1–A6). The judgment-heavy items across Phases 1
+and 2 are also done: the shared escaping layer (1.1), DOM-based sanitizing (1.7), Alpine 3 data
+access (2.6), tabs post-init behavior (2.7), toast lifecycle (2.8) and the initialization race
+(2.13) — plus 2.4, which turned out to be inseparable from 2.6.
+
+Still open: the per-component escaping sweep (1.2–1.6), the remaining mechanical fixes in Phase 2,
+all of Phase 3, and Phase 4. `npm run test:unit` is at **334 passing / 19 failing**, up from a
+suite that could not boot at all; `npm run lint` exits 0. The 19 remaining failures are the
+mechanical per-component items still queued below.
+
+See the commit log on this branch for each red/green pair.
 
 ---
 
@@ -146,11 +154,23 @@ not fixed in Phase 0.
 
 ### Phase 1 — Security (systemic XSS)
 
-**Step 1.1 — Shared escaping utilities in BaseElement (B13, groundwork)**
-- 🔴 `test: specs for _escapeHtml, _escapeAttr, _escapeJsString on BaseElement`
-  (cases: `'`, `"`, `\`, newline, `<script>`, `O'Brien`)
-- 🟢 `feat(base): add centralized _escapeHtml/_escapeAttr/_escapeJsString; harden _createAlpineDataString`
-  (single implementation; delete the per-component private copies in badge/toast/timeline/toggle-switch/code as they migrate in later steps)
+**Step 1.1 — Shared escaping utilities in BaseElement (B13, groundwork)** — ✅ done
+- 🔴 `test: specify BaseElement's escaping contract for all three contexts`
+- 🟢 `feat(base): add centralized escaping utilities for all three contexts`
+
+Landed as `_escapeHtml` (text), `_escapeAttr` (attributes), `_escapeJs` (JS string literals) and
+`_escapeAlpineString` (a JS literal *nested inside* an HTML attribute — the common case here).
+Two findings worth carrying forward:
+
+- The nested case must escape JS **first**, then HTML, because the browser decodes in the opposite
+  order (parser resolves entities, then Alpine evaluates). Attribute-escaping alone parses fine and
+  looks right but leaves the JS layer injectable; a spec pins that distinction.
+- Specs prove round-trips end to end through jsdom parsing + `new Function` evaluation, not by
+  comparing escaped strings — that is what caught two real implementation bugs (a regex broken by
+  literal U+2028 characters, and CR being silently normalized away by the HTML parser).
+
+Per-component private copies in badge/toast/timeline/toggle-switch/code are still to be removed as
+those components migrate in 1.2–1.6.
 
 **Step 1.2 — Button (B1, also fixes apostrophe breakage)**
 - 🔴 `test(button): content with apostrophes/HTML renders inert; href/target/type are attribute-escaped`
@@ -173,9 +193,24 @@ one red/green pair per component, same shape:
 - 🔴 `test(<component>): hostile attribute values render inert`
 - 🟢 `fix(<component>): escape interpolated attributes`
 
-**Step 1.7 — Sanitized rich-content path (B11, B12)**
-- 🔴 `test(accordion,chat-bubble): payloads that bypass the regex sanitizer (unquoted onclick, data-* corruption) are neutralized; legitimate data-* attributes survive`
-- 🟢 `fix(sanitize): use DOMPurify when present (it is already an optionalDependency) with a conservative DOM-based fallback; delete the regex sanitizer`
+**Step 1.7 — Sanitized rich-content path (B11, B12)** — ✅ done
+- 🔴 `test: pin DOM-based sanitization, with two live accordion exploits`
+- 🟢 `fix(sanitize): replace the accordion's regex sanitizer with DOM-based sanitizing`
+- 🟢 `fix(chat-bubble): sanitize message content rendered via x-html`
+
+Two **live XSS** paths were confirmed against the rendered accordion before fixing, both worse than
+B12 recorded — the regex sanitizer did not merely miss payloads, it *built* them:
+
+- `<a href="javajavascript:script:alert(1)">` → deleting the inner `javascript:` joined the
+  remainder into a working `javascript:` URL. The input was inert; the sanitizer created the
+  vulnerability.
+- `<a href="jav&#9;ascript:alert(1)">` → decodes to a tab inside the scheme, which browsers ignore
+  when resolving it, so it navigates while `/javascript:/` does not match.
+
+Corrections to B12 as written: an unquoted `onerror=` does **not** reach the accordion (content is
+read via `item.innerHTML`, so the parser re-serializes it with quotes first), and the `data:` strip
+existed only in `_sanitizeIcon` — it never affected `data-*` attributes, which have no colon, but
+it did break legitimate `data:image` icons.
 
 ### Phase 2 — Functional bug fixes
 
@@ -191,25 +226,36 @@ one red/green pair per component, same shape:
 - 🔴 `test(toggle-switch): attribute change keeps hidden input + slot content; no on-label dead path; form reset listener not duplicated`
 - 🟢 `fix(toggle-switch): cache original content, re-create hidden input after re-render, remove dead on-label branches, tear down form listener`
 
-**Step 2.4 — Avatar re-render nesting (C4)**
-- 🔴 `test(avatar): N attribute changes leave exactly one .avatar-container; badge slot preserved`
-- 🟢 `fix(avatar): use _preserveSlotContent/_reRenderWithSlotContent in _handleAttributeChange`
+**Step 2.4 — Avatar re-render nesting (C4)** — ✅ done (as part of 2.6)
+
+Turned out to be inseparable from the Alpine fix: `setImage()` sets an attribute, which re-rendered
+and destroyed the very scope it then wrote to, so fixing the accessor alone left the API broken.
+Attribute changes now update the Alpine scope in place, and the no-Alpine fallback goes through
+`_reRenderWithSlotContent` — the correct helper avatar already defined but never called.
 
 **Step 2.5 — Button setText DOM wipe (C5)**
 - 🔴 `test(button): setText updates the label while keeping the rendered button element`
 - 🟢 `fix(button): update component data + re-render instead of assigning textContent`
 
-**Step 2.6 — Alpine v3 data access (C6, C23)**
-- 🔴 `test(base): _getAlpineData resolves via _x_dataStack (Alpine 3) across tabs/avatar/card/toggle-switch/badge public APIs`
-- 🟢 `fix: delete per-component __x overrides; all components use BaseElement._getAlpineData`
+**Step 2.6 — Alpine v3 data access (C6, C23)** — ✅ done
+- 🔴 `test: pin Alpine 3 data access across components`
+- 🟢 `fix: resolve Alpine data through one Alpine 3-aware accessor`
 
-**Step 2.7 — Tabs post-init API (C7)**
-- 🔴 `test(tabs): setting active-tab after init switches tabs; nextTab/previousTab work after render`
-- 🟢 `fix(tabs): cache extracted tab model; handle active-tab changes via Alpine data instead of re-running init`
+Specs install fake Alpine 3 and Alpine 2 runtimes and assert both the accessor and the component
+public APIs against each. Also fixed `_ensureAlpineProcessing`, whose `!element.__x` probe is always
+true on Alpine 3 — so it re-ran `initTree` against a live tree after every render.
 
-**Step 2.8 — Toast lifecycle (C8, C9)**
-- 🔴 `test(toast): attribute change while visible re-shows toast; Toast.success removes its host element after hide`
-- 🟢 `fix(toast): make hide() promise-based and re-show after completion; auto-remove convenience toasts`
+**Step 2.7 — Tabs post-init API (C7)** — ✅ done
+- 🔴 `test: pin dry-tabs behavior after the first render`
+- 🟢 `fix(tabs): make the component work after its first render`
+
+Also fixed the three pre-existing failures in `tests/unit/components/tabs.test.js` (that suite is
+now 45/45). Dynamically appended `<tab-item>`s are folded into the cached model rather than
+re-read from the DOM, since after a render the earlier items no longer exist.
+
+**Step 2.8 — Toast lifecycle (C8, C9)** — ✅ done
+- 🔴 `test: pin dry-toast show/hide lifecycle and host cleanup`
+- 🟢 `fix(toast): await the exit animation on re-show; stop leaking hosts`
 
 **Step 2.9 — Countdown expired slot (C10)**
 - 🔴 `test(countdown): slot="expired" content shows on expiry even after prior renders`
@@ -227,9 +273,14 @@ one red/green pair per component, same shape:
 - 🔴 `test(code): el.showCopy = false hides the copy button`
 - 🟢 `fix(code): setters write explicit "false" value matching the getters' contract`
 
-**Step 2.13 — Base init races & polling (C14, C15)**
-- 🔴 `test(base): children arriving via observer + fallback timer initialize exactly once; Alpine polling stops after timeout`
-- 🟢 `fix(base): guard _initializeComponent with an idempotency flag; cancel fallback timers when the observer fires; bound the Alpine wait with a deadline + warning`
+**Step 2.13 — Base init races & polling (C14, C15)** — ✅ done
+- 🔴 `test: pin BaseElement initialization lifecycle against double-init`
+- 🟢 `fix(base): make initialization single-shot and bound the Alpine wait`
+
+C15 was worse than recorded: the unbounded Alpine poll did not merely spin, it **gated
+`_initializeComponent` entirely**, so a page where Alpine fails to load (blocked CDN, offline, CSP)
+showed no components at all while every instance polled at 100Hz forever. It also kept the Node
+event loop alive — the spec file could not exit without mocha's `--exit` until this was fixed.
 
 **Step 2.14 — Listener/observer leaks (C16, C17)**
 - 🔴 `test(dialog,breadcrumbs): disconnectedCallback removes document/body listeners and observers; two dialogs on one page target their own dialog`
