@@ -4,6 +4,8 @@ class DryToast extends BaseElement {
     this._isVisible = false;
     this._timer = null;
     this._container = null;
+    this._hidePromise = null;
+    this._hideTimer = null;
   }
 
   static get observedAttributes() {
@@ -12,9 +14,16 @@ class DryToast extends BaseElement {
 
   disconnectedCallback() {
     this._clearTimer();
+    if (this._hideTimer) {
+      clearTimeout(this._hideTimer);
+      this._hideTimer = null;
+      this._hidePromise = null;
+    }
     if (this._container && this._container.parentNode) {
       this._container.parentNode.removeChild(this._container);
     }
+    this._container = null;
+    this._isVisible = false;
   }
 
   _initializeComponent() {
@@ -47,26 +56,52 @@ class DryToast extends BaseElement {
     this._dispatchToastEvent('toast:show');
   }
 
+  /**
+   * Hide the toast.
+   *
+   * Returns a promise that resolves once the exit animation has run and
+   * the container has actually been removed - i.e. once _isVisible is
+   * false and it is safe to show again. Callers that re-show (see
+   * _handleAttributeChange) must await this: _isVisible stays true for
+   * the duration of the animation, so a show() issued before then
+   * early-returns and is then torn down by this pending removal.
+   *
+   * Calling hide() while a hide is already in flight returns the same
+   * promise rather than starting a second teardown.
+   */
   hide() {
-    if (!this._isVisible || !this._container) return;
+    if (!this._isVisible || !this._container) return Promise.resolve();
+    if (this._hidePromise) return this._hidePromise;
 
     this._clearTimer();
-    this._container.classList.remove('show');
-    this._container.classList.add('hide');
 
-    // Remove after animation
-    setTimeout(() => {
-      if (this._container && this._container.parentNode) {
-        this._container.parentNode.removeChild(this._container);
-      }
-      this._container = null;
-      this._isVisible = false;
-      this._dispatchToastEvent('toast:hide');
-    }, 300);
+    // Captured so the timeout below acts on this container even if a
+    // later show() has already installed a new one.
+    const container = this._container;
+    container.classList.remove('show');
+    container.classList.add('hide');
+
+    this._hidePromise = new Promise(resolve => {
+      this._hideTimer = setTimeout(() => {
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+        if (this._container === container) {
+          this._container = null;
+        }
+        this._isVisible = false;
+        this._hidePromise = null;
+        this._hideTimer = null;
+        this._dispatchToastEvent('toast:hide');
+        resolve();
+      }, DryToast.HIDE_ANIMATION_MS);
+    });
+
+    return this._hidePromise;
   }
 
   _createToastContainer() {
-    if (this._container) {
+    if (this._container && this._container.parentNode) {
       this._container.parentNode.removeChild(this._container);
     }
 
@@ -217,11 +252,18 @@ class DryToast extends BaseElement {
     this._setNumericAttribute('duration', value);
   }
 
+  /**
+   * Re-render a visible toast by hiding and showing it again.
+   *
+   * The re-show waits on hide()'s promise rather than a fixed delay:
+   * _isVisible only clears when the exit animation finishes, so the
+   * previous fixed 100ms re-show ran while the flag was still true, hit
+   * show()'s early return, and was then torn down by the pending
+   * hide - leaving no toast at all.
+   */
   _handleAttributeChange(name, oldValue, newValue) {
     if (oldValue !== newValue && this._isVisible) {
-      // Re-render the toast if it's currently visible
-      this.hide();
-      setTimeout(() => this.show(), 100);
+      this.hide().then(() => this.show());
     }
   }
 }
@@ -283,6 +325,16 @@ class Toast {
 
     document.body.appendChild(toast);
 
+    // Remove the host element once the toast has finished hiding.
+    // Without this every convenience-API call leaves a permanent
+    // <dry-toast> behind, so a long-lived page accumulates one dead
+    // element per notification shown.
+    toast.addEventListener('toast:hide', () => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, { once: true });
+
     setTimeout(() => toast.show(), 10);
 
     return toast;
@@ -291,5 +343,9 @@ class Toast {
 
 // Make Toast available globally
 window.Toast = Toast;
+
+// Must match the CSS transition duration on .toast above, so hide()
+// resolves only after the exit animation has actually finished.
+DryToast.HIDE_ANIMATION_MS = 300;
 
 customElements.define('dry-toast', DryToast);
