@@ -103,10 +103,6 @@ class ToggleSwitch extends BaseElement {
         `;
   }
 
-  _getAlpineData() {
-    return this.querySelector('[x-data]')?.__x?.$data;
-  }
-
   _createHiddenInput() {
     // Remove existing hidden input if any
     if (this._hiddenInput && this._hiddenInput.parentNode) {

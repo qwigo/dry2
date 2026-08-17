@@ -327,8 +327,8 @@ class DryTabs extends BaseElement {
 
   // Simple public API methods
   switchTab(tabId) {
-    const alpineData = this.querySelector('[x-data]')?.__x?.$data;
-    if (alpineData) {
+    const alpineData = this._getAlpineData();
+    if (alpineData && typeof alpineData.switchTab === 'function') {
       alpineData.switchTab(tabId);
     }
   }

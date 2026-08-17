@@ -85,14 +85,27 @@ class BaseElement extends HTMLElement {
   }
 
   /**
+   * True when Alpine has already initialized the given element.
+   *
+   * Covers both runtimes: Alpine 3 marks initialized elements with
+   * _x_dataStack, Alpine 2 with __x. Using only the v2 marker (as this
+   * did previously) makes the check always report "not initialized" on
+   * Alpine 3, so initTree re-runs against an already-live tree on every
+   * render.
+   */
+  _isAlpineInitialized(element) {
+    return Boolean(element && (element._x_dataStack || element.__x));
+  }
+
+  /**
    * Force Alpine to process this component
    */
   _ensureAlpineProcessing() {
     if (window.Alpine && window.Alpine.initTree) {
       // Give Alpine a moment to process, then force init if needed
       setTimeout(() => {
-        const alpineData = this.querySelector('[x-data]');
-        if (alpineData && !alpineData.__x) {
+        const alpineRoot = this.querySelector('[x-data]');
+        if (alpineRoot && !this._isAlpineInitialized(alpineRoot)) {
           try {
             window.Alpine.initTree(this);
           } catch (e) {
@@ -119,16 +132,45 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Get Alpine.js data from the component
+   * Get the Alpine data scope for this component's rendered root.
+   *
+   * Returns null (never throws, never undefined) when the scope cannot
+   * be resolved - Alpine absent, component not rendered yet, or Alpine
+   * has not initialized the element. Callers guard on the result.
+   *
+   * Do NOT override this in a subclass to reach for `__x`: that is the
+   * Alpine *v2* API and this library's peer dependency is Alpine ^3,
+   * where it is always undefined.
    */
   _getAlpineData() {
     const alpineElement = this.querySelector('[x-data]');
-    if (alpineElement && window.Alpine) {
-      // Try multiple ways to access Alpine.js data
-      return alpineElement._x_dataStack?.[0] || 
-             alpineElement.__x?.$data || 
-             window.Alpine.$data(alpineElement);
+    if (!alpineElement || !window.Alpine) return null;
+
+    // Alpine 3 internals. Checked before the public accessor because it
+    // is exact - it reads the scope belonging to *this* element, whereas
+    // $data() walks up to the nearest scope and could return an
+    // ancestor's if this element is not initialized yet.
+    const stackScope = alpineElement._x_dataStack?.[0];
+    if (stackScope !== undefined && stackScope !== null) return stackScope;
+
+    // Alpine 2 legacy. Harmless to keep - it is simply absent on v3 -
+    // and lets the library degrade rather than break if a consumer is
+    // still on the older runtime.
+    const legacyScope = alpineElement.__x?.$data;
+    if (legacyScope !== undefined && legacyScope !== null) return legacyScope;
+
+    // Official Alpine 3 accessor, last because it throws for an element
+    // that has no scope rather than returning undefined.
+    if (typeof window.Alpine.$data === 'function') {
+      try {
+        const scope = window.Alpine.$data(alpineElement);
+        if (scope !== undefined && scope !== null) return scope;
+      } catch (error) {
+        // Element not initialized by Alpine yet - not an error condition
+        // for callers, who treat a null scope as "not ready".
+      }
     }
+
     return null;
   }
 

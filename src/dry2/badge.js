@@ -5,7 +5,6 @@ class DryBadge extends BaseElement {
 
   constructor() {
     super();
-    this._alpineDataRef = null;
     this._isRendering = false;
     this._validVariants = new Set(['primary', 'success', 'danger', 'warning', 'info']);
     this._validSizes = new Set(['sm', 'md', 'lg']);
@@ -19,9 +18,6 @@ class DryBadge extends BaseElement {
       
       // Create the component structure with Alpine.js
       this._render(originalContent);
-      
-      // Cache Alpine.js data reference
-      this._cacheAlpineData();
     } catch (error) {
       console.error('DryBadge initialization failed:', error);
       this._renderFallback();
@@ -205,9 +201,6 @@ class DryBadge extends BaseElement {
       // Clear and append new content
       this.innerHTML = '';
       this.appendChild(template.content.cloneNode(true));
-      
-      // Re-cache Alpine data reference
-      this._cacheAlpineData();
     } catch (error) {
       console.error('DryBadge render failed:', error);
       this._renderFallback();
@@ -244,23 +237,18 @@ class DryBadge extends BaseElement {
     `;
   }
 
-  _cacheAlpineData() {
-    // Safely cache Alpine.js data reference with retry logic
-    setTimeout(() => {
-      try {
-        const element = this.querySelector('[x-data]');
-        this._alpineDataRef = element?.__x?.$data || null;
-      } catch (error) {
-        console.warn('Failed to cache Alpine.js data:', error);
-        this._alpineDataRef = null;
-      }
-    }, 0);
-  }
-
   _updateAlpineProperty(property, value) {
-    if (this._alpineDataRef && this._alpineDataRef[property] !== undefined) {
+    // Resolved live rather than cached. The previous implementation
+    // cached the scope on a setTimeout via the Alpine *v2* __x API, so
+    // against this library's Alpine ^3 peer dependency the reference was
+    // permanently null and every "optimized" attribute path below fell
+    // through to a full re-render. Caching was also unsafe on its own
+    // terms: _render() replaces innerHTML, which detaches the element the
+    // cached scope belonged to.
+    const alpineData = this._getAlpineData();
+    if (alpineData && alpineData[property] !== undefined) {
       try {
-        this._alpineDataRef[property] = value;
+        alpineData[property] = value;
         return true;
       } catch (error) {
         console.warn(`Failed to update Alpine.js property ${property}:`, error);

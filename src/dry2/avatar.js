@@ -174,10 +174,6 @@ class DryAvatar extends BaseElement {
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
   }
 
-  _getAlpineData() {
-    return this.querySelector('[x-data]')?.__x?.$data;
-  }
-
   // Public API methods
   setImage(src, alt) {
     this.src = src;
@@ -282,28 +278,43 @@ class DryAvatar extends BaseElement {
     this._setAttribute('alt', value);
   }
 
+  /**
+   * Every observed attribute maps to a same-named property on the Alpine
+   * scope, and the whole template is driven by those properties, so an
+   * in-place scope update fully refreshes the view. That is preferred
+   * over re-rendering because replacing innerHTML tears down the scope
+   * (breaking setImage/setName/... which write to it immediately after
+   * setting an attribute) and discards any slot content.
+   *
+   * Without Alpine there is no scope to update, so fall back to a full
+   * re-render - via _reRenderWithSlotContent, which carries the slot
+   * content across. The previous code called
+   * _render(this._extractSlotContent()) here, but _extractSlotContent
+   * returns the element's *current* innerHTML, i.e. the already-rendered
+   * avatar, so each attribute change nested the whole component inside
+   * its own slot container.
+   */
   _handleAttributeChange(name, oldValue, newValue) {
-    if (oldValue !== newValue && this._isInitialized) {
-      if (name === 'src') {
-        this.src = newValue;
-        this._render(this._extractSlotContent());
-      } else if (name === 'name') {
-        this.name = newValue;
-        this._render(this._extractSlotContent());
-      } else if (name === 'initials') {
-        this.initials = newValue;
-        this._render(this._extractSlotContent());
-      } else if (name === 'size') {
-        this.size = newValue;
-        this._render(this._extractSlotContent());
-      } else if (name === 'shape') {
-        this.shape = newValue;
-        this._render(this._extractSlotContent());
-      } else if (name === 'alt') {
-        this.alt = newValue;
-        this._render(this._extractSlotContent());
+    if (oldValue === newValue || !this._isInitialized) return;
+    if (!DryAvatar.observedAttributes.includes(name)) return;
+
+    const alpineData = this._getAlpineData();
+    if (alpineData) {
+      alpineData[name] = newValue || '';
+
+      // Initials are derived from the name unless set explicitly.
+      if (name === 'name' && !this.hasAttribute('initials')) {
+        alpineData.initials = this._generateInitials(newValue || '');
       }
+      // A new image gets a fresh chance to load.
+      if (name === 'src') {
+        alpineData.imageError = false;
+        alpineData.imageLoaded = false;
+      }
+      return;
     }
+
+    this._reRenderWithSlotContent();
   }
 
   _preserveSlotContent() {

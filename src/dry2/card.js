@@ -234,10 +234,6 @@ class DryCard extends BaseElement {
         `;
   }
 
-  _getAlpineData() {
-    return this.querySelector('[x-data]')?.__x?.$data;
-  }
-
   // Public API methods
   setInteractive(interactive) {
     this.interactive = interactive;

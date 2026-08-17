@@ -11,7 +11,6 @@ class DryAccordion extends BaseElement {
     super();
     this._accordionState = null;
     this._accordionEl = null;
-    this._alpineDataCache = null;
     this._itemsCache = null;
     this._errorReported = false;
     this._childObserver = null;
@@ -413,34 +412,19 @@ class DryAccordion extends BaseElement {
    */
   _initializeAlpineJS() {
     this._ensureAlpineProcessing();
-
-    // Cache Alpine data after initialization
-    setTimeout(() => {
-      this._alpineDataCache = this._getAlpineDataSecurely();
-    }, 100);
   }
 
   /**
-   * Get Alpine.js data with caching and error handling
+   * Get the accordion's Alpine data scope.
+   *
+   * Resolved live on each call rather than cached: _buildAccordionDOM
+   * replaces this element's contents, which detaches the element any
+   * cached scope belonged to, so a cache silently goes stale on every
+   * rebuild. Delegates to BaseElement._getAlpineData, which handles both
+   * Alpine runtimes and returns null rather than throwing.
    */
   _getAlpineDataSecurely() {
-    if (this._alpineDataCache) {
-      return this._alpineDataCache;
-    }
-
-    if (!this._accordionEl || !window.Alpine) {
-      return null;
-    }
-
-    try {
-      // Use official Alpine.js API instead of private properties
-      const data = window.Alpine.$data(this._accordionEl);
-      this._alpineDataCache = data;
-      return data;
-    } catch (error) {
-      console.warn('Failed to access Alpine.js data:', error);
-      return null;
-    }
+    return this._getAlpineData();
   }
 
   /**
@@ -610,7 +594,6 @@ class DryAccordion extends BaseElement {
     
     this._accordionState = null;
     this._accordionEl = null;
-    this._alpineDataCache = null;
     this._itemsCache = null;
   }
 }
