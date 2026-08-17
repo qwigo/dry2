@@ -18,70 +18,112 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Wait for Alpine.js to be ready, then initialize the component
+   * Wait for Alpine.js to be ready, then initialize the component.
+   *
+   * The wait is bounded by ALPINE_WAIT_TIMEOUT. If Alpine never arrives
+   * (blocked CDN, offline, CSP) the wait resolves anyway and the
+   * component initializes without it - degraded, but rendered. The
+   * previous unbounded poll gated _initializeComponent forever, so such
+   * a page showed no components at all while every instance polled at
+   * 100Hz indefinitely.
    */
   _waitForAlpineAndInitialize() {
     // Check if Alpine.js is loaded
     if (window.Alpine && window.Alpine.version) {
       // Alpine is loaded, initialize immediately
       this._initializeComponent();
-    } else {
-      // Alpine not loaded yet, wait for it
-      if (!window.alpineLoadPromise) {
-        window.alpineLoadPromise = new Promise(resolve => {
+      return;
+    }
+
+    // Alpine not loaded yet, wait for it. The promise is shared by every
+    // component on the page, so they all wait on one poll rather than
+    // starting one each.
+    if (!window.alpineLoadPromise) {
+      const timeout = BaseElement.ALPINE_WAIT_TIMEOUT;
+      const deadline = Date.now() + timeout;
+
+      window.alpineLoadPromise = new Promise(resolve => {
+        const checkAlpine = () => {
           if (window.Alpine && window.Alpine.version) {
             resolve();
+          } else if (Date.now() >= deadline) {
+            console.warn(
+              `DRY2: Alpine.js did not load within ${timeout}ms. Components will ` +
+              'render without Alpine bindings; interactive behavior will be unavailable.'
+            );
+            // Resolve rather than reject: every waiting component should
+            // still render its markup.
+            resolve();
           } else {
-            const checkAlpine = () => {
-              if (window.Alpine && window.Alpine.version) {
-                resolve();
-              } else {
-                setTimeout(checkAlpine, 10);
-              }
-            };
-            checkAlpine();
+            setTimeout(checkAlpine, 10);
           }
-        });
-      }
-      
-      window.alpineLoadPromise.then(() => {
-        this._initializeComponent();
+        };
+        checkAlpine();
       });
     }
+
+    window.alpineLoadPromise.then(() => {
+      this._initializeComponent();
+    });
   }
 
   /**
-   * Wait for children to be added using MutationObserver
-   * Useful for components that need to process child elements
+   * Wait for children to be added, then initialize.
+   *
+   * Three triggers race here: a MutationObserver (children appended by
+   * script after upgrade), a short poll (children already parsed before
+   * upgrade, so no mutation is ever observed), and a longer fallback
+   * (component legitimately has no children). Whichever fires first
+   * wins and cancels the other two.
+   *
+   * That mutual exclusion is the point. Previously each trigger called
+   * _initializeComponent independently, and disconnecting the observer
+   * did not cancel the pending timers - so a component whose children
+   * arrived before the poll initialized twice, the second pass
+   * capturing its own rendered output as _originalContent.
    */
   _waitForChildrenAndInitialize() {
-    const observer = new MutationObserver((mutations) => {
-      // Check if children were added
-      const hasChildren = mutations.some(mutation => mutation.addedNodes.length > 0);
-      if (hasChildren && this.children.length > 0) {
+    if (this._childWaitStarted) return;
+    this._childWaitStarted = true;
+
+    let settled = false;
+    let observer = null;
+    let pollTimer = null;
+    let fallbackTimer = null;
+
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+
+      if (observer) {
         observer.disconnect();
-        this._originalContent = this.innerHTML;
-        this._waitForAlpineAndInitialize();
+        observer = null;
+      }
+      clearTimeout(pollTimer);
+      clearTimeout(fallbackTimer);
+
+      // Captured before _initializeComponent replaces the markup.
+      this._originalContent = this.innerHTML;
+      this._waitForAlpineAndInitialize();
+    };
+
+    observer = new MutationObserver((mutations) => {
+      const hasAddedNodes = mutations.some(mutation => mutation.addedNodes.length > 0);
+      if (hasAddedNodes && this.children.length > 0) {
+        settle();
       }
     });
-
     observer.observe(this, { childList: true, subtree: true });
 
-    // Fallback: if children are already present, initialize immediately
-    setTimeout(() => {
+    pollTimer = setTimeout(() => {
       if (this.children.length > 0) {
-        observer.disconnect();
-        this._originalContent = this.innerHTML;
-        this._waitForAlpineAndInitialize();
+        settle();
       } else {
-        // No children found, try again with longer delay
-        setTimeout(() => {
-          observer.disconnect();
-          this._originalContent = this.innerHTML;
-          this._waitForAlpineAndInitialize();
-        }, 500);
+        // Still empty: allow a grace period for slower producers, then
+        // initialize empty rather than waiting forever.
+        fallbackTimer = setTimeout(settle, BaseElement.CHILD_GRACE_PERIOD);
       }
-    }, 100);
+    }, BaseElement.CHILD_POLL_DELAY);
   }
 
   /**
@@ -471,8 +513,21 @@ class BaseElement extends HTMLElement {
   }
 }
 
+/**
+ * Initialization timing knobs. Assigned after the class body (rather
+ * than as static fields) to keep this file parseable as a plain classic
+ * script by the widest range of tooling. Overridable by tests, and by
+ * applications with unusually slow-loading Alpine bundles.
+ */
+// How long to wait for Alpine before rendering without it.
+BaseElement.ALPINE_WAIT_TIMEOUT = 10000;
+// How long after connection to check for children parsed before upgrade.
+BaseElement.CHILD_POLL_DELAY = 100;
+// Extra grace period for children that have still not appeared by then.
+BaseElement.CHILD_GRACE_PERIOD = 500;
+
 // Make BaseElement globally available
-window.BaseElement = BaseElement; 
+window.BaseElement = BaseElement;
 
 /**
  * Alpine.js Utilities for DRY2 Components
