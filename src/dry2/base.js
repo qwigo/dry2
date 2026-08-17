@@ -161,23 +161,114 @@ class BaseElement extends HTMLElement {
   }
 
   /**
-   * Utility method to create Alpine.js data object string
+   * Coerce any value to a string for escaping. null/undefined become ''
+   * so callers can pass raw getAttribute() results without null checks.
+   */
+  _toEscapableString(value) {
+    if (value === null || value === undefined) return '';
+    return typeof value === 'string' ? value : String(value);
+  }
+
+  /**
+   * Escape a value for use as HTML TEXT content: <span>${v}</span>
+   *
+   * Carriage returns are emitted as &#13; rather than left raw: the HTML
+   * parser normalizes raw CR and CRLF to LF while tokenizing, so a raw CR
+   * would silently not survive the round-trip. Character references are
+   * decoded after that normalization, so the entity form preserves it
+   * exactly. (&amp; is substituted first, so the &#13; introduced here is
+   * never double-escaped.)
+   */
+  _escapeHtml(value) {
+    return this._toEscapableString(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/\r/g, '&#13;');
+  }
+
+  /**
+   * Escape a value for use as an HTML ATTRIBUTE value: <a href="${v}">
+   *
+   * Escapes both quote styles so the result is safe in single- and
+   * double-quoted attributes alike.
+   */
+  _escapeAttr(value) {
+    return this._escapeHtml(value);
+  }
+
+  /**
+   * Escape a value for use inside a JAVASCRIPT STRING LITERAL:
+   *   `'${v}'`  or  `"${v}"`
+   *
+   * Handles both quote styles plus backslashes, line terminators (a raw
+   * newline inside a string literal is a syntax error), and '<' (encoded
+   * as \x3C so the literal can never close an enclosing </script> block).
+   * U+2028/U+2029 are escaped for older engines that treat them as line
+   * terminators.
+   *
+   * NOTE: this escapes the JS layer ONLY. If the literal will sit inside
+   * an HTML attribute - which is the usual case in this library - use
+   * _escapeAlpineString instead, which layers both.
+   */
+  _escapeJs(value) {
+    return this._toEscapableString(value)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"')
+      .replace(/`/g, '\\`')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/</g, '\\x3C')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029');
+  }
+
+  /**
+   * Escape a value that will sit inside a JS string literal which is
+   * itself inside an HTML attribute - i.e. the Alpine case:
+   *
+   *   x-data="{ name: '${this._escapeAlpineString(name)}' }"
+   *
+   * ORDER MATTERS. At runtime the HTML parser decodes entities in the
+   * attribute value first, and only then does Alpine evaluate the result
+   * as JavaScript. Escaping therefore runs in the reverse order: the JS
+   * layer first, then the HTML layer on top of it.
+   *
+   * Applying only _escapeAttr here would look correct - the markup parses
+   * fine - but the parser hands the decoded apostrophe straight to the
+   * expression evaluator, leaving the JS layer fully injectable.
+   */
+  _escapeAlpineString(value) {
+    return this._escapeAttr(this._escapeJs(value));
+  }
+
+  /**
+   * Build an Alpine x-data object literal from a plain object.
+   *
+   * Strings are serialized with JSON.stringify, which produces a
+   * correctly escaped double-quoted JS literal. Functions are emitted
+   * as source (callers control those, they are never user input).
+   *
+   * The returned string still needs _escapeAttr applied by the caller
+   * before it is interpolated into an x-data attribute.
    */
   _createAlpineDataString(dataObject) {
     const entries = Object.entries(dataObject).map(([key, value]) => {
-      if (typeof value === 'string') {
-        return `${key}: '${value.replace(/'/g, "\\'")}'`;
-      } else if (typeof value === 'boolean') {
-        return `${key}: ${value}`;
-      } else if (typeof value === 'number') {
-        return `${key}: ${value}`;
-      } else if (typeof value === 'function') {
+      if (typeof value === 'function') {
         return `${key}: ${value.toString()}`;
+      } else if (typeof value === 'boolean' || typeof value === 'number') {
+        return `${key}: ${value}`;
       } else {
+        // Covers strings, arrays, plain objects and null. JSON.stringify
+        // escapes quotes, backslashes and control characters correctly.
         return `${key}: ${JSON.stringify(value)}`;
       }
     }).join(',\n        ');
-    
+
     return `{
         ${entries}
       }`;
