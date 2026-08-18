@@ -122,6 +122,21 @@ describe('dry-tabs after first render', () => {
       expect(el.innerHTML).to.include('flex-shrink-0');
       expect(el._extractTabItems()).to.have.lengthOf(3);
     });
+
+    it('disables every tab button when the component is disabled', async () => {
+      const el = await mountTabs(
+        '<tab-item id="a" title="A">1</tab-item><tab-item id="b" title="B">2</tab-item>'
+      );
+      const enabledBefore = el.querySelectorAll('button[role="tab"]:not([disabled])');
+      expect(enabledBefore.length, 'both tabs start enabled').to.equal(2);
+
+      el.setAttribute('disabled', '');
+
+      // The re-render must actually take effect - not produce identical
+      // markup while every button stays clickable.
+      const stillEnabled = el.querySelectorAll('button[role="tab"]:not([disabled])');
+      expect(stillEnabled.length, 'no tab button should remain enabled').to.equal(0);
+    });
   });
 
   describe('nextTab / previousTab after render', () => {

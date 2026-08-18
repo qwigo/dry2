@@ -50,6 +50,10 @@ class DryTabs extends BaseElement {
     // Get the orientation
     const orientation = this.orientation || 'horizontal';
 
+    // Whole-component disabled state: disables every tab button, on top
+    // of any per-tab disabled flag.
+    const groupDisabled = this.disabled;
+
     // Create clean tabs with variant-specific styling
     this.innerHTML = `
             <div class="tabs w-full ${orientation === 'vertical' ? 'flex' : ''}" 
@@ -91,7 +95,7 @@ class DryTabs extends BaseElement {
                                     :aria-selected="isActive('${tab.id}')"
                                     aria-controls="${tab.id}-panel"
                                     role="tab"
-                                    ${tab.disabled ? 'disabled' : ''}>
+                                    ${(tab.disabled || groupDisabled) ? 'disabled' : ''}>
                                 ${tab.icon ? `<span class="mr-2">${tab.icon}</span>` : ''}
                                 <span>${tab.title}</span>
                                 ${tab.badge ? `<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${tab.badge}</span>` : ''}
