@@ -174,6 +174,31 @@ describe('dry-tabs after first render', () => {
       expect(el.innerHTML).to.include('Delta');
     });
 
+    it('assigns sequential fallback ids to a batch of id-less tab-items', async function () {
+      this.timeout(5000);
+      // Two tabs so appended ids continue from index 2. Both appended in
+      // the same tick land in one observer batch, which is where the
+      // fold-in indexing must not double-count.
+      const el = await mountTabs(
+        '<tab-item id="a" title="A">1</tab-item><tab-item id="b" title="B">2</tab-item>'
+      );
+
+      const first = document.createElement('tab-item');
+      first.setAttribute('title', 'Third');
+      first.textContent = '3';
+      const second = document.createElement('tab-item');
+      second.setAttribute('title', 'Fourth');
+      second.textContent = '4';
+      el.appendChild(first);
+      el.appendChild(second);
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const ids = el._extractTabItems().map((t) => t.id);
+      // Contiguous, no skipped slot: 'tab-2' then 'tab-3'.
+      expect(ids).to.deep.equal(['a', 'b', 'tab-2', 'tab-3']);
+    });
+
     it('renders nothing until it actually has a tab', async () => {
       const el = document.createElement('dry-tabs');
       document.body.appendChild(el);

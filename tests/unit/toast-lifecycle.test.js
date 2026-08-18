@@ -50,6 +50,40 @@ describe('dry-toast lifecycle', () => {
       expect(toast._isVisible, 'should no longer report visible').to.be.false;
     });
 
+    it('resolves rather than hanging when the element is removed mid-animation', async function () {
+      this.timeout(5000);
+      const toast = document.createElement('dry-toast');
+      toast.setAttribute('message', 'hello');
+      toast.setAttribute('duration', '0');
+      document.body.appendChild(toast);
+      await waitForComponent(toast).catch(() => {});
+
+      toast.show();
+      const hidden = toast.hide();
+      // Tear down before the exit animation completes.
+      toast.remove();
+
+      // Must settle, not hang forever waiting on a cleared timer.
+      await Promise.race([
+        hidden,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('hide() hung after removal')), 1500))
+      ]);
+    });
+
+    it('does not throw if the element is removed within the show animation window', async function () {
+      this.timeout(5000);
+      const toast = document.createElement('dry-toast');
+      toast.setAttribute('message', 'hello');
+      toast.setAttribute('duration', '0');
+      document.body.appendChild(toast);
+      await waitForComponent(toast).catch(() => {});
+
+      toast.show();      // schedules a 10ms class-add against the container
+      toast.remove();    // nulls _container synchronously
+      // If show()'s timer dereferenced this._container it would throw here.
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+
     it('is safe to call when not visible', async () => {
       const toast = document.createElement('dry-toast');
       document.body.appendChild(toast);
@@ -125,6 +159,28 @@ describe('dry-toast lifecycle', () => {
 
       expect(hosts(), 'every auto-hidden toast should clean up after itself')
         .to.have.lengthOf(0);
+    });
+
+    it('stays attached and visible when an attribute changes mid-life', async function () {
+      this.timeout(5000);
+      // duration 0 keeps it up until hidden explicitly, so the only
+      // lifecycle event in play is the attribute-driven refresh.
+      const toast = window.Toast.info('first', { duration: 0 });
+      await wait(30);
+      expect(hosts(), 'host present while showing').to.have.lengthOf(1);
+
+      toast.setAttribute('message', 'second');
+      await wait(400);
+
+      // The refresh must not have fired a terminal toast:hide, which
+      // would have tripped the cleanup listener and detached the host.
+      expect(hosts(), 'host must survive an attribute-change refresh').to.have.lengthOf(1);
+      expect(containers(), 'exactly one container after refresh').to.have.lengthOf(1);
+      expect(document.body.textContent).to.include('second');
+
+      toast.hide();
+      await wait(400);
+      expect(hosts(), 'explicit hide still cleans up the host').to.have.lengthOf(0);
     });
   });
 });

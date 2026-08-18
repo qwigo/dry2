@@ -44,6 +44,7 @@ describe('BaseElement escaping utilities', () => {
     '&quot;&gt;&lt;img src=x onerror=alert(1)&gt;',
     'javascript:alert(1)',
     '\u2028\u2029 line separators',
+    '${alert(1)}',
     'plain safe text',
     ''
   ];
@@ -128,6 +129,19 @@ describe('BaseElement escaping utilities', () => {
 
     it('escapes < so the literal cannot close an enclosing script block', () => {
       expect(el._escapeJs('</script>')).to.not.include('<');
+    });
+
+    it('neutralizes template-literal interpolation in a backtick context', () => {
+      // Backticks are escaped, which implies the value is safe inside a
+      // `...` literal - so ${...} must not be able to interpolate there.
+      const payload = '${globalThis.__pwned = 1}';
+      const escaped = el._escapeJs(payload);
+
+      globalThis.__pwned = undefined;
+      const evaluated = new Function(`return \`${escaped}\``)();
+      expect(globalThis.__pwned, 'interpolation must not have executed').to.equal(undefined);
+      expect(evaluated, 'the payload should survive as literal text').to.equal(payload);
+      delete globalThis.__pwned;
     });
   });
 

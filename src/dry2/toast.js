@@ -6,6 +6,7 @@ class DryToast extends BaseElement {
     this._container = null;
     this._hidePromise = null;
     this._hideTimer = null;
+    this._hideResolve = null;
   }
 
   static get observedAttributes() {
@@ -17,13 +18,21 @@ class DryToast extends BaseElement {
     if (this._hideTimer) {
       clearTimeout(this._hideTimer);
       this._hideTimer = null;
-      this._hidePromise = null;
     }
     if (this._container && this._container.parentNode) {
       this._container.parentNode.removeChild(this._container);
     }
     this._container = null;
     this._isVisible = false;
+    // Resolve a hide() that was awaiting the exit animation when we were
+    // torn down, so `await toast.hide(); toast.remove()` (or the reverse)
+    // can never hang. The resolver is captured in hide() below.
+    if (this._hideResolve) {
+      const resolve = this._hideResolve;
+      this._hideResolve = null;
+      this._hidePromise = null;
+      resolve();
+    }
   }
 
   _initializeComponent() {
@@ -42,9 +51,13 @@ class DryToast extends BaseElement {
     this._createToastContainer();
     this._isVisible = true;
 
-    // Trigger show animation
+    // Trigger show animation. Capture the container in the closure: if
+    // the element is disconnected within these 10ms, disconnectedCallback
+    // nulls this._container, and reading this._container.classList here
+    // would throw.
+    const container = this._container;
     setTimeout(() => {
-      this._container.classList.add('show');
+      if (container) container.classList.add('show');
     }, 10);
 
     // Set auto-hide timer
@@ -82,6 +95,9 @@ class DryToast extends BaseElement {
     container.classList.add('hide');
 
     this._hidePromise = new Promise(resolve => {
+      // Captured so disconnectedCallback can resolve this promise if the
+      // element is removed before the animation completes.
+      this._hideResolve = resolve;
       this._hideTimer = setTimeout(() => {
         if (container.parentNode) {
           container.parentNode.removeChild(container);
@@ -92,12 +108,40 @@ class DryToast extends BaseElement {
         this._isVisible = false;
         this._hidePromise = null;
         this._hideTimer = null;
+        this._hideResolve = null;
         this._dispatchToastEvent('toast:hide');
         resolve();
       }, DryToast.HIDE_ANIMATION_MS);
     });
 
     return this._hidePromise;
+  }
+
+  /**
+   * Rebuild the currently-visible toast in place from current
+   * attributes, without running the hide/show lifecycle.
+   *
+   * Used when an attribute changes while the toast is on screen. Going
+   * through hide().then(show) instead would (a) dispatch a terminal
+   * toast:hide, which trips the convenience-API cleanup listener in
+   * Toast._create and detaches the host mid-life, and (b) reintroduce
+   * the show-during-hide race the promise-based hide exists to avoid.
+   */
+  _refresh() {
+    if (!this._isVisible) return;
+
+    this._clearTimer();
+    this._createToastContainer();
+
+    const container = this._container;
+    setTimeout(() => {
+      if (container) container.classList.add('show');
+    }, 10);
+
+    const duration = this.duration;
+    if (duration > 0) {
+      this._timer = setTimeout(() => this.hide(), duration);
+    }
   }
 
   _createToastContainer() {
@@ -263,7 +307,7 @@ class DryToast extends BaseElement {
    */
   _handleAttributeChange(name, oldValue, newValue) {
     if (oldValue !== newValue && this._isVisible) {
-      this.hide().then(() => this.show());
+      this._refresh();
     }
   }
 }

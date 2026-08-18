@@ -76,18 +76,21 @@ describe('Alpine data access', () => {
       expect(el._getAlpineData()).to.equal(scope);
     });
 
-    it('resolves the scope under Alpine 3 (via the official $data accessor)', () => {
-      // Same runtime, but the scope is reachable only through $data() -
-      // no _x_dataStack on the element itself, as when Alpine stores the
-      // stack on an ancestor.
+    it('does not return an ancestor scope for an element with no own scope', () => {
+      // The element's [x-data] root has not been initialized yet (no
+      // _x_dataStack), so it has no scope of its own. Alpine.$data walks
+      // up and would hand back the nearest ancestor scope; resolving to
+      // that here would let a caller's write mutate an unrelated
+      // component. _getAlpineData must return null instead.
       const alpine = installAlpine3();
       const el = makeBaseElementInstance();
       el.innerHTML = '<div x-data="{}"></div>';
-      const scope = { checked: true };
-      const holder = el.querySelector('[x-data]');
-      alpine.$data = (node) => (node === holder ? scope : undefined);
+      const ancestorScope = { checked: true, iAmAnAncestor: true };
+      // Whatever node is asked about, pretend an ancestor scope is in
+      // scope - the pathological case the walk-up produces.
+      alpine.$data = () => ancestorScope;
 
-      expect(el._getAlpineData()).to.equal(scope);
+      expect(el._getAlpineData()).to.equal(null);
     });
 
     it('still resolves the scope under legacy Alpine 2 (via __x)', () => {
@@ -188,6 +191,25 @@ describe('Alpine data access', () => {
       expect(scope.src).to.equal('https://example.com/a.png');
       expect(scope.alt).to.equal('Ada');
       expect(scope.imageError, 'setImage should reset the error flag').to.be.false;
+    });
+
+    it('clearing the initials attribute falls back to name-derived initials', async () => {
+      installAlpine3();
+      await import('../../src/dry2/avatar.js');
+      const el = await mount('dry-avatar', (node) => {
+        node.setAttribute('name', 'Ada Lovelace');
+        node.setAttribute('initials', 'XY');
+      });
+      const scope = attachScope(el, {
+        src: '', alt: '', name: 'Ada Lovelace', initials: 'XY',
+        imageError: true, imageLoaded: false
+      });
+
+      el.removeAttribute('initials');
+
+      // Must derive 'AL' from the name, not blank the initials (which
+      // would drop the avatar to the generic person icon).
+      expect(scope.initials).to.equal('AL');
     });
 
     it('tabs.switchTab() calls through to the scope', async () => {

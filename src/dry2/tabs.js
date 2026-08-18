@@ -205,8 +205,11 @@ class DryTabs extends BaseElement {
       if (addedTabItems.length === 0) return;
 
       const existing = this._extractTabItems();
-      addedTabItems.forEach((element, offset) => {
-        existing.push(this._createTabModel(element, existing.length + offset));
+      addedTabItems.forEach((element) => {
+        // Index from the current length each iteration; existing grows as
+        // we push, so adding `offset` on top would double-count and skip
+        // ids/titles for the second and later items in a batch.
+        existing.push(this._createTabModel(element, existing.length));
       });
 
       this._renderTabs();

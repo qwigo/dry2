@@ -300,12 +300,22 @@ class DryAvatar extends BaseElement {
 
     const alpineData = this._getAlpineData();
     if (alpineData) {
-      alpineData[name] = newValue || '';
-
-      // Initials are derived from the name unless set explicitly.
-      if (name === 'name' && !this.hasAttribute('initials')) {
-        alpineData.initials = this._generateInitials(newValue || '');
+      if (name === 'initials') {
+        // Clearing the explicit initials falls back to name-derived
+        // ones, matching _render (initials || _generateInitials(name)).
+        // Assigning newValue verbatim would blank them and drop the
+        // avatar to the generic icon.
+        alpineData.initials = newValue || this._generateInitials(this.name);
+      } else if (name === 'name') {
+        alpineData.name = newValue || '';
+        // Derived initials track the name unless set explicitly.
+        if (!this.hasAttribute('initials')) {
+          alpineData.initials = this._generateInitials(newValue || '');
+        }
+      } else {
+        alpineData[name] = newValue || '';
       }
+
       // A new image gets a fresh chance to load.
       if (name === 'src') {
         alpineData.imageError = false;

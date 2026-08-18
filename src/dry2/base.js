@@ -201,18 +201,16 @@ class BaseElement extends HTMLElement {
     const legacyScope = alpineElement.__x?.$data;
     if (legacyScope !== undefined && legacyScope !== null) return legacyScope;
 
-    // Official Alpine 3 accessor, last because it throws for an element
-    // that has no scope rather than returning undefined.
-    if (typeof window.Alpine.$data === 'function') {
-      try {
-        const scope = window.Alpine.$data(alpineElement);
-        if (scope !== undefined && scope !== null) return scope;
-      } catch (error) {
-        // Element not initialized by Alpine yet - not an error condition
-        // for callers, who treat a null scope as "not ready".
-      }
-    }
-
+    // Deliberately NOT falling back to Alpine.$data(alpineElement) here.
+    // We only reach this point when the element has no own scope
+    // (_x_dataStack / __x absent), i.e. Alpine has not initialized it
+    // yet. $data walks up to the nearest *ancestor* scope in that case,
+    // so a caller writing to the result would silently mutate an
+    // unrelated ancestor component's state (and the update meant for
+    // this component would be lost). Returning null lets callers treat
+    // it as "not ready" and, where they have one, fall back to a full
+    // re-render. On Alpine 3 an initialized own scope always exposes
+    // _x_dataStack, so this loses no legitimate resolution.
     return null;
   }
 
@@ -303,6 +301,13 @@ class BaseElement extends HTMLElement {
       .replace(/'/g, "\\'")
       .replace(/"/g, '\\"')
       .replace(/`/g, '\\`')
+      // Neutralize template-literal interpolation. Backticks are escaped
+      // just above, implying this value is safe inside a `...` literal;
+      // without this, `${payload}` in a backtick context would still be
+      // evaluated. \x24 is `$`, so "${" can no longer begin a
+      // substitution. Harmless in '...'/"..." contexts, where ${ is
+      // already inert.
+      .replace(/\$\{/g, '\\x24{')
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r')
       .replace(/\t/g, '\\t')
@@ -644,68 +649,32 @@ window.BaseElement = BaseElement;
  * Solves the "first component doesn't work" timing issue
  */
 
-// Global Alpine utilities - no ES6 modules needed
+// Global Alpine utilities - no ES6 modules needed.
+//
+// These delegate to BaseElement.prototype rather than carrying their own
+// copies. Previously the mixin duplicated the initialization logic, and
+// that copy kept the *unbounded* Alpine poll and the Alpine-v2 `__x`
+// probe after BaseElement's versions were fixed - so a consumer using
+// withAlpineInit could reinstate the never-resolving, permanently
+// polling behavior (and it writes the shared window.alpineLoadPromise,
+// so it would poison every BaseElement component on the page too).
+// Single-sourcing here keeps the fixes and the mixin in lockstep.
 window.DRY2AlpineUtils = {
   // Alpine initialization methods that get mixed into components
-  _waitForAlpineAndInitialize() {
-    // Check if Alpine.js is loaded
-    if (window.Alpine && window.Alpine.version) {
-      // Alpine is loaded, initialize immediately
-      this._initializeComponent();
-    } else {
-      // Alpine not loaded yet, wait for it
-      if (!window.alpineLoadPromise) {
-        window.alpineLoadPromise = new Promise(resolve => {
-          if (window.Alpine && window.Alpine.version) {
-            resolve();
-          } else {
-            const checkAlpine = () => {
-              if (window.Alpine && window.Alpine.version) {
-                resolve();
-              } else {
-                setTimeout(checkAlpine, 10);
-              }
-            };
-            checkAlpine();
-          }
-        });
-      }
-      
-      window.alpineLoadPromise.then(() => {
-        this._initializeComponent();
-      });
-    }
-  },
+  _waitForAlpineAndInitialize: BaseElement.prototype._waitForAlpineAndInitialize,
 
-  _ensureAlpineProcessing() {
-    // Force Alpine to process this component if it's available
-    if (window.Alpine && window.Alpine.initTree) {
-      // Give Alpine a moment to process, then force init if needed
-      setTimeout(() => {
-        const alpineData = this.querySelector('[x-data]');
-        if (alpineData && !alpineData.__x) {
-          try {
-            window.Alpine.initTree(this);
-          } catch (e) {
-            // Fallback: try again in a moment
-            setTimeout(() => {
-              try {
-                window.Alpine.initTree(this);
-              } catch (e) {
-                console.warn(`Alpine.js initialization delayed for ${this.tagName.toLowerCase()} component`);
-              }
-            }, 100);
-          }
-        }
-      }, 50);
-    }
-  },
+  _ensureAlpineProcessing: BaseElement.prototype._ensureAlpineProcessing,
+
+  _isAlpineInitialized: BaseElement.prototype._isAlpineInitialized,
 
   // Helper function to apply Alpine mixin to a component class
   withAlpineInit(ComponentClass) {
-    // Copy the Alpine methods to the component prototype
+    // Copy the Alpine methods to the component prototype.
+    // _isAlpineInitialized is required because _ensureAlpineProcessing
+    // calls it; omitting it would throw for a non-BaseElement consumer.
     ComponentClass.prototype._waitForAlpineAndInitialize = this._waitForAlpineAndInitialize;
     ComponentClass.prototype._ensureAlpineProcessing = this._ensureAlpineProcessing;
+    ComponentClass.prototype._isAlpineInitialized = this._isAlpineInitialized;
     
     // Override connectedCallback to use Alpine initialization
     const originalConnectedCallback = ComponentClass.prototype.connectedCallback;

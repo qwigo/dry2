@@ -243,7 +243,8 @@ describe('dry-accordion content sanitization', () => {
     // leaving it untouched is correct. Rewriting it into a real
     // javascript: URL - which the regex sanitizer did - is not.
     const href = (el.querySelector('a')?.getAttribute('href') || '')
-      .replace(/[ - ]+/g, '')
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u0020]+/g, '')
       .toLowerCase();
 
     expect(
