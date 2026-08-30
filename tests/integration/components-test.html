@@ -39,7 +39,6 @@
 </script>
 
 <!-- Include test files -->
-    <script src="drawer-components.test.js"></script>
     <script src="web-components.test.js"></script>
     <script src="avatar-component.test.js"></script> <!-- Added avatar component test -->
     <script src="button-dry2css.test.js"></script> <!-- Added button dry2css integration test -->
@@ -64,11 +63,7 @@
 </script>
 
 <script>
-    // Wait for Alpine.js to be ready
-    document.addEventListener('alpine:init', () => {
-        // Run tests after all dependencies are loaded
-        mocha.run();
-    });
+    mocha.run();
 </script>
 </body>
 </html>

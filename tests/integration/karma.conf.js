@@ -11,15 +11,12 @@ module.exports = function(config) {
     files: [
       // Dependencies
       { pattern: 'https://unpkg.com/htmx.org@2.0.4', type: 'js' },
-      { pattern: 'https://unpkg.com/alpinejs@3.13.0/dist/cdn.min.js', type: 'js' },
 
       // Components to test
-      '../../src/dry2/drawer-components.js',
       '../../src/dry2/dry2.js',
       '../../src/dry2/avatar.js', // Added avatar component
 
       // Test files
-      'drawer-components.test.js',
       'web-components.test.js',
       'avatar-component.test.js' // Added avatar component test
     ],
@@ -29,7 +26,6 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     preprocessors: {
-      '../../src/dry2/drawer-components.js': ['coverage'],
       '../../src/dry2/web-components.js': ['coverage'],
       '../../src/dry2/avatar-component.js': ['coverage'] // Added coverage for avatar component
     },
