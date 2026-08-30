@@ -13,3 +13,4 @@ all-components-showcase.html
 /.vscode/
 /test-results/
 /playwright-report/
+.ai-workspace/
