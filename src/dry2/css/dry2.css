@@ -861,7 +861,7 @@ header > nav {
  * Display utilities for showing/hiding elements responsively
  *
  * Philosophy:
- * - Mobile-first with Tailwind-style naming
+ * - Mobile-first with responsive prefix naming
  * - .hidden hides on all breakpoints
  * - .md:hidden hides on tablet and larger
  * - .md:block shows on tablet and larger
@@ -2570,6 +2570,29 @@ header > nav {
         padding-inline: 0 !important;
     }
 
+    /**
+     * Allow content to flow across multiple printed pages
+     *
+     * Containers that clip (overflow: hidden, e.g. .card) or constrain height on
+     * screen must release those constraints in print. Otherwise everything past
+     * the first page is clipped and the following pages render blank.
+     */
+    html,
+    body,
+    main,
+    article,
+    section,
+    .container,
+    .sidenav-layout,
+    [class*="card"],
+    [class*="box"],
+    [class*="container"],
+    [class*="layout"] {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
     /* ----------------------------------------
      * Remove Colors and Backgrounds
      * ---------------------------------------- */
@@ -2627,18 +2650,18 @@ header > nav {
 
     /**
      * Avoid breaking these elements across pages
+     *
+     * Only applied to small, atomic blocks. Large containers (article, section,
+     * .article-content, generic cards, full tables) are intentionally excluded:
+     * marking an element taller than one page with break-inside: avoid triggers a
+     * Chromium bug that emits blank pages instead of flowing the content.
      */
-    article,
-    section,
-    .test-section,
-    .demo-card,
-    .article-content,
-    [class*="card"],
-    table,
     figure,
     img,
     pre,
-    blockquote {
+    blockquote,
+    tr,
+    .demo-card {
         page-break-inside: avoid;
     }
 
@@ -2997,7 +3020,8 @@ header > nav {
  * in their operating system and automatically applies dark theme
  */
 @media (prefers-color-scheme: dark) {
-    :root {
+    /* Skipped when the page is explicitly forced light via the theme switcher */
+    :root:not(.light) {
         /* ========================================
          * DARK MODE COLOR OVERRIDES
          * ======================================== */
@@ -3130,4 +3154,797 @@ header > nav {
     --stem-color-border-base: #4b5563;    /* Medium gray - default borders */
     --stem-color-border-light: #374151;   /* Dark gray - subtle dividers */
     --stem-color-border-dark: #6b7280;    /* Light gray - emphasized borders */
+}
+
+/* ========================================================================
+ * DRY2 COMPONENT UTILITY LAYER
+ * ------------------------------------------------------------------------
+ * Hand-written, build-free utilities required by the DRY2 web components,
+ * which emit a Tailwind-compatible class vocabulary (e.g. w-4, text-gray-400,
+ * bg-blue-500, space-x-3). Values are driven by CSS variables so the palette
+ * stays themeable. This layer is intentionally scoped to the classes the
+ * components actually output; it is NOT a full Tailwind reimplementation.
+ * Existing dry2.css utilities (.flex, .border, .rounded-*, .shadow-*, text
+ * sizes, font weights, named spacing) are reused and never redefined here.
+ * ===================================================================== */
+
+:root {
+    /* Tailwind-equivalent palette (fixed; component classes reference these) */
+    --dry-white: #ffffff;
+    --dry-black: #000000;
+
+    --dry-gray-50: #f9fafb;
+    --dry-gray-100: #f3f4f6;
+    --dry-gray-200: #e5e7eb;
+    --dry-gray-300: #d1d5db;
+    --dry-gray-400: #9ca3af;
+    --dry-gray-500: #6b7280;
+    --dry-gray-600: #4b5563;
+    --dry-gray-700: #374151;
+    --dry-gray-800: #1f2937;
+    --dry-gray-900: #111827;
+
+    --dry-blue-50: #eff6ff;
+    --dry-blue-100: #dbeafe;
+    --dry-blue-300: #93c5fd;
+    --dry-blue-400: #60a5fa;
+    --dry-blue-500: #3b82f6;
+    --dry-blue-600: #2563eb;
+    --dry-blue-800: #1e40af;
+    --dry-blue-900: #1e3a8a;
+
+    --dry-green-400: #4ade80;
+    --dry-green-500: #22c55e;
+
+    --dry-red-400: #f87171;
+    --dry-red-500: #ef4444;
+}
+
+/* ---------- Display ---------- */
+.inline-flex { display: inline-flex; }
+
+/* ---------- Flex item helpers ---------- */
+.flex-1 { flex: 1 1 0%; }
+.flex-grow { flex-grow: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+/* ---------- Position ---------- */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.top-0 { top: 0; }
+.right-0 { right: 0; }
+.bottom-0 { bottom: 0; }
+.left-0 { left: 0; }
+.z-10 { z-index: 10; }
+.z-40 { z-index: 40; }
+.z-50 { z-index: 50; }
+
+/* ---------- Width / Height ---------- */
+.w-2 { width: 0.5rem; }
+.w-4 { width: 1rem; }
+.w-5 { width: 1.25rem; }
+.w-6 { width: 1.5rem; }
+.w-8 { width: 2rem; }
+.w-10 { width: 2.5rem; }
+.w-20 { width: 5rem; }
+.w-0\.5 { width: 0.125rem; }
+.w-2\/3 { width: 66.666667%; }
+.w-full { width: 100%; }
+.h-2 { height: 0.5rem; }
+.h-4 { height: 1rem; }
+.h-5 { height: 1.25rem; }
+.h-6 { height: 1.5rem; }
+.h-8 { height: 2rem; }
+.h-10 { height: 2.5rem; }
+.h-16 { height: 4rem; }
+.h-0\.5 { height: 0.125rem; }
+.h-2\/3 { height: 66.666667%; }
+.h-full { height: 100%; }
+.min-w-\[200px\] { min-width: 200px; }
+.min-h-\[300px\] { min-height: 300px; }
+.max-h-48 { max-height: 12rem; }
+.max-h-60 { max-height: 15rem; }
+.max-w-full { max-width: 100%; }
+
+/* ---------- Numeric padding ---------- */
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+.px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+
+/* ---------- Numeric margin ---------- */
+.mx-2 { margin-left: 0.5rem; margin-right: 0.5rem; }
+.ml-1 { margin-left: 0.25rem; }
+.ml-2 { margin-left: 0.5rem; }
+.ml-4 { margin-left: 1rem; }
+.mr-3 { margin-right: 0.75rem; }
+.mr-4 { margin-right: 1rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+
+/* ---------- Space-between (Tailwind space-x / space-y) ---------- */
+.space-x-1 > * + * { margin-left: 0.25rem; }
+.space-x-2 > * + * { margin-left: 0.5rem; }
+.space-x-3 > * + * { margin-left: 0.75rem; }
+.space-y-1 > * + * { margin-top: 0.25rem; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+
+/* ---------- Numeric gap ---------- */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+/* ---------- Border radius extras ---------- */
+.rounded-md { border-radius: 0.375rem; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-br-md { border-bottom-right-radius: 0.375rem; }
+.rounded-bl-md { border-bottom-left-radius: 0.375rem; }
+.rounded-tr-md { border-top-right-radius: 0.375rem; }
+.rounded-tl-md { border-top-left-radius: 0.375rem; }
+
+/* ------------------------------------------------------------------------
+ * Tabs component
+ * Uses stem tokens; active state driven by aria-selected in CSS.
+ * ------------------------------------------------------------------------ */
+
+.dry-tabs {
+  display: block;
+  width: 100%;
+}
+
+.dry-tabs-content {
+  padding-top: var(--stem-spacing-md);
+}
+
+.dry-tabs-list {
+  gap: var(--stem-spacing-xs);
+}
+
+.dry-tabs-list .dry-tab-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--stem-spacing-xs);
+  padding: var(--stem-spacing-sm) var(--stem-spacing-md);
+  font-family: var(--stem-font-family-sans);
+  font-size: var(--stem-font-size-sm);
+  font-weight: var(--stem-font-weight-medium);
+  line-height: var(--stem-line-height-tight);
+  color: var(--stem-color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--stem-border-radius-md);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  user-select: none;
+  white-space: nowrap;
+  transition:
+    color var(--stem-transition-duration-fast) var(--stem-transition-ease),
+    background-color var(--stem-transition-duration-fast) var(--stem-transition-ease),
+    box-shadow var(--stem-transition-duration-fast) var(--stem-transition-ease);
+}
+
+.dry-tabs-list .dry-tab-button--vertical {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.dry-tabs-list .dry-tab-button:hover:not(:disabled) {
+  color: var(--stem-color-text-base);
+}
+
+.dry-tabs-list .dry-tab-button:focus {
+  outline: none;
+}
+
+.dry-tabs-list .dry-tab-button:focus-visible {
+  outline: 2px solid var(--stem-color-primary);
+  outline-offset: 2px;
+}
+
+.dry-tabs-list .dry-tab-button[aria-selected="true"] {
+  color: var(--stem-color-primary-dark);
+  font-weight: var(--stem-font-weight-semibold);
+}
+
+.dry-tab-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dry-tab-badge {
+  margin-left: var(--stem-spacing-xs);
+  padding: 0.125rem 0.5rem;
+  font-size: var(--stem-font-size-xs);
+  font-weight: var(--stem-font-weight-semibold);
+  line-height: 1;
+  color: var(--stem-color-text-inverted);
+  background-color: var(--stem-color-primary);
+  border-radius: var(--stem-border-radius-full);
+}
+
+/* Underline — default section tabs (analytics, dashboards) */
+.dry-tabs-list[data-variant="underline"] {
+  border-bottom: 1px solid var(--stem-color-border-light);
+}
+
+.dry-tabs-list[data-variant="underline"] .dry-tab-button {
+  margin-bottom: -1px;
+  border-radius: var(--stem-border-radius-md) var(--stem-border-radius-md) 0 0;
+}
+
+.dry-tabs-list[data-variant="underline"] .dry-tab-button[aria-selected="true"] {
+  box-shadow: inset 0 -2px 0 var(--stem-color-primary);
+}
+
+.dry-tabs-vertical .dry-tabs-list[data-variant="underline"] {
+  border-bottom: none;
+  border-right: 1px solid var(--stem-color-border-light);
+}
+
+.dry-tabs-vertical .dry-tabs-list[data-variant="underline"] .dry-tab-button {
+  margin-bottom: 0;
+  margin-right: -1px;
+  border-radius: var(--stem-border-radius-md) 0 0 var(--stem-border-radius-md);
+}
+
+.dry-tabs-vertical .dry-tabs-list[data-variant="underline"] .dry-tab-button[aria-selected="true"] {
+  box-shadow: inset 2px 0 0 var(--stem-color-primary);
+}
+
+/* Boxed — soft highlight, matches nav-item.active pattern */
+.dry-tabs-list[data-variant="boxed"] {
+  border-bottom: 1px solid var(--stem-color-border-light);
+}
+
+.dry-tabs-list[data-variant="boxed"] .dry-tab-button[aria-selected="true"] {
+  background: color-mix(in srgb, var(--stem-color-primary) 10%, var(--stem-color-bg-surface));
+}
+
+/* Pills — segmented control on secondary surface */
+.dry-tabs-list[data-variant="pills"] {
+  padding: 0.25rem;
+  background: var(--stem-color-bg-secondary);
+  border-radius: var(--stem-border-radius-lg);
+}
+
+.dry-tabs-list[data-variant="pills"] .dry-tab-button {
+  border-radius: var(--stem-border-radius-md);
+}
+
+.dry-tabs-list[data-variant="pills"] .dry-tab-button:hover:not(:disabled):not([aria-selected="true"]) {
+  background: color-mix(in srgb, var(--stem-color-bg-surface) 50%, transparent);
+}
+
+.dry-tabs-list[data-variant="pills"] .dry-tab-button[aria-selected="true"] {
+  background: var(--stem-color-bg-surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.dry-tabs-vertical .dry-tabs-list[data-variant="pills"] {
+  flex-direction: column;
+}
+
+/* ---------- Border extras ---------- */
+.border-b-2 { border-bottom-width: 2px; border-bottom-style: solid; }
+.border-gray-200 { border-color: var(--dry-gray-200); }
+.border-gray-300 { border-color: var(--dry-gray-300); }
+.border-blue-500 { border-color: var(--dry-blue-500); }
+.border-transparent { border-color: transparent; }
+.border-white { border-color: var(--dry-white); }
+
+/* ---------- Text size extra ---------- */
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+
+/* ---------- Text alignment / transform ---------- */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.uppercase { text-transform: uppercase; }
+.leading-none { line-height: 1; }
+
+/* ---------- Text colors ---------- */
+.text-white { color: var(--dry-white); }
+.text-gray-100 { color: var(--dry-gray-100); }
+.text-gray-200 { color: var(--dry-gray-200); }
+.text-gray-300 { color: var(--dry-gray-300); }
+.text-gray-400 { color: var(--dry-gray-400); }
+.text-gray-500 { color: var(--dry-gray-500); }
+.text-gray-600 { color: var(--dry-gray-600); }
+.text-gray-700 { color: var(--dry-gray-700); }
+.text-gray-800 { color: var(--dry-gray-800); }
+.text-gray-900 { color: var(--dry-gray-900); }
+.text-blue-500 { color: var(--dry-blue-500); }
+.text-blue-600 { color: var(--dry-blue-600); }
+.text-blue-800 { color: var(--dry-blue-800); }
+.text-blue-900 { color: var(--dry-blue-900); }
+.text-green-500 { color: var(--dry-green-500); }
+.text-red-500 { color: var(--dry-red-500); }
+
+/* ---------- Background colors ---------- */
+.bg-white { background-color: var(--dry-white); }
+.bg-black { background-color: var(--dry-black); }
+.bg-gray-50 { background-color: var(--dry-gray-50); }
+.bg-gray-100 { background-color: var(--dry-gray-100); }
+.bg-gray-200 { background-color: var(--dry-gray-200); }
+.bg-gray-300 { background-color: var(--dry-gray-300); }
+.bg-gray-400 { background-color: var(--dry-gray-400); }
+.bg-blue-50 { background-color: var(--dry-blue-50); }
+.bg-blue-100 { background-color: var(--dry-blue-100); }
+.bg-blue-500 { background-color: var(--dry-blue-500); }
+.bg-blue-600 { background-color: var(--dry-blue-600); }
+
+/* ---------- Misc ---------- */
+.overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+.object-cover { object-fit: cover; }
+.select-none { user-select: none; }
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+.opacity-25 { opacity: 0.25; }
+.opacity-50 { opacity: 0.5; }
+.opacity-70 { opacity: 0.7; }
+.opacity-75 { opacity: 0.75; }
+.opacity-100 { opacity: 1; }
+
+/* ---------- Transitions ---------- */
+.transition-colors { transition-property: color, background-color, border-color, fill, stroke; transition-duration: 150ms; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.transition-transform { transition-property: transform; transition-duration: 150ms; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.transition-opacity { transition-property: opacity; transition-duration: 150ms; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.transition-all { transition-property: all; transition-duration: 150ms; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.duration-200 { transition-duration: 200ms; }
+.duration-300 { transition-duration: 300ms; }
+.ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ---------- Hover states ---------- */
+.hover\:text-blue-800:hover { color: var(--dry-blue-800); }
+.hover\:text-gray-800:hover { color: var(--dry-gray-800); }
+.hover\:text-gray-900:hover { color: var(--dry-gray-900); }
+.hover\:bg-gray-50:hover { background-color: var(--dry-gray-50); }
+.hover\:bg-blue-50:hover { background-color: var(--dry-blue-50); }
+.hover\:bg-white\/50:hover { background-color: rgba(255, 255, 255, 0.5); }
+.hover\:opacity-100:hover { opacity: 1; }
+
+/* ---------- Focus states (ring approximated via box-shadow) ---------- */
+.focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+.focus\:ring-2:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+.focus\:ring-blue-500:focus { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
+.focus\:ring-offset-2:focus { box-shadow: 0 0 0 2px var(--dry-white), 0 0 0 4px rgba(59, 130, 246, 0.5); }
+.focus\:border-transparent:focus { border-color: transparent; }
+
+/* ---------- Transforms (drawer slide in/out, emitted by dialog.js) ---------- */
+.translate-x-full { transform: translateX(100%); }
+.-translate-x-full { transform: translateX(-100%); }
+.translate-y-full { transform: translateY(100%); }
+.-translate-y-full { transform: translateY(-100%); }
+
+/* ---------- Width / opacity extras used by dialog + drawer ---------- */
+.w-80 { width: 20rem; }
+.opacity-0 { opacity: 0; }
+
+/* ---------- Background opacity (Tailwind bg-opacity) ---------- */
+.bg-opacity-50 { --tw-bg-opacity: 0.5; }
+.bg-black.bg-opacity-50 { background-color: rgba(0, 0, 0, 0.5); }
+
+/* ------------------------------------------------------------------------
+ * Dark-theme variants (dark:*)
+ * ------------------------------------------------------------------------
+ * The DRY2 components declare dark-mode intentions inline, e.g.
+ *   <div class="text-gray-900 dark:text-gray-100">
+ * Implementing the dark: variants here makes the components legible in BOTH
+ * light and dark themes. Mirrors dry2.css's existing prefers-color-scheme
+ * approach for --stem-* tokens, so components and tokens stay in sync.
+ * ===================================================================== */
+/* Dark variants under SYSTEM dark (unless the page is forced light via .light) */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light) .dark\:text-gray-100 { color: var(--dry-gray-100); }
+    :root:not(.light) .dark\:text-gray-200 { color: var(--dry-gray-200); }
+    :root:not(.light) .dark\:text-gray-300 { color: var(--dry-gray-300); }
+    :root:not(.light) .dark\:text-gray-400 { color: var(--dry-gray-400); }
+    :root:not(.light) .dark\:text-gray-500 { color: var(--dry-gray-500); }
+    :root:not(.light) .dark\:text-blue-300 { color: var(--dry-blue-300); }
+    :root:not(.light) .dark\:text-blue-400 { color: var(--dry-blue-400); }
+    :root:not(.light) .dark\:text-green-400 { color: var(--dry-green-400); }
+    :root:not(.light) .dark\:text-red-400 { color: var(--dry-red-400); }
+    :root:not(.light) .dark\:text-white { color: var(--dry-white); }
+    :root:not(.light) .dark\:bg-gray-600 { background-color: var(--dry-gray-600); }
+    :root:not(.light) .dark\:bg-gray-700 { background-color: var(--dry-gray-700); }
+    :root:not(.light) .dark\:bg-gray-800 { background-color: var(--dry-gray-800); }
+    :root:not(.light) .dark\:border-gray-600 { border-color: var(--dry-gray-600); }
+    :root:not(.light) .dark\:border-gray-700 { border-color: var(--dry-gray-700); }
+    :root:not(.light) .dark\:border-gray-800 { border-color: var(--dry-gray-800); }
+    :root:not(.light) .dark\:hover\:text-blue-300:hover { color: var(--dry-blue-300); }
+    :root:not(.light) .dark\:hover\:text-gray-200:hover { color: var(--dry-gray-200); }
+}
+
+/* Dark variants under MANUAL dark (.dark on <html>/<body> via theme switcher) */
+.dark .dark\:text-gray-100 { color: var(--dry-gray-100); }
+.dark .dark\:text-gray-200 { color: var(--dry-gray-200); }
+.dark .dark\:text-gray-300 { color: var(--dry-gray-300); }
+.dark .dark\:text-gray-400 { color: var(--dry-gray-400); }
+.dark .dark\:text-gray-500 { color: var(--dry-gray-500); }
+.dark .dark\:text-blue-300 { color: var(--dry-blue-300); }
+.dark .dark\:text-blue-400 { color: var(--dry-blue-400); }
+.dark .dark\:text-green-400 { color: var(--dry-green-400); }
+.dark .dark\:text-red-400 { color: var(--dry-red-400); }
+.dark .dark\:text-white { color: var(--dry-white); }
+.dark .dark\:bg-gray-600 { background-color: var(--dry-gray-600); }
+.dark .dark\:bg-gray-700 { background-color: var(--dry-gray-700); }
+.dark .dark\:bg-gray-800 { background-color: var(--dry-gray-800); }
+.dark .dark\:border-gray-600 { border-color: var(--dry-gray-600); }
+.dark .dark\:border-gray-700 { border-color: var(--dry-gray-700); }
+.dark .dark\:border-gray-800 { border-color: var(--dry-gray-800); }
+.dark .dark\:hover\:text-blue-300:hover { color: var(--dry-blue-300); }
+.dark .dark\:hover\:text-gray-200:hover { color: var(--dry-gray-200); }
+
+/* ========================================================================
+ * APPLICATION SHELL / ADMIN LAYOUT
+ * ------------------------------------------------------------------------
+ * Reusable structural classes for SaaS admin dashboards: a sticky top
+ * navigation bar, secondary toolbar, page header, content cards, data
+ * tables, stat tiles and settings rows. These patterns were previously
+ * duplicated inline across the admin mockups; centralizing them here lets
+ * any page compose an admin layout from a shared vocabulary.
+ *
+ * The brand accent follows --stem-color-primary, so overriding that token
+ * (e.g. :root { --stem-color-primary: #6366f1; }) re-themes the whole shell.
+ * ===================================================================== */
+
+/* ----------------------------------------
+ * Shell scaffold
+ * ---------------------------------------- */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* ----------------------------------------
+ * Top navigation bar
+ * ---------------------------------------- */
+.topnav-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--stem-spacing-xl);
+    min-height: var(--stem-topnav-height);
+    padding: 0 var(--stem-spacing-lg);
+    background: var(--stem-color-bg-surface);
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+    position: sticky;
+    top: 0;
+    z-index: var(--stem-z-header);
+}
+
+.topnav-brand img {
+    display: block;
+    height: 28px;
+    width: auto;
+}
+
+.topnav-links {
+    display: flex;
+    flex: 1;
+    gap: 0.25rem;
+}
+
+.topnav-links .nav-item {
+    margin-bottom: 0;
+    font-size: var(--stem-font-size-base);
+}
+
+/* ----------------------------------------
+ * Nav item
+ * ---------------------------------------- */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--stem-spacing-sm);
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 0.25rem;
+    border-radius: var(--stem-border-radius-md);
+    color: var(--stem-color-text-muted);
+    font-size: var(--stem-font-size-sm);
+    font-weight: var(--stem-font-weight-medium);
+    text-decoration: none;
+    transition: background-color var(--stem-transition-duration-fast) var(--stem-transition-ease),
+                color var(--stem-transition-duration-fast) var(--stem-transition-ease);
+}
+
+.nav-item:hover {
+    background: var(--stem-color-bg-secondary);
+    color: var(--stem-color-text-base);
+}
+
+.nav-item.active {
+    background: color-mix(in srgb, var(--stem-color-primary) 12%, var(--stem-color-bg-surface));
+    color: var(--stem-color-primary-dark);
+}
+
+.nav-item i {
+    width: 1.125rem;
+    text-align: center;
+}
+
+.plan-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--stem-font-size-xs);
+    color: var(--stem-color-text-muted);
+}
+
+/* ----------------------------------------
+ * Topbar (page-level toolbar)
+ * ---------------------------------------- */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--stem-gap);
+    min-height: var(--stem-topnav-height);
+    padding-inline: var(--stem-spacing-lg);
+    background: var(--stem-color-bg-surface);
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+    position: sticky;
+    top: 0;
+    z-index: var(--stem-z-header);
+}
+
+.search-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 28rem;
+}
+
+.search-wrap i {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--stem-color-text-muted);
+    font-size: var(--stem-font-size-sm);
+}
+
+.search-wrap input {
+    width: 100%;
+    padding: 0.5rem 0.875rem 0.5rem 2.25rem;
+    border: var(--stem-border-width-1) solid var(--stem-color-border-base);
+    border-radius: var(--stem-border-radius-md);
+    font-size: var(--stem-font-size-sm);
+    background: var(--stem-color-bg-primary);
+}
+
+.search-wrap input:focus {
+    outline: 2px solid color-mix(in srgb, var(--stem-color-primary) 35%, transparent);
+    border-color: var(--stem-color-primary);
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--stem-spacing-md);
+}
+
+.icon-btn {
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    border-radius: var(--stem-border-radius-md);
+    background: var(--stem-color-bg-primary);
+    color: var(--stem-color-text-muted);
+    cursor: pointer;
+    transition: background-color var(--stem-transition-duration-fast) var(--stem-transition-ease),
+                color var(--stem-transition-duration-fast) var(--stem-transition-ease);
+}
+
+.icon-btn:hover {
+    background: var(--stem-color-bg-secondary);
+    color: var(--stem-color-text-base);
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+    border-radius: var(--stem-border-radius-full);
+    cursor: pointer;
+    transition: background-color var(--stem-transition-duration-fast) var(--stem-transition-ease);
+}
+
+.user-chip:hover {
+    background: var(--stem-color-bg-secondary);
+}
+
+.user-chip span {
+    font-size: var(--stem-font-size-sm);
+    font-weight: var(--stem-font-weight-medium);
+}
+
+/* ----------------------------------------
+ * Page container + header
+ * ---------------------------------------- */
+.page {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: var(--stem-spacing-xl) var(--stem-spacing-lg);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--stem-spacing-lg);
+    margin-bottom: var(--stem-spacing-lg);
+}
+
+.page-header h1 {
+    margin: 0 0 0.375rem;
+    font-size: var(--stem-font-size-3xl);
+    font-weight: var(--stem-font-weight-bold);
+    line-height: var(--stem-line-height-tight);
+    letter-spacing: -0.02em;
+}
+
+.page-header p {
+    margin: 0;
+    color: var(--stem-color-text-muted);
+    font-size: var(--stem-font-size-sm);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ----------------------------------------
+ * Section card
+ * ---------------------------------------- */
+.section-card {
+    background: var(--stem-color-bg-surface);
+    border: var(--stem-border-width-1) solid var(--stem-color-border-light);
+    border-radius: var(--stem-border-radius-xl);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.section-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--stem-spacing-sm);
+    padding: var(--stem-spacing-md) var(--stem-spacing-lg);
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+}
+
+.section-card-header h2 {
+    margin: 0;
+    font-size: var(--stem-font-size-lg);
+    font-weight: var(--stem-font-weight-semibold);
+}
+
+/* ----------------------------------------
+ * Stat tile grid
+ * ---------------------------------------- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--stem-gap);
+    margin-bottom: var(--stem-spacing-lg);
+}
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ----------------------------------------
+ * Data table
+ * ---------------------------------------- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--stem-font-size-sm);
+}
+
+.data-table th {
+    padding: 0.75rem var(--stem-spacing-lg);
+    text-align: left;
+    font-weight: var(--stem-font-weight-medium);
+    color: var(--stem-color-text-muted);
+    background: var(--stem-color-bg-primary);
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+}
+
+.data-table td {
+    padding: 0.875rem var(--stem-spacing-lg);
+    vertical-align: middle;
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+}
+
+.data-table tr:hover td {
+    background: var(--stem-color-bg-primary);
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ----------------------------------------
+ * Row actions (inline icon buttons in tables)
+ * ---------------------------------------- */
+.row-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.row-actions button {
+    padding: 0.25rem 0.375rem;
+    border: none;
+    border-radius: var(--stem-border-radius-sm);
+    background: transparent;
+    color: var(--stem-color-text-muted);
+    cursor: pointer;
+}
+
+.row-actions button:hover {
+    background: var(--stem-color-bg-secondary);
+    color: var(--stem-color-text-base);
+}
+
+/* ----------------------------------------
+ * Settings row (label/description + control)
+ * ---------------------------------------- */
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--stem-spacing-md);
+    padding: var(--stem-spacing-md) 0;
+    border-bottom: var(--stem-border-width-1) solid var(--stem-color-border-light);
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+}
+
+.settings-row label {
+    font-size: var(--stem-font-size-sm);
+    font-weight: var(--stem-font-weight-medium);
+}
+
+.settings-row p {
+    margin: 0.125rem 0 0;
+    font-size: var(--stem-font-size-xs);
+    color: var(--stem-color-text-muted);
 }

@@ -51,7 +51,7 @@ npm run test:unit:watch
 **Framework**: Karma + Mocha + Chai + Sinon
 **Features**:
 - Tests actual browser behavior
-- Validates HTMX and Alpine.js integration
+- Validates HTMX integration
 - Catches browser-specific issues
 - CI/CD ready
 
@@ -83,7 +83,7 @@ npm run test
 ### Integration Tests
 - Test component interactions
 - Validate real browser behavior
-- Test HTMX/Alpine.js integration
+- Test HTMX integration
 - Focus on user workflows
 
 ## Coverage Reports

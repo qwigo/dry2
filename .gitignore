@@ -5,7 +5,7 @@
 /node_modules/
 /dist/
 /screenshots/
-/coverage/tmp/
+/coverage/
 all-components-showcase.html
 .idea/
 /.cursor/
@@ -13,3 +13,4 @@ all-components-showcase.html
 /.vscode/
 /test-results/
 /playwright-report/
+.ai-workspace/

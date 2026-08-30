@@ -33,12 +33,14 @@ class DrySelect extends BaseElement {
     this._searchTerm = '';
     this._dropdownElement = null;
     this._triggerElement = null;
+    this._containerElement = null;
     this._searchInput = null;
     this._hiddenInput = null;
     this._originalOptions = null;
     this._contentObserver = null;
     this._isCapturingContent = false;
     this._clickOutsideHandler = null;
+    this._repositionHandler = null;
   }
 
   /**
@@ -141,6 +143,12 @@ class DrySelect extends BaseElement {
       this._clickOutsideHandler = null;
     }
 
+    this._removeRepositionListeners();
+
+    if (this._dropdownElement && this._dropdownElement.parentElement === document.body) {
+      document.body.removeChild(this._dropdownElement);
+    }
+
     // Call parent's disconnectedCallback
     super.disconnectedCallback();
   }
@@ -165,6 +173,7 @@ class DrySelect extends BaseElement {
     // Create container
     const container = document.createElement('div');
     container.className = 'relative w-full';
+    this._containerElement = container;
 
     // Create hidden input for form submission
     if (name) {
@@ -423,11 +432,86 @@ class DrySelect extends BaseElement {
 
     // Click outside to close
     this._clickOutsideHandler = (e) => {
-      if (!this.contains(e.target) && this._isOpen) {
+      if (!this._isOpen) {
+        return;
+      }
+
+      const clickedInsideSelect = this.contains(e.target);
+      const clickedInsideDropdown = this._dropdownElement && this._dropdownElement.contains(e.target);
+      if (!clickedInsideSelect && !clickedInsideDropdown) {
         this._closeDropdown();
       }
     };
     document.addEventListener('click', this._clickOutsideHandler);
+  }
+
+  /**
+   * Position the dropdown using fixed coordinates so it clears overflow/stacking ancestors
+   */
+  _positionDropdown() {
+    if (!this._triggerElement || !this._dropdownElement) {
+      return;
+    }
+
+    const rect = this._triggerElement.getBoundingClientRect();
+    const gap = 4;
+
+    this._dropdownElement.style.position = 'fixed';
+    this._dropdownElement.style.left = `${rect.left}px`;
+    this._dropdownElement.style.width = `${rect.width}px`;
+    this._dropdownElement.style.zIndex = '100';
+
+    const dropdownHeight = this._dropdownElement.offsetHeight;
+    const spaceBelow = window.innerHeight - rect.bottom - gap;
+    const spaceAbove = rect.top - gap;
+    const openAbove = dropdownHeight > spaceBelow && spaceAbove > spaceBelow;
+
+    if (openAbove) {
+      this._dropdownElement.style.top = `${rect.top - dropdownHeight - gap}px`;
+    } else {
+      this._dropdownElement.style.top = `${rect.bottom + gap}px`;
+    }
+  }
+
+  /**
+   * Reset inline positioning applied while the dropdown is open
+   */
+  _resetDropdownPosition() {
+    if (!this._dropdownElement) {
+      return;
+    }
+
+    this._dropdownElement.style.position = '';
+    this._dropdownElement.style.top = '';
+    this._dropdownElement.style.left = '';
+    this._dropdownElement.style.width = '';
+    this._dropdownElement.style.zIndex = '';
+  }
+
+  /**
+   * Attach scroll/resize listeners to keep a portaled dropdown aligned with its trigger
+   */
+  _addRepositionListeners() {
+    this._repositionHandler = () => {
+      if (this._isOpen) {
+        this._positionDropdown();
+      }
+    };
+    window.addEventListener('scroll', this._repositionHandler, true);
+    window.addEventListener('resize', this._repositionHandler);
+  }
+
+  /**
+   * Remove scroll/resize listeners used for dropdown positioning
+   */
+  _removeRepositionListeners() {
+    if (!this._repositionHandler) {
+      return;
+    }
+
+    window.removeEventListener('scroll', this._repositionHandler, true);
+    window.removeEventListener('resize', this._repositionHandler);
+    this._repositionHandler = null;
   }
 
   /**
@@ -447,7 +531,11 @@ class DrySelect extends BaseElement {
   _openDropdown() {
     this._isOpen = true;
     if (this._dropdownElement) {
+      document.body.appendChild(this._dropdownElement);
       this._dropdownElement.classList.remove('hidden');
+      this._positionDropdown();
+      this._addRepositionListeners();
+
       // Rotate chevron
       const icon = this._triggerElement.querySelector('svg').parentElement;
       if (icon) {
@@ -466,8 +554,16 @@ class DrySelect extends BaseElement {
   _closeDropdown() {
     this._isOpen = false;
     this._searchTerm = '';
+    this._removeRepositionListeners();
+
     if (this._dropdownElement) {
       this._dropdownElement.classList.add('hidden');
+      this._resetDropdownPosition();
+
+      if (this._containerElement && this._dropdownElement.parentElement !== this._containerElement) {
+        this._containerElement.appendChild(this._dropdownElement);
+      }
+
       // Reset chevron
       const icon = this._triggerElement.querySelector('svg').parentElement;
       if (icon) {

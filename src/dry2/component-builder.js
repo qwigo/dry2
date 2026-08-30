@@ -1,7 +1,7 @@
 /**
  * DRY2 Component Builder Component
  * A reusable web component for creating interactive component builders
- * Built with vanilla JavaScript using BaseElement (no Alpine.js)
+ * Built with vanilla JavaScript using BaseElement
  */
 
 class DryComponentBuilder extends BaseElement {

@@ -538,3 +538,49 @@ test.describe('Select Component', () => {
   });
 });
 
+test.describe('Select stacking', () => {
+  test('should portal dropdown to body with fixed position when open', async ({ page }) => {
+    await page.goto('http://localhost:3000/examples/select-showcase.html');
+    await page.waitForLoadState('networkidle');
+    await page.waitForFunction(() => customElements.get('dry-select'));
+
+    const select = page.locator('dry-select[name="fruit"]').first();
+    const trigger = select.locator('button[type="button"]').first();
+
+    await trigger.click();
+    await page.waitForTimeout(200);
+
+    const dropdownState = await page.evaluate(() => {
+      const selectEl = document.querySelector('dry-select[name="fruit"]');
+      const dropdown = selectEl?.querySelector('.absolute.z-50')
+        || document.querySelector('body > .absolute.z-50');
+      if (!dropdown) {
+        return null;
+      }
+
+      return {
+        parentTag: dropdown.parentElement?.tagName,
+        position: dropdown.style.position,
+        zIndex: dropdown.style.zIndex,
+        isHidden: dropdown.classList.contains('hidden')
+      };
+    });
+
+    expect(dropdownState).not.toBeNull();
+    expect(dropdownState.parentTag).toBe('BODY');
+    expect(dropdownState.position).toBe('fixed');
+    expect(dropdownState.zIndex).toBe('100');
+    expect(dropdownState.isHidden).toBe(false);
+
+    await trigger.click();
+    await page.waitForTimeout(200);
+
+    const closedParent = await page.evaluate(() => {
+      const selectEl = document.querySelector('dry-select[name="fruit"]');
+      const dropdown = selectEl?.querySelector('.absolute.z-50');
+      return dropdown?.parentElement?.className || null;
+    });
+    expect(closedParent).toContain('relative');
+  });
+});
+

@@ -2,7 +2,7 @@
  * Integration tests for DryButton component with dry2.css
  *
  * Tests that the button component works correctly with dry2.css classes
- * instead of Tailwind, verifying all variants, sizes, and states.
+ * using dry2.css, verifying all variants, sizes, and states.
  */
 
 describe('DryButton with dry2.css', () => {
@@ -40,8 +40,6 @@ describe('DryButton with dry2.css', () => {
                     assert.exists(innerButton, 'Button element exists');
 
                     // Check that it has dry2.css button classes
-                    // Note: Current implementation still uses Tailwind, so this test will fail
-                    // until we refactor to use dry2.css classes
                     const classList = innerButton.className;
                     assert.include(classList, 'btn', 'Has base btn class');
 

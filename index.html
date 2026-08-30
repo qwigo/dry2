@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRY2 Web Components - Modern UI Components Made Simple</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/dry2/css/dry2.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- Include the components -->
@@ -81,7 +81,7 @@
                     <span class="gradient-text">Native Web Components</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-8">
-                    A comprehensive library of 21 production-ready web components built with vanilla JavaScript. Framework-agnostic, accessible, and powered by Tailwind CSS.
+                    A comprehensive library of 21 production-ready web components built with vanilla JavaScript. Framework-agnostic, accessible, and styled with dry2.css.
                 </p>
                 <div class="flex space-x-4">
                     <a href="docs/getting-started.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
@@ -158,7 +158,7 @@
                     <i class="fas fa-paint-brush text-green-600 text-xl"></i>
                 </div>
                 <h3 class="text-xl font-semibold mb-2">Fully Customizable</h3>
-                <p class="text-gray-600">Tailwind CSS powered with extensive class props for complete styling control.</p>
+                <p class="text-gray-600">dry2.css utility classes with extensive class props for complete styling control.</p>
             </div>
         </div>
     </div>
@@ -173,17 +173,6 @@
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Drawer Component -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold mb-4">Drawer & Sidebars</h3>
-                <p class="text-gray-600 mb-4">Slide-in panels with AJAX support</p>
-                <ul class="text-sm text-gray-600 space-y-2">
-                    <li><i class="fas fa-check text-green-500 mr-2"></i>Left/Right positioning</li>
-                    <li><i class="fas fa-check text-green-500 mr-2"></i>AJAX content loading</li>
-                    <li><i class="fas fa-check text-green-500 mr-2"></i>Custom animations</li>
-                </ul>
-            </div>
-
             <!-- Form Components -->
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-xl font-semibold mb-4">Form Elements</h3>
@@ -252,7 +241,7 @@
 
         <div class="bg-gray-900 rounded-lg p-8 text-white">
                 <pre><code>&lt;!-- Include dependencies --&gt;
-&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" href="src/dry2/css/dry2.css"&gt;
 
 &lt;!-- Include DRY2 complete bundle (all 21 components) --&gt;
 &lt;script src="https://unpkg.com/dry2-web-components/dist/dry2.js"&gt;&lt;/script&gt;

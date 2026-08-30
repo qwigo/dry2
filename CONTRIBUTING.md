@@ -143,8 +143,8 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 #### Architecture
 - **Extend HTMLElement**: Always extend from `HTMLElement`
 - **Use Web Standards**: Leverage native web APIs and standards
-- **Alpine.js Integration**: Use Alpine.js for complex reactivity
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **VanillaState**: Use VanillaState for complex reactivity
+- **Responsive Design**: Mobile-first approach with dry2.css
 
 #### Accessibility
 - **ARIA Attributes**: Include proper ARIA labels and roles
@@ -336,7 +336,7 @@ render(options = {}) {
 }
 ```
 
-### CSS/Tailwind Standards
+### CSS/dry2.css Standards
 
 ```html
 <!-- Use consistent class naming -->

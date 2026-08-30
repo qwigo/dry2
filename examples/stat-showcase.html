@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stat Component Showcase - DRY2</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../src/dry2/css/dry2.css">
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -390,7 +390,7 @@
                         <ul class="text-yellow-800 text-sm space-y-2">
                             <li><strong>Default (Light Background):</strong> Use default styling - dark text on light background</li>
                             <li><strong>Dark Backgrounds:</strong> Add <code class="bg-yellow-100 px-1 rounded">class="text-white"</code> to automatically switch to light text</li>
-                            <li><strong>Custom Text Colors:</strong> Add any Tailwind text color class (e.g., <code class="bg-yellow-100 px-1 rounded">text-blue-900</code>)</li>
+                            <li><strong>Custom Text Colors:</strong> Add any dry2.css text color class (e.g., <code class="bg-yellow-100 px-1 rounded">text-primary</code>)</li>
                             <li><strong>Background Colors:</strong> Apply to the wrapper div, not the stat component itself</li>
                             <li><strong>Trend Colors:</strong> Built-in (green=up, red=down, gray=neutral) but inherit parent opacity on dark backgrounds</li>
                         </ul>
@@ -688,7 +688,7 @@
                                     <td class="border border-gray-300 px-4 py-2"><code>class</code></td>
                                     <td class="border border-gray-300 px-4 py-2">string</td>
                                     <td class="border border-gray-300 px-4 py-2">''</td>
-                                    <td class="border border-gray-300 px-4 py-2">Additional CSS classes. Use 'text-white' for dark backgrounds, or any Tailwind text color for custom themes</td>
+                                    <td class="border border-gray-300 px-4 py-2">Additional CSS classes. Use 'text-white' for dark backgrounds, or any dry2.css text color for custom themes</td>
                                 </tr>
                             </tbody>
                         </table>

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Button Component**: Simplified icon system - replaced `icon-start` and `icon-end` attributes with single `icon` attribute that accepts Font Awesome CSS classes
 - **Button Component**: Updated examples and documentation to use Font Awesome icons
-- **Button Component**: Streamlined Alpine.js implementation for better performance
+- **Button Component**: Streamlined vanilla JavaScript implementation for better performance
 
 ### Added
 - Initial release preparation
@@ -55,8 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 - **Accessibility First**: All components include ARIA attributes and keyboard navigation
-- **Alpine.js Integration**: Reactive components with minimal JavaScript overhead
-- **Tailwind CSS Styling**: Beautiful, customizable styling out of the box
+- **VanillaState Reactivity**: Reactive components with minimal JavaScript overhead
+- **dry2.css Styling**: Beautiful, customizable styling out of the box
 - **Responsive Design**: Mobile-first approach for all screen sizes
 - **Framework Agnostic**: Works with React, Vue, Angular, or vanilla HTML
 - **TypeScript Support**: Full type definitions for better developer experience
