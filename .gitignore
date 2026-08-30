@@ -5,7 +5,7 @@
 /node_modules/
 /dist/
 /screenshots/
-/coverage/tmp/
+/coverage/
 all-components-showcase.html
 .idea/
 /.cursor/
