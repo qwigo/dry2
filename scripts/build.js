@@ -93,7 +93,6 @@ class Builder {
     
     // Define component dependencies
     const dependencies = {
-      'component-builder': ['alpine-utils'],
       'component-builder-example': ['component-builder']
     };
     
@@ -233,7 +232,7 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
           reserved: [
             'DRY2', 
             'BaseElement',
-            // Alpine.js method names used in templates
+            // Component method names referenced by name in templates
             'getButtonClasses',
             'getAvatarClasses',
             'getInitialsBackground', 
@@ -402,8 +401,7 @@ export const version = '${this.getVersion()}';
         'web-components',
         'custom-elements',
         'ui-library',
-        'alpine.js',
-        'tailwind-css',
+        'dry2-css',
         'accessibility',
         'responsive-design'
       ],
