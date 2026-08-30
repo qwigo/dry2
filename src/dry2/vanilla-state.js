@@ -1,13 +1,13 @@
 /**
  * Vanilla JavaScript State Management System
- * Replaces Alpine.js reactive functionality with pure vanilla JS
+ * Proxy-based reactive state management with pure vanilla JS
  */
 
 class VanillaState {
   constructor(data = {}) {
     this.data = { ...data };
     this.watchers = new Map();
-    this.computed = new Map();
+    this._computed = new Map();
     this.effects = [];
     this.isUpdating = false;
     this.updateQueue = [];
@@ -20,8 +20,8 @@ class VanillaState {
     const self = this;
     return new Proxy(this.data, {
       get(target, property) {
-        if (self.computed.has(property)) {
-          return self.computed.get(property).call(self.data);
+        if (self._computed.has(property)) {
+          return self._computed.get(property).call(self.data);
         }
         return target[property];
       },
@@ -51,7 +51,7 @@ class VanillaState {
    * Add computed properties
    */
   computed(name, fn) {
-    this.computed.set(name, fn);
+    this._computed.set(name, fn);
   }
 
   /**
