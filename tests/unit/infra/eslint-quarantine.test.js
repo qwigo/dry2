@@ -2,12 +2,13 @@
  * ESLint Quarantine Allowlist Tests
  *
  * Pins the exact set of files excluded from the lint gate via .eslintignore.
- * Issue #13 quarantined tracked files to reach 0 errors; the review (Major)
+ * Issue #13 quarantined tracked files to reach 0 errors and the review
  * required that quarantine be split by ownership and made impossible to grow
- * silently. Only the three tests/e2e/mobile-*.spec.js files may stay excluded:
- * the issue #14 workstream is functionally rewriting them and will fix their
- * lint and remove their entries when it lands. Any other path — or a stale
- * entry that outlives its owner — fails here with a named diff.
+ * silently. The quarantine is now retired: the theme files (issue #13) and the
+ * three tests/e2e/mobile-*.spec.js specs (issue #14) are all lint-clean. The
+ * allowlist is pinned to the empty set so any new exclusion must be added
+ * deliberately and fails here with a named diff until this pin is updated in
+ * the same change.
  */
 
 import chai from 'chai';
@@ -22,13 +23,9 @@ const __dirname = dirname(__filename);
 const repoRoot = join(__dirname, '..', '..', '..');
 const eslintignorePath = join(repoRoot, '.eslintignore');
 
-// The only files allowed to be excluded from the lint gate. Temporary: issue
-// #14 rewrites these specs and must un-quarantine them when it lands.
-const ALLOWED_QUARANTINED_PATHS = [
-  'tests/e2e/mobile-button.spec.js',
-  'tests/e2e/mobile-card.spec.js',
-  'tests/e2e/mobile-tabs.spec.js'
-];
+// The only files allowed to be excluded from the lint gate. Retired: issue
+// #14 un-quarantined the mobile e2e specs when it landed; keep this empty.
+const ALLOWED_QUARANTINED_PATHS = [];
 
 /**
  * Parse .eslintignore into its active entries: trimmed, non-empty lines that
@@ -41,7 +38,7 @@ const getQuarantinedPaths = () => readFileSync(eslintignorePath, 'utf-8')
   .filter((line) => line.length > 0 && !line.startsWith('#'));
 
 describe('eslint quarantine allowlist', () => {
-  it('quarantines exactly the three issue #14 mobile e2e specs', () => {
+  it('quarantines no paths (allowlist pinned empty)', () => {
     const quarantined = getQuarantinedPaths();
     const unexpected = quarantined.filter(
       (path) => !ALLOWED_QUARANTINED_PATHS.includes(path)
@@ -66,12 +63,12 @@ describe('eslint quarantine allowlist', () => {
     ).to.equal(ALLOWED_QUARANTINED_PATHS.length);
   });
 
-  it('keeps every quarantined entry commented with its owning issue', () => {
+  it('keeps the retirement note in .eslintignore', () => {
     const source = readFileSync(eslintignorePath, 'utf-8');
     expect(
-      source.includes('issue #14'),
-      '.eslintignore must reference issue #14 as the temporary owner of the ' +
-        'remaining quarantine entries'
+      source.includes('retired'),
+      '.eslintignore must keep the retirement note explaining why the ' +
+        'allowlist is empty and pinned'
     ).to.equal(true);
   });
 });
