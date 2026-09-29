@@ -94,19 +94,19 @@ class DryToast extends BaseElement {
     const customClass = this.getAttribute('container-class');
     if (customClass) return customClass;
 
-    let classes = 'toast-container fixed z-50 pointer-events-none transition-all duration-300 ';
+    let classes = 'toast-container fixed z-50 transition-all duration-300 ';
 
     const position = this.position;
     if (position === 'top-left') {
       classes += 'top-4 left-4 ';
     } else if (position === 'top-center') {
-      classes += 'top-4 left-1/2 transform -translate-x-1/2 ';
+      classes += 'top-4 left-1/2 -translate-x-1/2 ';
     } else if (position === 'top-right') {
       classes += 'top-4 right-4 ';
     } else if (position === 'bottom-left') {
       classes += 'bottom-4 left-4 ';
     } else if (position === 'bottom-center') {
-      classes += 'bottom-4 left-1/2 transform -translate-x-1/2 ';
+      classes += 'bottom-4 left-1/2 -translate-x-1/2 ';
     } else {
       // bottom-right or default
       classes += 'bottom-4 right-4 ';
@@ -240,9 +240,7 @@ style.textContent = `
     .toast-container.left-4 { left: 1rem; }
     .toast-container.right-4 { right: 1rem; }
     .toast-container.left-1\\/2 { left: 50%; }
-    .toast-container.top-1\\/2 { top: 50%; }
     .toast-container.-translate-x-1\\/2 { transform: translateX(-50%); }
-    .toast-container.-translate-y-1\\/2 { transform: translateY(-50%); }
 
     .toast-container .toast {
         pointer-events: auto;
