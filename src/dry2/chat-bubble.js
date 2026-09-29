@@ -308,7 +308,7 @@ class DryChatBubble extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     this.reRender();
   }

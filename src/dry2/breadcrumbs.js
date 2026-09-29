@@ -10,7 +10,7 @@ class DryBreadcrumbs extends BaseElement {
     return ['separator', 'breadcrumb_class'];
   }
 
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     if (!this._isRendering) {
       this.reRender();
     }

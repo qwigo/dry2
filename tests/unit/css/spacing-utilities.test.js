@@ -49,13 +49,11 @@ function setupCSSTestEnvironment() {
 
 describe('Spacing Utilities', () => {
   let window;
-  let document;
   let testElement;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
-    document = env.document;
     testElement = env.testElement;
   });
 

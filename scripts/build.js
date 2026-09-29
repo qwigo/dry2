@@ -10,8 +10,8 @@
  * - Distribution preparation
  */
 
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync, rmSync } from 'fs';
-import { join, dirname, extname, basename } from 'path';
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync, statSync, rmSync } from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { gzipSync } from 'zlib';
 import { minify } from 'terser';
@@ -21,7 +21,6 @@ const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 const srcDir = join(rootDir, 'src');
 const distDir = join(rootDir, 'dist');
-const docsDir = join(rootDir, 'docs');
 
 class Builder {
   constructor() {

@@ -117,7 +117,6 @@ class TimelineItem extends BaseElement {
   }
 
   _createTimelineItemHTML(originalContent) {
-    const variant = this.variant;
     const date = this.date;
     const title = this.title;
 

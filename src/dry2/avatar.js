@@ -122,8 +122,6 @@ class DryAvatar extends BaseElement {
   }
 
   _setupEventListeners() {
-    const state = this._componentState.getState();
-
     // Image event listeners
     const img = this.querySelector('.avatar-image');
     if (img) {
@@ -283,7 +281,7 @@ class DryAvatar extends BaseElement {
     return classes;
   }
 
-  _getImageClasses(state) {
+  _getImageClasses(_state) {
     return 'w-full h-full object-cover transition-opacity duration-300';
   }
 

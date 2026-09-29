@@ -280,7 +280,7 @@ class DryCard extends BaseElement {
   /**
    * Handle card click
    */
-  _handleCardClick(event) {
+  _handleCardClick(_event) {
     const cardEvent = new CustomEvent('card:click', {
       bubbles: true,
       cancelable: true,
@@ -295,7 +295,7 @@ class DryCard extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     if (this.hasAttribute('data-rendered')) {
       this.reRender();

@@ -69,7 +69,7 @@ class BaseElement extends HTMLElement {
   /**
    * Hook: Called when an observed attribute changes (override in subclass)
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Override in subclass to handle attribute changes
   }
 

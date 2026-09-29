@@ -203,7 +203,6 @@ test.describe('DRY Stat Component', () => {
 
     // Initially check default classes
     let valueElement = stat.locator('.text-2xl');
-    const initialClasses = await valueElement.getAttribute('class');
 
     // Add text-white class to trigger light theme
     await stat.evaluate((el) => {

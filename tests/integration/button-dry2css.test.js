@@ -192,7 +192,6 @@ describe('DryButton with dry2.css', () => {
       return new Promise((resolve) => {
         setTimeout(() => {
           const innerButton = button.querySelector('button');
-          const classList = innerButton.className;
 
           // Medium is typically the default, so it might not have an explicit class
           // But if there is one, it should be btn-md

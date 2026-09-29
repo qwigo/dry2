@@ -13,7 +13,7 @@
 import express from 'express';
 import { execFileSync } from 'child_process';
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { join, dirname, extname } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import chokidar from 'chokidar';
 
@@ -298,8 +298,6 @@ class DevServer {
    * Generate test runner HTML
    */
   generateTestRunner(component) {
-    const testFiles = component ? [`test/components/${component}.test.js`] : ['test/**/*.test.js'];
-
     return `
 <!DOCTYPE html>
 <html lang="en">

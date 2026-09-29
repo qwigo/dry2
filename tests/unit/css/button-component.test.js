@@ -49,13 +49,11 @@ function setupCSSTestEnvironment() {
 
 describe('Button Component Classes', () => {
   let window;
-  let document;
   let testButton;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
-    document = env.document;
     testButton = env.testButton;
   });
 

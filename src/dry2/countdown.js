@@ -380,7 +380,7 @@ class DryCountdown extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     // For dynamic changes, reset and re-render
     if (['target-date', 'duration', 'format'].includes(name)) {
       this.reset();

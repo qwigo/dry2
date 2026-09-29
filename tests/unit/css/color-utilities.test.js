@@ -59,13 +59,12 @@ function getComputedStyleForClass(className, document, window) {
 }
 
 describe('Color Utility Classes', () => {
-  let window, document, rootStyles;
+  let window, document;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
     document = env.document;
-    rootStyles = env.rootStyles;
   });
 
   describe('Text Color Utilities', () => {

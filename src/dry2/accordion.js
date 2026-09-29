@@ -212,7 +212,7 @@ class AccordionItem extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'open') {
       if (this.getBoolAttr('open', false)) {
         this._isOpen = false; // Reset so open() will work
@@ -258,7 +258,6 @@ class DryAccordion extends BaseElement {
    */
   render() {
     // Just add styling wrapper - children accordion-items are already rendered
-    const multiple = this.getBoolAttr('multiple', false);
     const disabled = this.getBoolAttr('disabled', false);
 
     // Add base styling to accordion container
@@ -378,7 +377,7 @@ class DryAccordion extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'multiple') {
       const multiple = this.getBoolAttr('multiple', false);
       // If switching to single mode, close all but the first open item

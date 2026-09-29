@@ -252,7 +252,7 @@ class ToggleSwitch extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'checked') {
       this._checked = this.getBoolAttr('checked', false);
       this._updateUI();

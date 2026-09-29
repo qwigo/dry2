@@ -48,16 +48,12 @@ function setupCSSTestEnvironment() {
 
 describe('Typography Utilities', () => {
   let window;
-  let document;
   let testElement;
-  let rootStyles;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
-    document = env.document;
     testElement = env.testElement;
-    rootStyles = window.getComputedStyle(document.documentElement);
   });
 
   afterEach(() => {

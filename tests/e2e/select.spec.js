@@ -114,8 +114,6 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(300);
 
-    const dropdown = select.locator('.absolute.z-50');
-
     // Select multiple options using direct component API
     await page.evaluate(() => {
       const selectEl = document.querySelector('dry-select[name="languages"]');

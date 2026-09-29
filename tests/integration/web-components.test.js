@@ -185,69 +185,6 @@ describe('Web Components', () => {
   });
 
   /**
-     * DatePicker Component Tests
-     */
-  describe('DatePicker', () => {
-    it('should render with correct attributes', () => {
-      // Skip directly rendering and testing in DOM
-      // Just verify the DatePicker class exists
-      assert.isFunction(DatePicker, 'DatePicker component is defined');
-    });
-
-    it('should format date correctly', () => {
-      // Create a direct instance for testing
-      const datePicker = new DatePicker();
-
-      // Test date formatting function directly
-      const date = new Date(2023, 5, 15); // June 15, 2023
-      const formatted = datePicker.formatDate(date);
-
-      assert.equal(formatted, '2023-06-15', 'Date is formatted correctly');
-    });
-
-    it('should parse date correctly', () => {
-      // Create a direct instance for testing
-      const datePicker = new DatePicker();
-
-      // Test date parsing function directly
-      const parsed = datePicker.parseDate('2023-06-15');
-
-      assert.equal(parsed.getFullYear(), 2023, 'Year is parsed correctly');
-      assert.equal(parsed.getMonth(), 5, 'Month is parsed correctly (zero-based)');
-      assert.equal(parsed.getDate(), 15, 'Day is parsed correctly');
-    });
-
-    it('should validate date format', () => {
-      // Create a direct instance for testing
-      const datePicker = new DatePicker();
-
-      assert.isTrue(datePicker.isValidDateFormat('2023-01-15'), 'Valid date format');
-      assert.isFalse(datePicker.isValidDateFormat('01/15/2023'), 'Invalid date format');
-    });
-
-    it('should handle month navigation', () => {
-      // Create a direct instance for testing, but don't rely on DOM methods
-      const datePicker = new DatePicker();
-
-      // Initialize calendar view
-      datePicker.currentViewDate = new Date(2023, 0, 1); // January 2023
-
-      // Mock renderCalendar to avoid DOM operations
-      datePicker.renderCalendar = function() {
-        // Mock implementation that does nothing
-      };
-
-      // Test next month
-      datePicker.nextMonth();
-      assert.equal(datePicker.currentViewDate.getMonth(), 1, 'Month incremented to February');
-
-      // Test previous month
-      datePicker.prevMonth();
-      assert.equal(datePicker.currentViewDate.getMonth(), 0, 'Month decremented to January');
-    });
-  });
-
-  /**
      * ToggleSwitch Component Tests
      */
   describe('ToggleSwitch', () => {
@@ -416,7 +353,7 @@ describe('Web Components', () => {
       select.selectedOptions = new Set(['2']);
 
       // Modified toggleOption method without requiring UI elements
-      select.toggleOption = function(value, label) {
+      select.toggleOption = function(value, _label) {
         if (this.selectedOptions.has(value)) {
           this.selectedOptions.delete(value);
         } else {

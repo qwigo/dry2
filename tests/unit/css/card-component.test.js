@@ -52,13 +52,11 @@ function setupCSSTestEnvironment() {
 
 describe('Card Component Classes', () => {
   let window;
-  let document;
   let testCard;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
-    document = env.document;
     testCard = env.testCard;
   });
 

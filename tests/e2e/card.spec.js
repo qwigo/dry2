@@ -240,7 +240,7 @@ test.describe('Card Component', () => {
         const card = document.getElementById('interactive-card');
         let fired = false;
 
-        card.addEventListener('card:click', (e) => {
+        card.addEventListener('card:click', (_e) => {
           fired = true;
         });
 

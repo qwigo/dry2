@@ -49,13 +49,11 @@ function setupCSSTestEnvironment() {
 
 describe('Badge Component Classes', () => {
   let window;
-  let document;
   let testBadge;
 
   before(() => {
     const env = setupCSSTestEnvironment();
     window = env.window;
-    document = env.document;
     testBadge = env.testBadge;
   });
 

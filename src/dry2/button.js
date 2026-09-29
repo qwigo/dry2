@@ -229,7 +229,7 @@ class DryButton extends BaseElement {
   /**
    * Get state-specific classes (using dry2.css)
    */
-  _getStateClasses(disabled, loading) {
+  _getStateClasses(_disabled, _loading) {
     // State styling is handled by .btn:disabled in dry2.css
     // No additional classes needed
     return '';
@@ -256,7 +256,7 @@ class DryButton extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     this.reRender();
   }

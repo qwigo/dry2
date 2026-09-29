@@ -263,9 +263,6 @@ test.describe('Accordion Component', () => {
   });
 
   test('should emit accordion:change events', async({ page }) => {
-    const accordion = page.locator('#interactive-accordion');
-    const firstItem = accordion.locator('accordion-item').first();
-
     // Listen for custom events
     const eventFired = await page.evaluate(() => {
       return new Promise((resolve) => {

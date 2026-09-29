@@ -422,7 +422,7 @@ describe('DryCode Component', () => {
 
       // Mock clipboard API
       global.navigator.clipboard = {
-        writeText: (text) => Promise.resolve()
+        writeText: (_text) => Promise.resolve()
       };
     });
 

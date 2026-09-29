@@ -302,7 +302,7 @@ describe('Button Showcase', () => {
       const codeBlocks = doc.querySelectorAll('.code-block');
 
       // Ensure each code block can be uniquely identified
-      codeBlocks.forEach((block, index) => {
+      codeBlocks.forEach((block, _index) => {
         expect(block.classList.contains('code-block')).to.be.true;
         const isUniquelyIdentifiable = block.hasAttribute('id') ||
                     Boolean(block.parentElement && block.closest('.showcase-section'));
