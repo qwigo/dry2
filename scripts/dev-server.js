@@ -162,7 +162,7 @@ class DevServer {
       persistent: true
     });
 
-    // Expose the handle so tests can close it and let the process exit.
+    // Exposed for diagnostics; stop() closes it.
     this.watcher = watcher;
 
     watcher.on('change', (path) => {
@@ -544,10 +544,10 @@ class DevServer {
         cwd: rootDir,
         stdio: 'inherit'
       });
-    } catch (error) {
+    } catch {
       throw new Error(
         'dist/dry2.js is missing and scripts/build.js failed to produce it. ' +
-        `Run "npm run build" manually. (${error.message})`
+        'Run "npm run build" manually.'
       );
     }
 
@@ -579,9 +579,14 @@ class DevServer {
   }
 
   /**
-   * Stop the development server
+   * Stop the development server and close the file watcher
    */
   async stop() {
+    if (this.watcher) {
+      await this.watcher.close();
+      this.watcher = null;
+    }
+
     if (this.server) {
       return new Promise((resolve) => {
         this.server.close(() => {

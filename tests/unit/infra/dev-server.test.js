@@ -10,7 +10,7 @@
  */
 
 import chai from 'chai';
-import { readdirSync } from 'fs';
+import { existsSync, readdirSync, renameSync, rmSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import DevServer from '../../../scripts/dev-server.js';
@@ -41,6 +41,19 @@ const getRootShowcasePages = () => readdirSync(rootDir, { withFileTypes: true })
  */
 const get = (path) => fetch(`${baseUrl}${path}`);
 
+/**
+ * Shut a DevServer down defensively so teardown never masks the real error
+ * when startup failed part-way through.
+ * @param {DevServer|undefined} server - The server instance to stop, if any.
+ * @returns {Promise<void>} Resolves once the server is fully stopped.
+ */
+const stopServer = async(server) => {
+  if (server?.server) {
+    server.server.closeAllConnections();
+  }
+  await server?.stop();
+};
+
 describe('DevServer static asset serving', () => {
   before(async() => {
     devServer = new DevServer({ port: 0, host: HOST });
@@ -50,11 +63,7 @@ describe('DevServer static asset serving', () => {
   });
 
   after(async() => {
-    if (devServer.watcher) {
-      await devServer.watcher.close();
-    }
-    devServer.server.closeAllConnections();
-    await devServer.stop();
+    await stopServer(devServer);
   });
 
   it('serves /dist/dry2.js with a JavaScript content type', async() => {
@@ -109,12 +118,117 @@ describe('DevServer static asset serving', () => {
   });
 
   it('does not serve repo-internal files', async() => {
-    const privatePaths = ['/.git/config', '/node_modules/express/package.json'];
+    const privatePaths = [
+      '/.git/config',
+      '/node_modules/express/package.json',
+      // Encoded traversal and hidden-file probes: each would pass the root-HTML
+      // route regex if its allowlist ever regressed.
+      '/..%2fpackage.json',
+      '/%2e%2e%2fsecrets.html',
+      '/.hidden.html',
+      '/sub%2findex.html'
+    ];
 
     for (const path of privatePaths) {
       const response = await get(path);
 
       expect(response.status, `GET ${path}`).to.equal(404);
+    }
+  });
+});
+
+describe('DevServer dist bundle bootstrap and shutdown', () => {
+  const bundlePath = join(rootDir, 'dist', 'dry2.js');
+  const bundleBackupPath = join(rootDir, 'dist', 'dry2.js.test-backup');
+  const buildScriptPath = join(rootDir, 'scripts', 'build.js');
+  const buildBackupPath = join(rootDir, 'scripts', 'build.js.test-backup');
+
+  /**
+   * Move a file aside for the duration of a test.
+   * @param {string} filePath - Path of the file to move.
+   * @param {string} backupPath - Temporary path to move it to.
+   */
+  const stashFile = (filePath, backupPath) => {
+    if (existsSync(filePath)) {
+      renameSync(filePath, backupPath);
+    }
+  };
+
+  /**
+   * Restore a file previously moved aside by stashFile.
+   * @param {string} filePath - Original path of the file.
+   * @param {string} backupPath - Temporary path it was moved to.
+   */
+  const restoreFile = (filePath, backupPath) => {
+    if (existsSync(backupPath)) {
+      if (existsSync(filePath)) {
+        rmSync(filePath);
+      }
+      renameSync(backupPath, filePath);
+    }
+  };
+
+  it('builds dist/dry2.js at startup when the bundle is missing', async() => {
+    let server;
+
+    expect(existsSync(bundlePath), 'precondition: dist/dry2.js exists').to.equal(true);
+    stashFile(bundlePath, bundleBackupPath);
+
+    try {
+      server = new DevServer({ port: 0, host: HOST });
+      await server.start();
+
+      expect(existsSync(bundlePath), 'startup must rebuild the missing bundle').to.equal(true);
+
+      const { port } = server.server.address();
+      const response = await fetch(`http://${HOST}:${port}/dist/dry2.js`);
+
+      expect(response.status).to.equal(200);
+      expect(response.headers.get('content-type')).to.match(/javascript/);
+    } finally {
+      await stopServer(server);
+      restoreFile(bundlePath, bundleBackupPath);
+    }
+  });
+
+  it('fails startup with a clear, path-free message when the build fails', async() => {
+    let server = null;
+    let thrown = null;
+
+    stashFile(bundlePath, bundleBackupPath);
+    stashFile(buildScriptPath, buildBackupPath);
+
+    try {
+      server = new DevServer({ port: 0, host: HOST });
+
+      try {
+        await server.start();
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown, 'start() must reject when the build fails').to.be.an('error');
+      expect(thrown.message).to.include('dist/dry2.js is missing');
+      expect(thrown.message).to.include('Run "npm run build" manually');
+      expect(thrown.message, 'error message must not leak absolute paths').to.not.include(rootDir);
+    } finally {
+      await stopServer(server);
+      restoreFile(buildScriptPath, buildBackupPath);
+      restoreFile(bundlePath, bundleBackupPath);
+    }
+  });
+
+  it('stop() closes the file watcher so the process can exit', async() => {
+    const server = new DevServer({ port: 0, host: HOST });
+
+    await server.start();
+    expect(server.watcher, 'startup must attach a file watcher').to.not.equal(null);
+
+    try {
+      await server.stop();
+      expect(server.watcher, 'stop() must close and release the watcher').to.equal(null);
+    } finally {
+      await stopServer(server);
     }
   });
 });
