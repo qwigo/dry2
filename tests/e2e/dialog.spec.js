@@ -177,4 +177,144 @@ test.describe('Dialog Component', () => {
     await expect(drawer).toHaveAttribute('aria-modal', 'true');
     await expect(drawer).toHaveAttribute('role', 'dialog');
   });
+
+  test('should have correct initial state on page load', async({ page }) => {
+    // All dialogs and drawers start closed with their backdrops hidden
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(0);
+    await expect(page.locator('dry-dialog div[data-backdrop="true"]:visible')).toHaveCount(0);
+  });
+
+  test('should close modal dialog when clicking outside the panel', async({ page }) => {
+    await page.locator('#quick-start-trigger').click();
+
+    const dialog = page.locator('dry-dialog dialog[open]').first();
+    await expect(dialog).toBeVisible();
+
+    // Click on the native ::backdrop, just outside the dialog element's box.
+    // The click retargets to the dialog element, which closes the modal.
+    const box = await dialog.boundingBox();
+    await page.mouse.click(Math.max(box.x - 10, 2), box.y + box.height / 2);
+
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+  });
+
+  test('should have no JavaScript console errors', async({ page }) => {
+    const consoleErrors = [];
+
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    // Open and close a modal dialog
+    await page.locator('#quick-start-trigger').click();
+    await expect(page.locator('dry-dialog dialog[open]').first()).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+
+    // Open a drawer and close it via its backdrop
+    await page.locator('#quick-start-drawer-trigger').click();
+    const drawer = page.locator('dry-dialog div[role="dialog"]:visible').first();
+    await expect(drawer).toBeVisible();
+
+    const backdrop = page.locator('dry-dialog:has(#quick-start-drawer-trigger) div[data-backdrop="true"]');
+    await expect(backdrop).toBeVisible();
+    await backdrop.click({ position: { x: 5, y: 5 } });
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(0);
+
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test('should pass custom dialog styling through to the panel', async({ page }) => {
+    // button-class lands on the generated trigger link
+    const trigger = page.locator('#styled-dialog-trigger');
+    await expect(trigger).toHaveClass(/bg-gradient-to-r/);
+    await expect(trigger).toHaveClass(/rounded-full/);
+
+    await trigger.click();
+    await expect(page.locator('dry-dialog dialog[open]').first()).toBeVisible();
+
+    // dialog-class lands on the id-less panel wrapper inside the native dialog
+    const panel = page.locator('dry-dialog dialog[open] > div');
+    await expect(panel).toHaveClass(/bg-gradient-to-br/);
+    await expect(panel).toHaveClass(/rounded-xl/);
+    await expect(panel).toHaveClass(/max-w-2xl/);
+  });
+
+  test('should pass custom drawer styling through to the panel', async({ page }) => {
+    await page.locator('#custom-drawer-trigger').click();
+
+    const drawer = page.locator('dry-dialog div[role="dialog"]:visible').first();
+    await expect(drawer).toBeVisible();
+    await expect(drawer).toHaveClass(/bg-gradient-to-br/);
+    await expect(drawer).toHaveClass(/border-l-4/);
+    await expect(drawer).toHaveClass(/border-blue-500/);
+  });
+
+  test('should handle multiple dialogs on same page', async({ page }) => {
+    // Modal and drawer panels coexist but only one surface is open at a time
+    await page.locator('#small-dialog-trigger').click();
+    await expect(page.locator('dry-dialog dialog[open]').first()).toBeVisible();
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(1);
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(0);
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+
+    await page.locator('#narrow-drawer-trigger').click();
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible').first()).toBeVisible();
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(1);
+    await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(0);
+  });
+
+  test('should support custom dialog widths', async({ page }) => {
+    const cases = [
+      { trigger: '#small-dialog-trigger', widthClass: 'max-w-sm' },
+      { trigger: '#xl-dialog-trigger', widthClass: 'max-w-6xl' },
+      { trigger: '#custom-width-dialog-trigger', widthClass: 'w-[600px]' },
+      { trigger: '#full-width-dialog-trigger', widthClass: 'max-w-full' }
+    ];
+
+    for (const c of cases) {
+      await page.locator(c.trigger).click();
+
+      // dialog-class lands on the id-less panel wrapper inside the native dialog
+      const panel = page.locator('dry-dialog dialog[open] > div');
+      await expect(panel).toBeVisible();
+
+      const hasWidth = await panel.evaluate((el, cls) => el.classList.contains(cls), c.widthClass);
+      expect(hasWidth).toBe(true);
+
+      await page.keyboard.press('Escape');
+      await expect(page.locator('dry-dialog dialog[open]')).toHaveCount(0);
+    }
+  });
+
+  test('should support custom drawer widths', async({ page }) => {
+    const cases = [
+      { trigger: '#narrow-drawer-trigger', widthClass: 'w-64' },
+      { trigger: '#wide-drawer-trigger', widthClass: 'w-96' },
+      { trigger: '#extra-wide-drawer-trigger', widthClass: 'w-[32rem]' },
+      { trigger: '#half-screen-drawer-trigger', widthClass: 'w-1/2' }
+    ];
+
+    for (const c of cases) {
+      await page.locator(c.trigger).click();
+
+      // drawer widths land on the div[role="dialog"] panel itself
+      const drawer = page.locator('dry-dialog div[role="dialog"]:visible').first();
+      await expect(drawer).toBeVisible();
+
+      const hasWidth = await drawer.evaluate((el, cls) => el.classList.contains(cls), c.widthClass);
+      expect(hasWidth).toBe(true);
+
+      await page.keyboard.press('Escape');
+      await expect(page.locator('dry-dialog div[role="dialog"]:visible')).toHaveCount(0);
+    }
+  });
 });
