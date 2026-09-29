@@ -11,6 +11,7 @@
  */
 
 import express from 'express';
+import { execFileSync } from 'child_process';
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
@@ -22,7 +23,8 @@ const rootDir = join(__dirname, '..');
 
 class DevServer {
   constructor(options = {}) {
-    this.port = options.port || 3000;
+    // ?? keeps port 0 (ephemeral) intact; || would coerce it to 3000
+    this.port = options.port ?? 3000;
     this.host = options.host || 'localhost';
     this.app = express();
     this.components = [];
@@ -40,6 +42,7 @@ class DevServer {
     this.app.use('/src', express.static(join(rootDir, 'src')));
     this.app.use('/examples', express.static(join(rootDir, 'examples')));
     this.app.use('/test', express.static(join(rootDir, 'test')));
+    this.app.use('/dist', express.static(join(rootDir, 'dist')));
     
     // CORS for development
     this.app.use((req, res, next) => {
@@ -64,6 +67,26 @@ class DevServer {
     // Root route - component browser
     this.app.get('/', (req, res) => {
       res.send(this.generateComponentBrowser());
+    });
+
+    // Root-level showcase HTML pages. Serves only <rootDir>/*.html — single
+    // path segment, no leading dot — so repo-internal paths (.git/, node_modules/,
+    // dotdirs) and nested files are never reachable through this route.
+    this.app.get(/^\/([^/]+\.html)$/, (req, res) => {
+      const fileName = req.params[0];
+
+      if (!/^[A-Za-z0-9][A-Za-z0-9._-]*\.html$/.test(fileName)) {
+        res.status(404).send('Not found');
+        return;
+      }
+
+      const filePath = join(rootDir, fileName);
+
+      if (existsSync(filePath) && statSync(filePath).isFile()) {
+        res.sendFile(filePath);
+      } else {
+        res.status(404).send('Not found');
+      }
     });
 
     // Component showcase route
@@ -504,9 +527,46 @@ class DevServer {
   }
 
   /**
+   * Build the dist bundle at startup when it is missing, so clean checkouts
+   * can serve /dist and showcase pages without a manual `npm run build`.
+   * @throws {Error} If the build fails or still does not produce dist/dry2.js.
+   */
+  ensureDistBundle() {
+    const bundlePath = join(rootDir, 'dist', 'dry2.js');
+
+    if (existsSync(bundlePath)) {
+      return;
+    }
+
+    console.log('📦 dist/dry2.js missing — running build before serving...');
+    try {
+      execFileSync(process.execPath, [join(__dirname, 'build.js')], {
+        cwd: rootDir,
+        stdio: 'inherit'
+      });
+    } catch (error) {
+      throw new Error(
+        'dist/dry2.js is missing and scripts/build.js failed to produce it. ' +
+        `Run "npm run build" manually. (${error.message})`
+      );
+    }
+
+    if (!existsSync(bundlePath)) {
+      throw new Error(
+        'dist/dry2.js is missing and scripts/build.js finished without producing it. ' +
+        'Run "npm run build" manually.'
+      );
+    }
+
+    console.log('📦 dist/dry2.js built — ready to serve');
+  }
+
+  /**
    * Start the development server
    */
   async start() {
+    this.ensureDistBundle();
+
     return new Promise((resolve) => {
       this.server = this.app.listen(this.port, this.host, () => {
         console.log(`🚀 DRY2 Development Server running at http://${this.host}:${this.port}`);
