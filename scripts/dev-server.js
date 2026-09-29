@@ -139,6 +139,9 @@ class DevServer {
       persistent: true
     });
 
+    // Expose the handle so tests can close it and let the process exit.
+    this.watcher = watcher;
+
     watcher.on('change', (path) => {
       console.log(`📝 File changed: ${path}`);
       this.notifyReload();
