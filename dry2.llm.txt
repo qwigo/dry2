@@ -2,7 +2,7 @@
 
 ## Overview
 
-DRY2 is a comprehensive web components library built with modern web standards, designed for creating interactive and accessible user interfaces. The library leverages Web Components (Custom Elements) with **vanilla JavaScript** for reactivity and state management (no framework dependencies), Tailwind CSS for styling, HTMX for AJAX functionality, and Font Awesome for icons.
+DRY2 is a comprehensive web components library built with modern web standards, designed for creating interactive and accessible user interfaces. The library leverages Web Components (Custom Elements) with **vanilla JavaScript** for reactivity and state management (no framework dependencies), dry2.css for styling, HTMX for AJAX functionality, and Font Awesome for icons.
 
 **Architecture**: All components extend from a lightweight `BaseElement` base class that provides lifecycle management, event handling, and rendering capabilities **without Shadow DOM**, allowing seamless integration with page styles and third-party libraries.
 
@@ -11,7 +11,7 @@ DRY2 is a comprehensive web components library built with modern web standards, 
 - **Web Components**: Custom Elements API for component definition
 - **Vanilla JavaScript**: Native JavaScript with Proxy-based reactive state management (`VanillaState`)
 - **BaseElement**: Custom base class for component lifecycle and rendering
-- **Tailwind CSS**: Utility-first CSS framework for styling
+- **dry2.css**: Built-in utility-first CSS framework for styling
 - **HTMX**: HTML-over-the-wire for AJAX interactions (optional, used by dialog component)
 - **Font Awesome**: Icon library for visual elements (optional, used by button and other components)
 
@@ -248,7 +248,7 @@ countdown.addEventListener('countdown:complete', () => {
 
 ### 10. Dialog Component (`<dry-dialog>`)
 
-Modal dialogs and slide-out drawers with HTMX integration, built with vanilla JavaScript (no Alpine.js).
+Modal dialogs and slide-out drawers with HTMX integration, built with vanilla JavaScript.
 
 **Basic Usage:**
 ```html
@@ -540,8 +540,8 @@ Interactive component builder for creating live component demonstrations with pr
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- dry2.css for styling -->
+    <link rel="stylesheet" href="src/dry2/css/dry2.css">
     
     <!-- HTMX for AJAX (optional, only needed for dialog component) -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
@@ -571,7 +571,7 @@ Interactive component builder for creating live component demonstrations with pr
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/dry2/css/dry2.css">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
@@ -604,10 +604,10 @@ Components depend on the base infrastructure:
 ```
 
 ### Styling Guidelines
-- Components use Tailwind CSS classes for styling
+- Components use dry2.css utility classes for styling
 - Custom CSS classes can be applied through component properties
-- Responsive design is built-in with Tailwind's responsive prefixes
-- Dark mode support available through Tailwind's dark mode utilities
+- Responsive design is built-in with dry2.css responsive prefixes
+- Dark mode support available through dry2.css dark mode utilities
 
 ### Event Handling
 All components emit custom events using the native CustomEvent API:
@@ -681,9 +681,9 @@ class MyComponent extends BaseElement {
    - Consider code splitting for large applications
 
 2. **Styling**: 
-   - Use Tailwind utility classes for consistent styling
+   - Use dry2.css utility classes for consistent styling
    - Pass custom classes via component properties
-   - Avoid inline styles; use Tailwind classes instead
+   - Avoid inline styles; use dry2.css classes instead
    - Test responsive breakpoints (sm, md, lg, xl)
 
 3. **Event Handling**: 

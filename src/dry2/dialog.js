@@ -23,7 +23,7 @@ class DryDialog extends BaseElement {
    * Observe these attributes for changes
    */
   static get observedAttributes() {
-    return ['url', 'mode', 'direction', 'button-class', 'dialog-class', 'drawer-class'];
+    return ['url', 'mode', 'direction', 'button-class', 'dialog-class', 'drawer-class', 'no-mobile-fallback'];
   }
 
   constructor() {
@@ -158,15 +158,16 @@ class DryDialog extends BaseElement {
    */
   render() {
     const requestedMode = this.getAttr('mode', 'dialog');
-    // Force dialog mode on mobile devices
-    const isMobile = this._isMobile();
+    const noMobileFallback = this.hasAttribute('no-mobile-fallback');
+    // Force dialog mode on mobile devices (unless opted out)
+    const isMobile = !noMobileFallback && this._isMobile();
     const mode = isMobile ? 'dialog' : requestedMode;
     
     // Store current mobile state
     this._wasMobile = isMobile;
     
-    // Set up resize handler if not already done
-    if (!this._resizeHandler) {
+    // Set up resize handler if not already done (skip when mobile fallback is disabled)
+    if (!this._resizeHandler && !noMobileFallback) {
       this._setupResizeHandler();
     }
     
@@ -211,37 +212,125 @@ class DryDialog extends BaseElement {
   }
 
   /**
+   * Inject shared styles for dialog/drawer once per page load
+   */
+  static _ensureStyles() {
+    if (document.getElementById('dry-dialog-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'dry-dialog-styles';
+    style.textContent = `
+      dialog.dry-dialog-native {
+        border: none;
+        padding: 0;
+        background: transparent;
+        max-width: none;
+        margin: auto;
+      }
+      dialog.dry-dialog-native::backdrop {
+        background: rgba(0, 0, 0, 0.48);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
+      @keyframes dry-dialog-in {
+        from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      dialog.dry-dialog-native[open] > * {
+        animation: dry-dialog-in 0.2s cubic-bezier(0.34, 1.1, 0.64, 1) forwards;
+      }
+      .dry-dialog-default-panel {
+        background: var(--stem-color-bg-surface, #ffffff);
+        border-radius: 0.875rem;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.10);
+        max-width: 32rem;
+        width: calc(100vw - 2rem);
+        padding: 1.5rem;
+        border: 1px solid var(--stem-color-border-light, rgba(0,0,0,0.08));
+      }
+      .dry-dialog-close-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.375rem;
+        border-radius: 0.375rem;
+        color: var(--stem-color-text-muted, #9ca3af);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        line-height: 1;
+        transition: background-color 0.15s, color 0.15s;
+      }
+      .dry-dialog-close-btn:hover {
+        background-color: var(--stem-color-bg-secondary, rgba(0,0,0,0.07));
+        color: var(--stem-color-text-base, #111827);
+      }
+      .dry-dialog-close-btn:focus-visible {
+        outline: 2px solid var(--stem-color-primary, #6366f1);
+        outline-offset: 2px;
+      }
+      [role="dialog"].dry-drawer-x {
+        width: 100%;
+      }
+      [role="dialog"].dry-drawer-y {
+        height: 100%;
+      }
+      @media (min-width: 1024px) {
+        [role="dialog"].dry-drawer-x {
+          width: 50%;
+          max-width: 100%;
+        }
+        [role="dialog"].dry-drawer-y {
+          height: 50%;
+          max-height: 100%;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /**
    * Render a modal dialog
    */
   _renderDialog(dialogInnerId) {
-    const dialogClass = this.getAttr('dialog-class', 'bg-white rounded-lg shadow-xl max-w-lg w-full p-6');
+    const dialogClass = this.getAttr('dialog-class', '');
+
+    DryDialog._ensureStyles();
 
     const dialog = document.createElement('dialog');
-    dialog.className = 'backdrop:bg-black backdrop:opacity-50';
+    dialog.className = 'dry-dialog-native';
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('role', 'dialog');
 
-    const dialogInner = document.createElement('div');
-    dialogInner.className = dialogClass + ' relative';
-    dialogInner.id = dialogInnerId;
+    // Outer panel — has dialog-class applied; close button lives here
+    // so it persists through HTMX innerHTML swaps on the inner content area
+    const panel = document.createElement('div');
+    panel.className = dialogClass || 'dry-dialog-default-panel';
+    panel.style.position = 'relative';
 
-    // Close button
+    // Close button — uses injected CSS, no Tailwind dependency
     const closeButton = document.createElement('button');
-    closeButton.className = 'absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10';
-    closeButton.innerHTML = `
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    `;
+    closeButton.type = 'button';
+    closeButton.className = 'dry-dialog-close-btn';
     closeButton.setAttribute('aria-label', 'Close dialog');
+    closeButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>`;
     this._closeButton = closeButton;
 
-    dialogInner.appendChild(closeButton);
-    dialog.appendChild(dialogInner);
+    // Content area — this is the HTMX target; close button is a sibling so it
+    // is never removed when HTMX replaces innerHTML here
+    const contentArea = document.createElement('div');
+    contentArea.id = dialogInnerId;
+
+    panel.appendChild(closeButton);
+    panel.appendChild(contentArea);
+    dialog.appendChild(panel);
     this.appendChild(dialog);
 
     this._dialogElement = dialog;
-    this._contentContainer = dialogInner;
+    this._contentContainer = contentArea;
   }
 
   /**
@@ -249,51 +338,58 @@ class DryDialog extends BaseElement {
    */
   _renderDrawer(dialogInnerId) {
     const direction = this.getAttr('direction', 'right');
-    
+
+    DryDialog._ensureStyles();
+
     // Check if dialog-class is provided (overrides drawer-class)
     const customDialogClass = this.getAttribute('dialog-class');
     let drawerClass;
     
     if (customDialogClass) {
-      // Use dialog-class if provided (for full customization)
       drawerClass = customDialogClass;
     } else {
-      // Use drawer-class or default
-      const baseDrawerClass = this.getAttr('drawer-class', 'p-6 bg-white shadow-xl');
-      drawerClass = this._getDrawerClasses(direction, baseDrawerClass);
+      const baseDrawerClass = this.getAttr('drawer-class', '');
+      const defaultBase = baseDrawerClass || 'p-6 bg-white shadow-xl';
+      drawerClass = this._getDrawerClasses(direction, defaultBase);
     }
     
-    // Create backdrop
+    // Backdrop
     const backdrop = document.createElement('div');
-    backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300';
     backdrop.setAttribute('data-backdrop', 'true');
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.48);z-index:40;display:none;transition:opacity 0.3s;';
     this._backdrop = backdrop;
 
-    // Create drawer container
+    // Drawer container — position: fixed (from drawerClass) creates a containing
+    // block for the absolutely-positioned close button; do NOT set position: relative here
     const drawer = document.createElement('div');
     drawer.className = drawerClass;
     drawer.setAttribute('role', 'dialog');
     drawer.setAttribute('aria-modal', 'true');
-    drawer.id = dialogInnerId;
+    // Keep the closed drawer out of layout. A fixed, full-width panel translated
+    // off-screen (translate-*-full) would otherwise extend the scrollable area and
+    // cause horizontal scrolling on mobile. It is revealed in _openDialog().
+    drawer.style.display = 'none';
 
-    // Close button
+    // Close button — uses injected CSS class, no Tailwind dependency
     const closeButton = document.createElement('button');
-    closeButton.className = 'absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10';
-    closeButton.innerHTML = `
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    `;
+    closeButton.type = 'button';
+    closeButton.className = 'dry-dialog-close-btn';
     closeButton.setAttribute('aria-label', 'Close drawer');
+    closeButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>`;
     this._closeButton = closeButton;
 
+    // Content area — HTMX target; close button is a sibling so it persists
+    const contentArea = document.createElement('div');
+    contentArea.id = dialogInnerId;
+
     drawer.appendChild(closeButton);
+    drawer.appendChild(contentArea);
 
     this.appendChild(backdrop);
     this.appendChild(drawer);
 
     this._dialogElement = drawer;
-    this._contentContainer = drawer;
+    this._contentContainer = contentArea;
   }
 
   /**
@@ -318,35 +414,44 @@ class DryDialog extends BaseElement {
     let positionClasses = '';
     let transformClass = '';
     let defaultDimension = '';
+    // Axis marker class so the component can own responsive width/height
+    // (full-screen on mobile, partial panel on desktop) regardless of the
+    // width/height classes passed via drawer-class.
+    let axisClass = '';
 
     switch (direction) {
       case 'left':
         positionClasses = 'left-0 top-0 bottom-0';
         defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
         transformClass = '-translate-x-full';
+        axisClass = 'dry-drawer-x';
         break;
       case 'right':
         positionClasses = 'right-0 top-0 bottom-0';
         defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
         transformClass = 'translate-x-full';
+        axisClass = 'dry-drawer-x';
         break;
       case 'top':
         positionClasses = 'top-0 left-0 right-0';
         defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
         transformClass = '-translate-y-full';
+        axisClass = 'dry-drawer-y';
         break;
       case 'bottom':
         positionClasses = 'bottom-0 left-0 right-0';
         defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
         transformClass = 'translate-y-full';
+        axisClass = 'dry-drawer-y';
         break;
       default:
         positionClasses = 'right-0 top-0 bottom-0';
         defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
         transformClass = 'translate-x-full';
+        axisClass = 'dry-drawer-x';
     }
 
-    return `${baseClasses} ${positionClasses} ${defaultDimension} ${transformClass} ${customClasses}`.trim();
+    return `${baseClasses} ${positionClasses} ${defaultDimension} ${transformClass} ${axisClass} ${customClasses}`.trim();
   }
 
   /**
@@ -463,22 +568,24 @@ class DryDialog extends BaseElement {
     if (this._isOpen) return;
 
     const requestedMode = this.getAttr('mode', 'dialog');
-    // Force dialog mode on mobile devices
-    const mode = this._isMobile() ? 'dialog' : requestedMode;
+    const noMobileFallback = this.hasAttribute('no-mobile-fallback');
+    const mode = (!noMobileFallback && this._isMobile()) ? 'dialog' : requestedMode;
 
     if (mode === 'drawer') {
       // Show backdrop
       if (this._backdrop) {
-        this._backdrop.classList.remove('hidden');
-        // Force reflow for animation
-        void this._backdrop.offsetHeight;
-        this._backdrop.classList.remove('opacity-0');
-        this._backdrop.classList.add('opacity-100');
+        this._backdrop.style.display = 'block';
+        this._backdrop.style.opacity = '0';
+        void this._backdrop.offsetHeight; // force reflow for transition
+        this._backdrop.style.opacity = '1';
       }
 
-      // Slide in drawer - remove translate classes to bring into view
+      // Slide in drawer - reveal it (was display:none while closed), commit the
+      // off-screen translated position via a reflow, then remove translate classes
+      // on the next frame so the transition runs.
       if (this._dialogElement) {
-        // Add a small delay to ensure the drawer is rendered before animating
+        this._dialogElement.style.display = '';
+        void this._dialogElement.offsetHeight; // force reflow at translated position
         requestAnimationFrame(() => {
           this._dialogElement.classList.remove(
             'translate-x-full',
@@ -509,8 +616,8 @@ class DryDialog extends BaseElement {
     if (!this._isOpen) return;
 
     const requestedMode = this.getAttr('mode', 'dialog');
-    // Force dialog mode on mobile devices
-    const mode = this._isMobile() ? 'dialog' : requestedMode;
+    const noMobileFallback = this.hasAttribute('no-mobile-fallback');
+    const mode = (!noMobileFallback && this._isMobile()) ? 'dialog' : requestedMode;
 
     if (mode === 'drawer') {
       // Slide out drawer
@@ -530,15 +637,20 @@ class DryDialog extends BaseElement {
             this._dialogElement.classList.add('translate-y-full');
             break;
         }
+
+        // After the slide-out transition, remove the panel from layout so the
+        // off-screen drawer can't extend the page width / cause horizontal scroll.
+        const drawerToHide = this._dialogElement;
+        setTimeout(() => {
+          if (drawerToHide && !this._isOpen) drawerToHide.style.display = 'none';
+        }, 300);
       }
 
       // Hide backdrop
       if (this._backdrop) {
-        this._backdrop.classList.remove('opacity-100');
+        this._backdrop.style.opacity = '0';
         setTimeout(() => {
-          if (this._backdrop) {
-            this._backdrop.classList.add('hidden');
-          }
+          if (this._backdrop) this._backdrop.style.display = 'none';
         }, 300);
       }
     } else {

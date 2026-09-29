@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRY2 Components Documentation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../src/dry2/css/dry2.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Include the dry-code component -->
@@ -181,7 +181,7 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-sm min-h-screen nav-section" x-data="{ activeSection: 'overview' }">
+        <div class="w-64 bg-white shadow-sm min-h-screen nav-section">
             <div class="p-6 space-y-6">
                 <div>
                     <h3 class="text-sm font-medium text-gray-900 uppercase tracking-wider mb-3">Getting Started</h3>
@@ -209,7 +209,6 @@
                         <li><a href="#accordion" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Accordion</a></li>
                         <li><a href="#card" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Card</a></li>
                         <li><a href="#collapse" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Collapse</a></li>
-                        <li><a href="#drawer" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Drawer</a></li>
                         <li><a href="#dialog" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Dialog</a></li>
                         <li><a href="#tabs" class="sidebar-link block px-3 py-1 rounded text-gray-700 hover:bg-gray-100">Tabs</a></li>
                     </ul>
@@ -253,7 +252,7 @@
                 <section id="overview" class="mb-12">
                     <div class="mb-8">
                         <h1 class="text-4xl font-bold text-gray-900 mb-4">DRY2 Web Components</h1>
-                        <p class="text-xl text-gray-600">A comprehensive library of 21 modern, accessible web components built with vanilla JavaScript, Alpine.js, and Tailwind CSS.</p>
+                        <p class="text-xl text-gray-600">A comprehensive library of 21 modern, accessible web components built with vanilla JavaScript and dry2.css.</p>
                     </div>
 
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8">
@@ -283,11 +282,11 @@
                                 </li>
                                 <li class="flex items-start">
                                     <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
-                                    <span><strong>Tailwind CSS Integration</strong> - Consistent design system with utility classes</span>
+                                    <span><strong>dry2.css Styling</strong> - Consistent design system with utility classes</span>
                                 </li>
                                 <li class="flex items-start">
                                     <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
-                                    <span><strong>Alpine.js Enhanced</strong> - Reactive state management where needed</span>
+                                    <span><strong>VanillaState Reactivity</strong> - Proxy-based state management without frameworks</span>
                                 </li>
                                 <li class="flex items-start">
                                     <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
@@ -304,11 +303,11 @@
                                     <p class="text-sm text-gray-600">Built on native web standards for maximum compatibility</p>
                                 </div>
                                 <div class="bg-white p-4 rounded-lg border">
-                                    <h4 class="font-semibold text-gray-900 mb-2">Alpine.js Integration</h4>
-                                    <p class="text-sm text-gray-600">Enhanced reactivity and animations for complex components</p>
+                                    <h4 class="font-semibold text-gray-900 mb-2">VanillaState</h4>
+                                    <p class="text-sm text-gray-600">Proxy-based reactivity for complex components</p>
                                 </div>
                                 <div class="bg-white p-4 rounded-lg border">
-                                    <h4 class="font-semibold text-gray-900 mb-2">Tailwind CSS</h4>
+                                    <h4 class="font-semibold text-gray-900 mb-2">dry2.css</h4>
                                     <p class="text-sm text-gray-600">Utility-first styling with consistent design tokens</p>
                                 </div>
                             </div>
@@ -342,11 +341,7 @@
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
-                            <span><strong>Tailwind CSS:</strong> Required for styling (can be included via CDN)</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-green-500 mr-3 mt-1"></i>
-                            <span><strong>Alpine.js:</strong> Optional but recommended for enhanced components</span>
+                            <span><strong>dry2.css:</strong> Required for component styling</span>
                         </li>
                     </ul>
                 </section>
@@ -362,12 +357,10 @@
                         <div class="step-number mr-4">1</div>
                         <div class="flex-1">
                             <h3 class="text-xl font-semibold text-gray-900 mb-3">Include Dependencies</h3>
-                            <p class="text-gray-600 mb-4">Add Tailwind CSS and Alpine.js to your HTML head section:</p>
+                            <p class="text-gray-600 mb-4">Add dry2.css to your HTML head section:</p>
                             <dry-code language="html" show-header="true">
-&lt;!-- Include Tailwind CSS --&gt;
-&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
-
-&lt;!-- Include Alpine.js (optional but recommended) --&gt;
+&lt;!-- Include dry2.css --&gt;
+&lt;link rel="stylesheet" href="src/dry2/css/dry2.css"&gt;
 
 &lt;!-- Include Font Awesome for icons (optional) --&gt;
 &lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"&gt;
@@ -428,7 +421,7 @@ curl -O https://unpkg.com/dry2-web-components/dist/dry2.js
     &lt;title&gt;DRY2 Components Example&lt;/title&gt;
     
     &lt;!-- Dependencies --&gt;
-    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" href="src/dry2/css/dry2.css"&gt;
     &lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"&gt;
     
     &lt;!-- DRY2 Components Bundle (All components in one file) --&gt;
@@ -547,10 +540,10 @@ import 'dry2-web-components/dist/dry2.js';
 
                     <!-- Customization -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Customization with Tailwind CSS</h3>
-                        <p class="text-gray-600 mb-4">Use Tailwind classes to customize component appearance:</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Customization with dry2.css</h3>
+                        <p class="text-gray-600 mb-4">Use dry2.css utility classes to customize component appearance:</p>
                         <dry-code language="html" show-header="true">
-&lt;!-- Custom styling with Tailwind classes --&gt;
+&lt;!-- Custom styling with dry2.css classes --&gt;
 &lt;dry-button 
   variant="primary" 
   class="shadow-lg hover:shadow-xl transition-shadow"
@@ -1022,71 +1015,6 @@ button.addEventListener('click', () => {
                             <tr>
                                 <td><code>toggle()</code></td>
                                 <td>Toggle the collapse state</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Drawer Component -->
-                <section id="drawer" class="mb-12">
-                    <div class="component-header">
-                        <h2 class="text-2xl font-bold text-gray-900">Drawer Component</h2>
-                        <p class="text-gray-600 mt-2">Tag: <code class="bg-white px-2 py-1 rounded">dry-drawer</code> | <a href="../examples/drawer-showcase.html" class="text-blue-600 hover:text-blue-800">View Demo →</a></p>
-                    </div>
-
-                    <p class="text-gray-600 mb-6">Slide-in panels with positioning options, AJAX content support, and custom animations.</p>
-
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Basic Usage</h3>
-                    <dry-code language="html" show-header="true">
-&lt;dry-drawer position="right" drawer-class="bg-white w-80"&gt;
-    Open Drawer
-    &lt;span slot="header"&gt;Drawer Title&lt;/span&gt;
-    &lt;div slot="content"&gt;
-        &lt;p&gt;Drawer content goes here&lt;/p&gt;
-        &lt;p&gt;Multiple elements supported&lt;/p&gt;
-    &lt;/div&gt;
-&lt;/dry-drawer&gt;
-                    </dry-code>
-
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Attributes</h3>
-                    <table class="attribute-table mb-6">
-                        <thead>
-                            <tr>
-                                <th>Attribute</th>
-                                <th>Type</th>
-                                <th>Default</th>
-                                <th>Options</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>position</code></td>
-                                <td>string</td>
-                                <td>right</td>
-                                <td>left, right, top, bottom</td>
-                                <td>Drawer slide-in position</td>
-                            </tr>
-                            <tr>
-                                <td><code>drawer-class</code></td>
-                                <td>string</td>
-                                <td>-</td>
-                                <td>Any CSS classes</td>
-                                <td>Custom classes for drawer panel</td>
-                            </tr>
-                            <tr>
-                                <td><code>overlay-class</code></td>
-                                <td>string</td>
-                                <td>-</td>
-                                <td>Any CSS classes</td>
-                                <td>Custom classes for overlay backdrop</td>
-                            </tr>
-                            <tr>
-                                <td><code>button-class</code></td>
-                                <td>string</td>
-                                <td>-</td>
-                                <td>Any CSS classes</td>
-                                <td>Custom classes for trigger button</td>
                             </tr>
                         </tbody>
                     </table>

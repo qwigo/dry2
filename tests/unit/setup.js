@@ -1,7 +1,9 @@
-// Test setup for DRY2 Web Components
-// Sets up the testing environment with vanilla JavaScript (no Alpine.js)
+/**
+ * Test setup for DRY2 Web Components
+ * Sets up the testing environment with vanilla JavaScript
+ */
 
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
 
 // Create a JSDOM instance with a proper DOM environment
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
@@ -16,6 +18,10 @@ global.document = window.document;
 global.HTMLElement = window.HTMLElement;
 global.CustomEvent = window.CustomEvent;
 global.MutationObserver = window.MutationObserver;
+global.customElements = window.customElements;
+global.Node = window.Node;
+global.Event = window.Event;
+global.MouseEvent = window.MouseEvent;
 
 // Mock CSS classes for testing
 global.window.getComputedStyle = () => ({
@@ -69,12 +75,6 @@ global.sessionStorage = {
 // Set up console for debugging
 global.console = console;
 
-// Load the vanilla state management system
-require('../../src/dry2/vanilla-state.js');
-
-// Load the base component class
-require('../../src/dry2/base.js');
-
 // Helper function to wait for component initialization
 global.waitForComponent = async (element, timeout = 1000) => {
   return new Promise((resolve, reject) => {
@@ -126,6 +126,24 @@ global.cleanupTestComponents = () => {
   });
 };
 
+// Helper function to reset the document body between tests
+global.cleanupDOM = () => {
+  if (global.document && global.document.body) {
+    global.document.body.innerHTML = '';
+  }
+};
+
+// Helper function to simulate a click on an element
+global.simulateClick = (element) => {
+  const event = new global.window.MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    view: global.window
+  });
+  element.dispatchEvent(event);
+  return event;
+};
+
 // Helper function to trigger events
 global.triggerEvent = (element, eventType, eventData = {}) => {
   const event = new CustomEvent(eventType, {
@@ -153,17 +171,8 @@ global.waitForEvent = (element, eventType, timeout = 1000) => {
   });
 };
 
-// Set up Chai for assertions
-const chai = require('chai');
-global.expect = chai.expect;
-
-// Export for use in tests
-module.exports = {
-  setupTestEnvironment: () => {
-    // Additional setup if needed
-    return {
-      window: global.window,
-      document: global.document
-    };
-  }
-};
+// Load BaseElement into the global scope (after DOM globals above are set) so that
+// component modules — which extend the ambient `BaseElement` like the browser bundle —
+// can be imported in the ESM/mocha environment.
+await import('../../src/dry2/base.js');
+global.BaseElement = globalThis.BaseElement;

@@ -21,8 +21,8 @@
 
 - **📦 22+ Production-Ready Components** - From buttons to complex carousels
 - **♿ Accessibility First** - ARIA attributes and keyboard navigation built-in
-- **🎨 Tailwind CSS Integration** - Beautiful, customizable styling out of the box
-- **⚡ Alpine.js Powered** - Reactive components with minimal JavaScript
+- **🎨 dry2.css Styling** - Built-in utility classes and design tokens
+- **⚡ Vanilla JavaScript** - Reactive components with BaseElement and VanillaState
 - **📱 Responsive Design** - Mobile-first approach for all screen sizes
 - **🔧 Framework Agnostic** - Works with React, Vue, Angular, or vanilla HTML
 - **🧪 100% Test Coverage** - Comprehensive test suite with Mocha
@@ -54,11 +54,8 @@ pnpm add dry2-web-components
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRY2 Example</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- DRY2 CSS -->
+    <link rel="stylesheet" href="node_modules/dry2-web-components/src/dry2/css/dry2.css">
 </head>
 <body>
     <!-- DRY2 Components -->
@@ -116,7 +113,6 @@ pnpm add dry2-web-components
 ### 📋 Layout Components
 - **[`<dry-accordion>`](docs/components/accordion.md)** - Collapsible content sections
 - **[`<collapse-component>`](docs/components/collapse.md)** - Smooth height-based collapse animations
-- **[`<drawer-component>`](docs/components/drawer.md)** - Side panel/drawer with HTMX support
 
   ### 🎠 Interactive Components
   - **[`<carousel-component>`](docs/components/carousel.md)** - Touch-enabled carousel with autoplay
@@ -137,7 +133,7 @@ pnpm add dry2-web-components
 
 ## 🎨 Theming & Customization
 
-DRY2 components are built with Tailwind CSS and support extensive customization:
+DRY2 components use dry2.css and support extensive customization:
 
 ```html
 <!-- Custom button styling -->
@@ -439,10 +435,10 @@ All components are mobile-first and responsive:
 | Component | Gzipped Size | Dependencies |
 |-----------|--------------|--------------|
 | Base | 2.1 KB | None |
-| Button | 1.8 KB | Alpine.js |
-| Avatar | 1.5 KB | Alpine.js |
+| Button | 1.8 KB | None |
+| Avatar | 1.5 KB | None |
 | Toast | 2.3 KB | None |
-| Carousel | 3.2 KB | Alpine.js |
+| Carousel | 3.2 KB | None |
 
 ### Lazy Loading
 
@@ -513,8 +509,6 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [Alpine.js](https://alpinejs.dev/) for reactive functionality
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
 - [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components) for the foundation
 - [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/) for testing
 

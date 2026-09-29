@@ -44,12 +44,7 @@ test.describe('Toast Component', () => {
 
     await page.waitForTimeout(2000);
     
-    // Filter out the Tailwind CDN warning
-    const relevantErrors = consoleErrors.filter(error => 
-      !error.includes('cdn.tailwindcss.com should not be used in production')
-    );
-    
-    expect(relevantErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
   });
 
   test('should show toast programmatically', async ({ page }) => {

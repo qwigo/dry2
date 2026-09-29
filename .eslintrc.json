@@ -13,7 +13,6 @@
     "sourceType": "module"
   },
   "globals": {
-    "Alpine": "readonly",
     "customElements": "readonly",
     "HTMLElement": "readonly",
     "CustomEvent": "readonly",

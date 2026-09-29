@@ -127,14 +127,6 @@ describe('DRY2 Basic Tests', () => {
     });
   });
 
-  describe('Alpine.js Mock', () => {
-    it('should have Alpine.js mock available', () => {
-      expect(global.Alpine).to.exist;
-      expect(global.Alpine.data).to.be.a('function');
-      expect(global.Alpine.directive).to.be.a('function');
-    });
-  });
-
   describe('Helper Functions', () => {
     it('should provide waitForComponent helper', async() => {
       const element = document.createElement('div');

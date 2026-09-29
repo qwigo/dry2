@@ -167,7 +167,6 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
 
     // Create tab structure
     this.classList.add('dry-tabs');
-    this.setAttribute('role', 'tablist');
 
     // Set orientation class for styling
     this.classList.toggle('dry-tabs-vertical', orientation === 'vertical');
@@ -175,9 +174,10 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
 
     // Create tab list container
     this._tabListContainer = document.createElement('div');
-    this._tabListContainer.className = this._getTabListClasses(variant, orientation);
+    this._tabListContainer.className = this._getTabListClasses(orientation);
     this._tabListContainer.setAttribute('role', 'tablist');
     this._tabListContainer.setAttribute('aria-orientation', orientation);
+    this._applyTabListVariant();
 
     // Create content container
     this._contentContainer = document.createElement('div');
@@ -224,19 +224,20 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
     }
   }
 
-  _getTabListClasses(variant, orientation) {
+  _getTabListClasses(orientation) {
     const baseClasses = 'dry-tabs-list flex';
     const orientationClass = orientation === 'vertical'
-      ? 'flex-col space-y-1 min-w-[200px]'
-      : 'flex-row space-x-1';
+      ? 'flex-col min-w-[200px]'
+      : 'flex-row';
 
-    const variantClasses = {
-      'boxed': 'border-b border-gray-200',
-      'pills': 'bg-gray-100 p-1 rounded-lg',
-      'underline': 'border-b border-gray-200'
-    };
+    return `${baseClasses} ${orientationClass}`;
+  }
 
-    return `${baseClasses} ${orientationClass} ${variantClasses[variant] || ''}`;
+  _applyTabListVariant() {
+    const variant = this.getAttr('variant', 'boxed');
+    if (this._tabListContainer) {
+      this._tabListContainer.dataset.variant = variant;
+    }
   }
 
   _buildTabButtons() {
@@ -254,6 +255,7 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
     const button = document.createElement('button');
     button.type = 'button';
     button.className = this._getTabButtonClasses(false);
+    this._resetTabButtonChrome(button);
     button.setAttribute('role', 'tab');
     button.setAttribute('aria-controls', itemData.id);
     button.setAttribute('aria-selected', 'false');
@@ -287,7 +289,7 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
     // Add badge if present
     if (itemData.badge) {
       const badgeSpan = document.createElement('span');
-      badgeSpan.className = 'dry-tab-badge ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-500 text-white';
+      badgeSpan.className = 'dry-tab-badge';
       badgeSpan.textContent = itemData.badge; // textContent is safe
       content.push(badgeSpan);
     }
@@ -298,27 +300,16 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
     return button;
   }
 
-  _getTabButtonClasses(isActive) {
-    const variant = this.getAttr('variant', 'boxed');
+  _getTabButtonClasses(_isActive) {
     const orientation = this.getAttr('orientation', 'horizontal');
+    const orientationClasses = orientation === 'vertical' ? 'dry-tab-button--vertical' : '';
+    return ['dry-tab-button', orientationClasses].filter(Boolean).join(' ');
+  }
 
-    const baseClasses = 'dry-tab-button flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
-
-    const variantClasses = {
-      'boxed': isActive
-        ? 'border-b-2 border-blue-500 text-blue-600 bg-white'
-        : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50',
-      'pills': isActive
-        ? 'bg-white text-blue-600 shadow-sm rounded-md'
-        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-md',
-      'underline': isActive
-        ? 'border-b-2 border-blue-500 text-blue-600'
-        : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900'
-    };
-
-    const orientationClasses = orientation === 'vertical' ? 'justify-start w-full' : '';
-
-    return `${baseClasses} ${variantClasses[variant] || ''} ${orientationClasses}`;
+  _resetTabButtonChrome(button) {
+    button.style.border = 'none';
+    button.style.appearance = 'none';
+    button.style.webkitAppearance = 'none';
   }
 
   attachEventListeners() {
@@ -362,6 +353,7 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
     this._tabButtons.forEach((button, id) => {
       const isActive = id === tabId;
       button.className = this._getTabButtonClasses(isActive);
+      this._resetTabButtonChrome(button);
       button.setAttribute('aria-selected', isActive ? 'true' : 'false');
       button.setAttribute('tabindex', isActive ? '0' : '-1');
     });
@@ -372,12 +364,6 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
 
     // Update attribute
     this.setAttribute('active-tab', tabId);
-
-    // Focus the active button for keyboard navigation
-    const activeButton = this._tabButtons.get(tabId);
-    if (activeButton && document.activeElement !== activeButton) {
-      activeButton.focus();
-    }
 
     // Emit change event
     if (emitEvent) {
@@ -432,7 +418,13 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
   }
 
   onAttributeChange(name, oldValue, newValue) {
-    if (name === 'variant' || name === 'orientation') {
+    if (name === 'variant') {
+      this._applyTabListVariant();
+      this._tabButtons.forEach((button, id) => {
+        button.className = this._getTabButtonClasses(id === this._activeTabId);
+        this._resetTabButtonChrome(button);
+      });
+    } else if (name === 'orientation') {
       // Re-render on variant/orientation change
       this.reRender();
     } else if (name === 'active-tab' && newValue !== this._activeTabId) {
@@ -497,6 +489,22 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
       active: item.id === this._activeTabId
     }));
   }
+}
+
+const DRY_TABS_STYLE_ID = 'dry-tabs-component-styles';
+const DRY_TABS_STYLES = `
+  .dry-tabs-list .dry-tab-button {
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+`;
+
+if (typeof document !== 'undefined' && !document.getElementById(DRY_TABS_STYLE_ID)) {
+  const style = document.createElement('style');
+  style.id = DRY_TABS_STYLE_ID;
+  style.textContent = DRY_TABS_STYLES;
+  document.head.appendChild(style);
 }
 
 // Register custom elements

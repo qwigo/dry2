@@ -196,3 +196,9 @@ class BaseElement extends HTMLElement {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = BaseElement;
 }
+
+// Expose globally so component files (which reference BaseElement as an ambient
+// global, matching the browser bundle) resolve it in both browser and ESM/test scopes.
+if (typeof globalThis !== 'undefined') {
+  globalThis.BaseElement = BaseElement;
+}

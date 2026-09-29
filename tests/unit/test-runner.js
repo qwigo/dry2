@@ -30,7 +30,6 @@ class TestRunner {
       'collapse',
               'countdown',
         'dialog',
-        'drawer',
       'qr',
       'select',
       'stat',

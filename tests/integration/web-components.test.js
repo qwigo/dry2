@@ -256,8 +256,8 @@ describe('Web Components', () => {
       const toggle = document.createElement('toggle-switch');
       toggle.id = 'test-toggle';
       toggle.setAttribute('name', 'toggle');
-      toggle.setAttribute('active-color', 'bg-blue-500');
-      toggle.setAttribute('inactive-color', 'bg-gray-300');
+      toggle.setAttribute('active-bg', 'bg-blue-500');
+      toggle.setAttribute('inactive-bg', 'bg-gray-300');
       toggle.setAttribute('checked', '');
 
       // Append to sandbox and manually call render
@@ -272,16 +272,13 @@ describe('Web Components', () => {
       assert.exists(input, 'Checkbox input exists');
       assert.equal(input.name, 'toggle', 'Input name is correct');
       assert.equal(input.id, 'test-toggle', 'Input id is correct');
+      assert.isTrue(input.checked, 'Checkbox reflects checked state');
 
-      // Check Alpine.js data binding
-      const container = toggle.querySelector('div[x-data]');
-      assert.exists(container, 'Alpine.js container exists');
-      assert.include(container.getAttribute('x-data'), 'checked: true', 'Alpine data is correct');
+      const container = toggle.querySelector('.toggle-switch-container');
+      assert.exists(container, 'Toggle container exists');
 
-      // Check label colors
-      const label = toggle.querySelector('label');
-      assert.exists(label, 'Label exists');
-      assert.include(label.getAttribute('class'), 'block overflow-hidden', 'Label has basic classes');
+      const label = toggle.querySelector('label.toggle-switch-label');
+      assert.exists(label, 'Toggle label exists');
     });
 
     it('should update when attributes change', function() {
