@@ -34,7 +34,7 @@ class TabItem extends BaseElement { // eslint-disable-line no-undef
   render() {
     // Check if active attribute was set before render
     const isActive = this.getBoolAttr('active', false);
-    
+
     // Set display based on active state
     this.style.display = isActive ? 'block' : 'none';
     this.classList.add('dry-tab-content');

@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Select Component', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async({ page }) => {
     await page.goto('/examples/select-showcase.html');
-    
+
     // Wait for the page to load completely
     await page.waitForLoadState('networkidle');
-    
+
     // Wait for custom elements to upgrade (important for web components)
     await page.waitForTimeout(1500);
   });
 
-  test('should render select components without "no content" messages', async ({ page }) => {
+  test('should render select components without "no content" messages', async({ page }) => {
     // Check that no "no content" or similar error messages appear
     const noContentText = await page.locator('text=/no content|not found|error/i').count();
     expect(noContentText).toBe(0);
@@ -21,7 +21,7 @@ test.describe('Select Component', () => {
     expect(selectComponents).toBeGreaterThan(0);
   });
 
-  test('should render basic select with correct initial state', async ({ page }) => {
+  test('should render basic select with correct initial state', async({ page }) => {
     // Find the first basic select (fruit selector)
     const select = page.locator('dry-select[name="fruit"]').first();
     await expect(select).toBeVisible();
@@ -35,7 +35,7 @@ test.describe('Select Component', () => {
     await expect(dropdown).toHaveClass(/hidden/);
   });
 
-  test('should open dropdown when trigger is clicked', async ({ page }) => {
+  test('should open dropdown when trigger is clicked', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button[type="button"]').first();
     const dropdown = select.locator('.absolute.z-50');
@@ -61,7 +61,7 @@ test.describe('Select Component', () => {
     expect(optionCount).toBeGreaterThan(0);
   });
 
-  test('should select an option in single-select mode', async ({ page }) => {
+  test('should select an option in single-select mode', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -82,7 +82,7 @@ test.describe('Select Component', () => {
     await expect(trigger).toContainText('Banana');
   });
 
-  test('should handle search functionality', async ({ page }) => {
+  test('should handle search functionality', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -100,13 +100,13 @@ test.describe('Select Component', () => {
     // Should filter options
     const visibleOptions = dropdown.locator('[data-value]');
     const optionTexts = await visibleOptions.allTextContents();
-    
+
     // Should only show options containing "ap" (Apple, Grape)
     expect(optionTexts.some(text => text.includes('Apple'))).toBe(true);
     expect(optionTexts.some(text => text.includes('Banana'))).toBe(false);
   });
 
-  test('should handle multi-select mode', async ({ page }) => {
+  test('should handle multi-select mode', async({ page }) => {
     const select = page.locator('dry-select[name="languages"]').first();
     const trigger = select.locator('button[type="button"]').first();
 
@@ -131,7 +131,7 @@ test.describe('Select Component', () => {
 
     await expect(select).toContainText('JavaScript');
     await expect(select).toContainText('Python');
-    
+
     // Verify the values are selected
     const selectedValues = await page.evaluate(() => {
       const selectEl = document.querySelector('dry-select[name="languages"]');
@@ -141,7 +141,7 @@ test.describe('Select Component', () => {
     expect(selectedValues).toContain('python');
   });
 
-  test('should remove tag when X button is clicked', async ({ page }) => {
+  test('should remove tag when X button is clicked', async({ page }) => {
     const select = page.locator('dry-select[name="languages"]').first();
     const trigger = select.locator('button[type="button"]').first();
 
@@ -167,7 +167,7 @@ test.describe('Select Component', () => {
     expect(await tags.count()).toBe(0);
   });
 
-  test('should handle pre-selected options', async ({ page }) => {
+  test('should handle pre-selected options', async({ page }) => {
     // Find the colors select which has pre-selected options
     const select = page.locator('dry-select[name="colors"]').first();
     const trigger = select.locator('button[type="button"]').first();
@@ -181,7 +181,7 @@ test.describe('Select Component', () => {
     expect(await tags.count()).toBe(2);
   });
 
-  test('should select all options when "Select All" is clicked', async ({ page }) => {
+  test('should select all options when "Select All" is clicked', async({ page }) => {
     const select = page.locator('dry-select[name="languages"]').first();
     const trigger = select.locator('button[type="button"]').first();
 
@@ -202,7 +202,7 @@ test.describe('Select Component', () => {
     expect(tagCount).toBeGreaterThan(5); // Should have many tags
   });
 
-  test('should clear all selections when "Clear" is clicked', async ({ page }) => {
+  test('should clear all selections when "Clear" is clicked', async({ page }) => {
     const select = page.locator('dry-select[name="colors"]').first();
     const trigger = select.locator('button[type="button"]').first();
 
@@ -229,7 +229,7 @@ test.describe('Select Component', () => {
     await expect(select).toContainText('Choose colors...');
   });
 
-  test('should close dropdown when clicking outside', async ({ page }) => {
+  test('should close dropdown when clicking outside', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button[type="button"]').first();
 
@@ -250,7 +250,7 @@ test.describe('Select Component', () => {
     expect(hasHidden).toBe(true);
   });
 
-  test('should not open when disabled', async ({ page }) => {
+  test('should not open when disabled', async({ page }) => {
     // First, we need to add a disabled select to the page
     await page.evaluate(() => {
       const select = document.createElement('dry-select');
@@ -280,7 +280,7 @@ test.describe('Select Component', () => {
     await expect(dropdown).toHaveClass(/hidden/);
   });
 
-  test('should show "No results found" when search has no matches', async ({ page }) => {
+  test('should show "No results found" when search has no matches', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -299,7 +299,7 @@ test.describe('Select Component', () => {
     await expect(dropdown).toContainText('No results found');
   });
 
-  test('should emit change event when selection changes', async ({ page }) => {
+  test('should emit change event when selection changes', async({ page }) => {
     // Set up event listener
     await page.evaluate(() => {
       window.selectChangeEvents = [];
@@ -326,7 +326,7 @@ test.describe('Select Component', () => {
     expect(events[0].value).toBe('apple');
   });
 
-  test('should have no JavaScript console errors', async ({ page }) => {
+  test('should have no JavaScript console errors', async({ page }) => {
     const errors = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -350,7 +350,7 @@ test.describe('Select Component', () => {
     expect(errors).toEqual([]);
   });
 
-  test('should render component builder section', async ({ page }) => {
+  test('should render component builder section', async({ page }) => {
     const builderSection = page.locator('#select-component-builder');
     await expect(builderSection).toBeVisible();
 
@@ -358,9 +358,9 @@ test.describe('Select Component', () => {
     await expect(page.locator('text=/Select Component Builder/i')).toBeVisible();
   });
 
-  test('should handle programmatic setValue API', async ({ page }) => {
+  test('should handle programmatic setValue API', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
-    
+
     // Set value programmatically
     await page.evaluate(() => {
       const selectElement = document.querySelector('dry-select[name="fruit"]');
@@ -374,7 +374,7 @@ test.describe('Select Component', () => {
     await expect(trigger).toContainText('Cherry');
   });
 
-  test('should handle programmatic getValue API', async ({ page }) => {
+  test('should handle programmatic getValue API', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -393,7 +393,7 @@ test.describe('Select Component', () => {
     expect(value).toBe('banana');
   });
 
-  test('should handle programmatic clear API', async ({ page }) => {
+  test('should handle programmatic clear API', async({ page }) => {
     const select = page.locator('dry-select[name="colors"]').first();
     const trigger = select.locator('button');
 
@@ -414,7 +414,7 @@ test.describe('Select Component', () => {
     expect(await tags.count()).toBe(0);
   });
 
-  test('should handle programmatic selectAll API', async ({ page }) => {
+  test('should handle programmatic selectAll API', async({ page }) => {
     const select = page.locator('dry-select[name="languages"]').first();
     const trigger = select.locator('button');
 
@@ -432,7 +432,7 @@ test.describe('Select Component', () => {
     expect(tagCount).toBeGreaterThan(5);
   });
 
-  test('should handle dynamic option updates', async ({ page }) => {
+  test('should handle dynamic option updates', async({ page }) => {
     // Create a new select with options immediately
     await page.evaluate(() => {
       const select = document.createElement('dry-select');
@@ -450,11 +450,11 @@ test.describe('Select Component', () => {
     await page.waitForTimeout(2000);
 
     const select = page.locator('dry-select[name="dynamic-test"]');
-    
+
     // Verify component rendered
     const hasRendered = await select.evaluate(el => el.hasAttribute('data-rendered'));
     expect(hasRendered).toBe(true);
-    
+
     const trigger = select.locator('button[type="button"]').first();
 
     // Should be able to open and select
@@ -469,7 +469,7 @@ test.describe('Select Component', () => {
     expect(await options.count()).toBe(3);
   });
 
-  test('should display selected option with checkmark', async ({ page }) => {
+  test('should display selected option with checkmark', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -493,7 +493,7 @@ test.describe('Select Component', () => {
     await expect(appleOption).toContainText('✓');
   });
 
-  test('should focus search input when dropdown opens', async ({ page }) => {
+  test('should focus search input when dropdown opens', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -506,7 +506,7 @@ test.describe('Select Component', () => {
     await expect(searchInput).toBeFocused();
   });
 
-  test('should reset search when dropdown closes', async ({ page }) => {
+  test('should reset search when dropdown closes', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button');
 
@@ -539,7 +539,7 @@ test.describe('Select Component', () => {
 });
 
 test.describe('Select stacking', () => {
-  test('should portal dropdown to body with fixed position when open', async ({ page }) => {
+  test('should portal dropdown to body with fixed position when open', async({ page }) => {
     await page.goto('http://localhost:3000/examples/select-showcase.html');
     await page.waitForLoadState('networkidle');
     await page.waitForFunction(() => customElements.get('dry-select'));

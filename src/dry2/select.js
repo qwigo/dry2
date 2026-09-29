@@ -337,8 +337,8 @@ class DrySelect extends BaseElement {
 
     const filteredOptions = this._searchTerm
       ? this._options.filter(opt =>
-          opt.label.toLowerCase().includes(this._searchTerm.toLowerCase())
-        )
+        opt.label.toLowerCase().includes(this._searchTerm.toLowerCase())
+      )
       : this._options;
 
     if (filteredOptions.length === 0) {

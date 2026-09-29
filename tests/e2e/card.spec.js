@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Card Component', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async({ page }) => {
     await page.goto('/examples/card-showcase.html');
-    
+
     // Wait for the page to be fully loaded
     await page.waitForLoadState('networkidle');
-    
+
     // Wait a bit for custom elements to upgrade
     await page.waitForTimeout(1500);
   });
 
-  test('should render cards without "no content" messages', async ({ page }) => {
+  test('should render cards without "no content" messages', async({ page }) => {
     // Check that no "no content" message appears
     const noContent = await page.locator('text=/no content/i').count();
     expect(noContent).toBe(0);
@@ -21,7 +21,7 @@ test.describe('Card Component', () => {
     expect(cards).toBeGreaterThan(0);
   });
 
-  test('should load with correct initial state', async ({ page }) => {
+  test('should load with correct initial state', async({ page }) => {
     // Check basic examples section cards
     const simpleCard = page.locator('dry-card').first();
     await expect(simpleCard).toBeVisible();
@@ -31,7 +31,7 @@ test.describe('Card Component', () => {
     await expect(cardContainer).toBeVisible();
   });
 
-  test('should display basic card structure', async ({ page }) => {
+  test('should display basic card structure', async({ page }) => {
     // Find a card with header, body, and footer
     const completeCard = page.locator('dry-card').nth(2);
     await expect(completeCard).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('Card Component', () => {
     await expect(footer).toBeVisible();
   });
 
-  test('should display different variants correctly', async ({ page }) => {
+  test('should display different variants correctly', async({ page }) => {
     // Navigate to variants section
     const variantsSection = page.locator('section').filter({ hasText: 'Variants' });
     await expect(variantsSection).toBeVisible();
@@ -74,15 +74,15 @@ test.describe('Card Component', () => {
     await expect(elevatedContainer).toHaveClass(/shadow-xl/);
   });
 
-  test('should have proper accessibility attributes', async ({ page }) => {
+  test('should have proper accessibility attributes', async({ page }) => {
     const card = page.locator('dry-card').first();
     const cardContainer = card.locator('.card-container');
-    
+
     // Check for role attribute
     await expect(cardContainer).toHaveAttribute('role', 'article');
   });
 
-  test('should have no JavaScript console errors', async ({ page }) => {
+  test('should have no JavaScript console errors', async({ page }) => {
     const errors = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -99,7 +99,7 @@ test.describe('Card Component', () => {
     expect(errors.length).toBe(0);
   });
 
-  test('should handle variant changes in interactive demo', async ({ page }) => {
+  test('should handle variant changes in interactive demo', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const variantSelect = page.locator('#variant-select');
 
@@ -124,7 +124,7 @@ test.describe('Card Component', () => {
     await expect(container).toHaveClass(/shadow-xl/);
   });
 
-  test('should handle elevation changes in interactive demo', async ({ page }) => {
+  test('should handle elevation changes in interactive demo', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const elevationSelect = page.locator('#elevation-select');
     const container = interactiveCard.locator('.card-container');
@@ -153,7 +153,7 @@ test.describe('Card Component', () => {
     await expect(interactiveCard).toHaveAttribute('elevation', 'none');
   });
 
-  test('should handle orientation changes in interactive demo', async ({ page }) => {
+  test('should handle orientation changes in interactive demo', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const orientationSelect = page.locator('#orientation-select');
     const container = interactiveCard.locator('.card-container');
@@ -178,7 +178,7 @@ test.describe('Card Component', () => {
     await expect(interactiveCard).toHaveAttribute('orientation', 'vertical');
   });
 
-  test('should toggle interactive state', async ({ page }) => {
+  test('should toggle interactive state', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const interactiveCheckbox = page.locator('#interactive-checkbox');
     const container = interactiveCard.locator('.card-container');
@@ -204,7 +204,7 @@ test.describe('Card Component', () => {
     await expect(container).toHaveClass(/cursor-pointer/);
   });
 
-  test('should toggle bordered state', async ({ page }) => {
+  test('should toggle bordered state', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const borderedCheckbox = page.locator('#bordered-checkbox');
     const container = interactiveCard.locator('.card-container');
@@ -229,9 +229,9 @@ test.describe('Card Component', () => {
     await expect(interactiveCard).not.toHaveAttribute('bordered');
   });
 
-  test('should fire card:click event when interactive card is clicked', async ({ page }) => {
+  test('should fire card:click event when interactive card is clicked', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
-    
+
     await expect(interactiveCard).toBeVisible();
 
     // Set up event listener
@@ -239,13 +239,13 @@ test.describe('Card Component', () => {
       return new Promise((resolve) => {
         const card = document.getElementById('interactive-card');
         let fired = false;
-        
+
         card.addEventListener('card:click', (e) => {
           fired = true;
         });
-        
+
         card.querySelector('.card-container').click();
-        
+
         setTimeout(() => resolve(fired), 100);
       });
     });
@@ -253,7 +253,7 @@ test.describe('Card Component', () => {
     expect(eventFired).toBe(true);
   });
 
-  test('should update code example when properties change', async ({ page }) => {
+  test('should update code example when properties change', async({ page }) => {
     const variantSelect = page.locator('#variant-select');
     const interactiveCode = page.locator('#interactive-code');
 
@@ -269,7 +269,7 @@ test.describe('Card Component', () => {
     expect(codeText).toContain('variant="outlined"');
   });
 
-  test('should display component builder section', async ({ page }) => {
+  test('should display component builder section', async({ page }) => {
     const componentBuilder = page.locator('#card-component-builder');
     await expect(componentBuilder).toBeVisible();
 
@@ -278,7 +278,7 @@ test.describe('Card Component', () => {
     expect(builderContent.length).toBeGreaterThan(0);
   });
 
-  test('should handle all variant changes in component builder', async ({ page }) => {
+  test('should handle all variant changes in component builder', async({ page }) => {
     // Wait for component builder to load
     await page.waitForTimeout(2000);
 
@@ -289,13 +289,13 @@ test.describe('Card Component', () => {
     const previewCard = builderSection.locator('dry-card').first();
     if (await previewCard.count() > 0) {
       await expect(previewCard).toBeVisible();
-      
+
       // Find variant select in builder
       const variantSelect = builderSection.locator('select').first();
       if (await variantSelect.count() > 0) {
         await variantSelect.selectOption('outlined');
         await page.waitForTimeout(500);
-        
+
         // Verify the change
         const container = previewCard.locator('.card-container');
         await expect(container).toHaveClass(/border/);
@@ -303,7 +303,7 @@ test.describe('Card Component', () => {
     }
   });
 
-  test('should render card with only body content', async ({ page }) => {
+  test('should render card with only body content', async({ page }) => {
     // Find the "Body Only" card
     const bodyOnlyCard = page.locator('dry-card').nth(1);
     await expect(bodyOnlyCard).toBeVisible();
@@ -316,9 +316,9 @@ test.describe('Card Component', () => {
     await expect(footer).toBeVisible();
   });
 
-  test('should apply correct elevation classes', async ({ page }) => {
+  test('should apply correct elevation classes', async({ page }) => {
     const variantsSection = page.locator('section').filter({ hasText: 'Variants' });
-    
+
     // Check filled card has shadow-md (default)
     const filledCard = variantsSection.locator('dry-card[variant="filled"]').first();
     const filledContainer = filledCard.locator('.card-container');
@@ -330,7 +330,7 @@ test.describe('Card Component', () => {
     await expect(elevatedContainer).toHaveClass(/shadow-xl/);
   });
 
-  test('should handle rapid property changes without errors', async ({ page }) => {
+  test('should handle rapid property changes without errors', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const variantSelect = page.locator('#variant-select');
     const elevationSelect = page.locator('#elevation-select');
@@ -353,7 +353,7 @@ test.describe('Card Component', () => {
     await expect(container).toBeVisible();
   });
 
-  test('should maintain content integrity after re-rendering', async ({ page }) => {
+  test('should maintain content integrity after re-rendering', async({ page }) => {
     const interactiveCard = page.locator('#interactive-card');
     const variantSelect = page.locator('#variant-select');
 

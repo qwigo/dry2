@@ -191,7 +191,7 @@ class DryChatBubble extends BaseElement {
    * Get bubble classes based on type and grouping
    */
   _getBubbleClasses(type, groupStart, groupEnd) {
-    let classes = ['px-4', 'py-2', 'max-w-md', 'break-words'];
+    const classes = ['px-4', 'py-2', 'max-w-md', 'break-words'];
 
     // Type-specific colors
     if (type === 'sent') {

@@ -83,7 +83,7 @@ class VanillaState {
    */
   _scheduleUpdate() {
     if (this.isUpdating) return;
-    
+
     this.isUpdating = true;
     queueMicrotask(() => {
       this._processUpdateQueue();
@@ -145,7 +145,7 @@ class VanillaDOM {
       element.style.display = '';
       element.style.opacity = '0';
       element.style.transition = `opacity ${duration}ms ease`;
-      
+
       requestAnimationFrame(() => {
         element.style.opacity = '1';
         setTimeout(() => {
@@ -155,7 +155,7 @@ class VanillaDOM {
     } else {
       element.style.transition = `opacity ${duration}ms ease`;
       element.style.opacity = '0';
-      
+
       setTimeout(() => {
         element.style.display = 'none';
         element.style.transition = '';
@@ -168,7 +168,7 @@ class VanillaDOM {
    */
   static toggleClass(element, className, condition) {
     if (!element) return;
-    
+
     if (condition) {
       element.classList.add(className);
     } else {
@@ -197,7 +197,7 @@ class VanillaDOM {
    */
   static on(element, event, handler, options = {}) {
     if (!element) return;
-    
+
     const wrappedHandler = (event) => {
       try {
         handler(event);
@@ -205,9 +205,9 @@ class VanillaDOM {
         console.error(`Error in event handler for ${event.type}:`, error);
       }
     };
-    
+
     element.addEventListener(event, wrappedHandler, options);
-    
+
     // Return cleanup function
     return () => element.removeEventListener(event, wrappedHandler);
   }
@@ -231,7 +231,7 @@ class VanillaDOM {
    */
   static create(tag, attributes = {}, content = '') {
     const element = document.createElement(tag);
-    
+
     Object.entries(attributes).forEach(([key, value]) => {
       if (key === 'className') {
         element.className = value;
@@ -241,7 +241,7 @@ class VanillaDOM {
         element.setAttribute(key, value);
       }
     });
-    
+
     if (content) {
       if (typeof content === 'string') {
         element.innerHTML = content;
@@ -249,7 +249,7 @@ class VanillaDOM {
         element.appendChild(content);
       }
     }
-    
+
     return element;
   }
 }
@@ -263,15 +263,15 @@ class VanillaTransitions {
    */
   static fade(element, show, options = {}) {
     const { duration = 300, easing = 'ease' } = options;
-    
+
     if (!element) return Promise.resolve();
-    
+
     return new Promise(resolve => {
       if (show) {
         element.style.display = '';
         element.style.opacity = '0';
         element.style.transition = `opacity ${duration}ms ${easing}`;
-        
+
         requestAnimationFrame(() => {
           element.style.opacity = '1';
           setTimeout(() => {
@@ -282,7 +282,7 @@ class VanillaTransitions {
       } else {
         element.style.transition = `opacity ${duration}ms ${easing}`;
         element.style.opacity = '0';
-        
+
         setTimeout(() => {
           element.style.display = 'none';
           element.style.transition = '';
@@ -297,20 +297,20 @@ class VanillaTransitions {
    */
   static slide(element, show, options = {}) {
     const { duration = 300, direction = 'down' } = options;
-    
+
     if (!element) return Promise.resolve();
-    
+
     return new Promise(resolve => {
       const isVertical = direction === 'up' || direction === 'down';
       const property = isVertical ? 'height' : 'width';
       const fullValue = isVertical ? element.scrollHeight : element.scrollWidth;
-      
+
       if (show) {
         element.style.display = '';
         element.style[property] = '0';
         element.style.overflow = 'hidden';
         element.style.transition = `${property} ${duration}ms ease`;
-        
+
         requestAnimationFrame(() => {
           element.style[property] = `${fullValue}px`;
           setTimeout(() => {
@@ -324,7 +324,7 @@ class VanillaTransitions {
         element.style.overflow = 'hidden';
         element.style.transition = `${property} ${duration}ms ease`;
         element.style[property] = `${fullValue}px`;
-        
+
         requestAnimationFrame(() => {
           element.style[property] = '0';
           setTimeout(() => {
@@ -344,16 +344,16 @@ class VanillaTransitions {
    */
   static scale(element, show, options = {}) {
     const { duration = 200, scale = 0.75 } = options;
-    
+
     if (!element) return Promise.resolve();
-    
+
     return new Promise(resolve => {
       if (show) {
         element.style.display = '';
         element.style.transform = `scale(${scale})`;
         element.style.opacity = '0';
         element.style.transition = `all ${duration}ms ease-out`;
-        
+
         requestAnimationFrame(() => {
           element.style.transform = 'scale(1)';
           element.style.opacity = '1';
@@ -366,7 +366,7 @@ class VanillaTransitions {
         element.style.transition = `all ${duration}ms ease-in`;
         element.style.transform = `scale(${scale})`;
         element.style.opacity = '0';
-        
+
         setTimeout(() => {
           element.style.display = 'none';
           element.style.transform = '';
@@ -412,7 +412,7 @@ class VanillaTemplates {
     if (!Array.isArray(array) || array.length === 0) {
       return emptyTemplate;
     }
-    
+
     return array.map((item, index) => {
       const context = { ...item, $index: index, $first: index === 0, $last: index === array.length - 1 };
       return typeof itemTemplate === 'function' ? itemTemplate(context) : VanillaTemplates.render(itemTemplate, context);
@@ -431,7 +431,7 @@ class ComponentState {
     this.reactive = this.state.createReactive();
     this.cleanupFunctions = [];
     this.isDestroyed = false;
-    
+
     // Auto-cleanup on element removal
     this._setupCleanupObserver();
   }
@@ -506,7 +506,7 @@ class ComponentState {
    */
   destroy() {
     if (this.isDestroyed) return;
-    
+
     this.isDestroyed = true;
     this.cleanupFunctions.forEach(fn => {
       try {
@@ -515,7 +515,7 @@ class ComponentState {
         console.error('Error in cleanup function:', error);
       }
     });
-    
+
     this.cleanupFunctions = [];
   }
 }

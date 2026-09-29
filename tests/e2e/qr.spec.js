@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('QR Component', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async({ page }) => {
     await page.goto('http://localhost:8086/examples/qr-showcase.html');
     // Wait for custom elements to upgrade
     await page.waitForTimeout(1000);
   });
 
-  test('should render QR codes without error messages', async ({ page }) => {
+  test('should render QR codes without error messages', async({ page }) => {
     // Check that QR codes are rendered
     const qrCodes = await page.locator('dry-qr-code').all();
     expect(qrCodes.length).toBeGreaterThan(0);
@@ -17,7 +17,7 @@ test.describe('QR Component', () => {
     expect(errorMessages).toBe(0);
   });
 
-  test('should display basic QR code with default size', async ({ page }) => {
+  test('should display basic QR code with default size', async({ page }) => {
     // Find the basic QR code in the first section
     const basicQR = page.locator('dry-qr-code[value="https://www.qwigo.com"]').first();
     await expect(basicQR).toBeVisible();
@@ -33,7 +33,7 @@ test.describe('QR Component', () => {
     expect(height).toBe('200');
   });
 
-  test('should render QR codes with different sizes', async ({ page }) => {
+  test('should render QR codes with different sizes', async({ page }) => {
     // Check small size (100px)
     const smallQR = page.locator('dry-qr-code[value="small"][size="100"]').first();
     const smallCanvas = smallQR.locator('canvas');
@@ -56,7 +56,7 @@ test.describe('QR Component', () => {
     expect(await largeCanvas.getAttribute('height')).toBe('300');
   });
 
-  test('should render QR codes with custom colors', async ({ page }) => {
+  test('should render QR codes with custom colors', async({ page }) => {
     // Check that color variants are rendered
     const redFgQR = page.locator('dry-qr-code[value="Red FG"]').first();
     await expect(redFgQR).toBeVisible();
@@ -71,10 +71,10 @@ test.describe('QR Component', () => {
     await expect(customQR.locator('canvas')).toBeVisible();
   });
 
-  test('should render QR codes with different error correction levels', async ({ page }) => {
+  test('should render QR codes with different error correction levels', async({ page }) => {
     // Check all error correction levels
     const levels = ['L', 'M', 'Q', 'H'];
-    
+
     for (const level of levels) {
       const qr = page.locator(`dry-qr-code[value="${level}-level"][error-correction="${level}"]`).first();
       await expect(qr).toBeVisible();
@@ -82,7 +82,7 @@ test.describe('QR Component', () => {
     }
   });
 
-  test('should have no JavaScript console errors on page load', async ({ page }) => {
+  test('should have no JavaScript console errors on page load', async({ page }) => {
     const errors = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -95,15 +95,15 @@ test.describe('QR Component', () => {
     await page.waitForTimeout(1500);
 
     // Filter out known non-critical errors
-    const criticalErrors = errors.filter(error => 
-      !error.includes('favicon') && 
+    const criticalErrors = errors.filter(error =>
+      !error.includes('favicon') &&
       !error.includes('net::ERR')
     );
 
     expect(criticalErrors).toHaveLength(0);
   });
 
-  test('component builder should be present and functional', async ({ page }) => {
+  test('component builder should be present and functional', async({ page }) => {
     // Check that component builder is rendered
     const componentBuilder = page.locator('dry-component-builder').first();
     await expect(componentBuilder).toBeVisible();
@@ -130,7 +130,7 @@ test.describe('QR Component', () => {
     await expect(preview).toBeVisible();
   });
 
-  test('component builder should update preview when controls change', async ({ page }) => {
+  test('component builder should update preview when controls change', async({ page }) => {
     // Wait for component builder to initialize
     await page.waitForTimeout(1500);
 
@@ -148,7 +148,7 @@ test.describe('QR Component', () => {
     expect(await previewQR.getAttribute('value')).toBe('Test QR Code');
   });
 
-  test('component builder color picker should sync with text input', async ({ page }) => {
+  test('component builder color picker should sync with text input', async({ page }) => {
     // Wait for component builder to initialize
     await page.waitForTimeout(1500);
 
@@ -173,7 +173,7 @@ test.describe('QR Component', () => {
     expect(await colorPicker.inputValue()).toBe('#00ff00');
   });
 
-  test('component builder should show generated code', async ({ page }) => {
+  test('component builder should show generated code', async({ page }) => {
     // Wait for component builder to initialize
     await page.waitForTimeout(1500);
 
@@ -186,7 +186,7 @@ test.describe('QR Component', () => {
     expect(codeText).toContain('dry-qr-code');
   });
 
-  test('component builder copy button should work', async ({ page }) => {
+  test('component builder copy button should work', async({ page }) => {
     // Grant clipboard permissions
     await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
 
@@ -212,7 +212,7 @@ test.describe('QR Component', () => {
     expect(resetText).toContain('Copy');
   });
 
-  test('QR component should have proper accessibility attributes', async ({ page }) => {
+  test('QR component should have proper accessibility attributes', async({ page }) => {
     // Check that canvas elements are accessible
     const firstQR = page.locator('dry-qr-code').first();
     await expect(firstQR).toBeVisible();

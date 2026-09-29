@@ -1,25 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Accordion Component', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async({ page }) => {
     // Navigate to the accordion showcase page
     await page.goto('/examples/accordion-showcase.html', { waitUntil: 'domcontentloaded' });
-    
+
     // Wait for custom elements to be defined
     await page.waitForFunction(() => {
-      return customElements.get('dry-accordion') && 
+      return customElements.get('dry-accordion') &&
              customElements.get('accordion-item') &&
              customElements.get('dry-breadcrumbs');
     });
-    
+
     // Wait for the first accordion to be visible and rendered
     await page.waitForSelector('dry-accordion[data-rendered="true"]', { timeout: 5000 });
-    
+
     // Small additional wait for any animations/transitions to settle
     await page.waitForTimeout(500);
   });
 
-  test('should render without "no content" messages', async ({ page }) => {
+  test('should render without "no content" messages', async({ page }) => {
     // Check that accordion sections render
     const accordionItems = await page.locator('accordion-item').count();
     expect(accordionItems).toBeGreaterThan(0);
@@ -33,7 +33,7 @@ test.describe('Accordion Component', () => {
     await expect(firstAccordion).toBeVisible();
   });
 
-  test('should load with correct initial state', async ({ page }) => {
+  test('should load with correct initial state', async({ page }) => {
     // First accordion item should be open (has 'open' attribute)
     const firstItem = page.locator('dry-accordion').first().locator('accordion-item').first();
     const isOpen = await firstItem.evaluate(el => el.hasAttribute('open'));
@@ -45,7 +45,7 @@ test.describe('Accordion Component', () => {
     expect(maxHeight).not.toBe('0');
   });
 
-  test('should toggle accordion sections on click', async ({ page }) => {
+  test('should toggle accordion sections on click', async({ page }) => {
     // Get the first accordion (non-multiple mode)
     const accordion = page.locator('dry-accordion').first();
     const secondItem = accordion.locator('accordion-item').nth(1);
@@ -67,7 +67,7 @@ test.describe('Accordion Component', () => {
     expect(isClosed).toBe(true);
   });
 
-  test('should only allow one section open in single mode', async ({ page }) => {
+  test('should only allow one section open in single mode', async({ page }) => {
     // Get the first accordion (single mode)
     const accordion = page.locator('dry-accordion').first();
     const firstItem = accordion.locator('accordion-item').first();
@@ -88,7 +88,7 @@ test.describe('Accordion Component', () => {
     expect(secondOpen).toBe(true);
   });
 
-  test('should allow multiple sections open in multiple mode', async ({ page }) => {
+  test('should allow multiple sections open in multiple mode', async({ page }) => {
     // Get the second accordion (has 'multiple' attribute)
     const accordion = page.locator('dry-accordion').nth(1);
     const firstItem = accordion.locator('accordion-item').first();
@@ -109,7 +109,7 @@ test.describe('Accordion Component', () => {
     expect(thirdOpen).toBe(true);
   });
 
-  test('should display custom icons in headers', async ({ page }) => {
+  test('should display custom icons in headers', async({ page }) => {
     // Get the accordion with custom icons (third accordion)
     const accordion = page.locator('dry-accordion').nth(2);
     const firstItem = accordion.locator('accordion-item').first();
@@ -124,7 +124,7 @@ test.describe('Accordion Component', () => {
     expect(iconClass).toContain('h-5');
   });
 
-  test('should have proper accessibility attributes', async ({ page }) => {
+  test('should have proper accessibility attributes', async({ page }) => {
     const firstAccordion = page.locator('dry-accordion').first();
     const firstItem = firstAccordion.locator('accordion-item').first();
     const header = firstItem.locator('.accordion-header');
@@ -141,7 +141,7 @@ test.describe('Accordion Component', () => {
     expect(labelledBy).toBeTruthy();
   });
 
-  test('should not have JavaScript console errors', async ({ page }) => {
+  test('should not have JavaScript console errors', async({ page }) => {
     const consoleErrors = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
@@ -158,7 +158,7 @@ test.describe('Accordion Component', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('should animate chevron icon on toggle', async ({ page }) => {
+  test('should animate chevron icon on toggle', async({ page }) => {
     const firstAccordion = page.locator('dry-accordion').first();
     const secondItem = firstAccordion.locator('accordion-item').nth(1);
     const chevron = secondItem.locator('.accordion-chevron');
@@ -176,7 +176,7 @@ test.describe('Accordion Component', () => {
     expect(hasRotate).toBe(true);
   });
 
-  test('should handle programmatic control - openAll', async ({ page }) => {
+  test('should handle programmatic control - openAll', async({ page }) => {
     // Use the interactive demo accordion
     const accordion = page.locator('#interactive-accordion');
     const openAllButton = page.locator('#open-all');
@@ -195,7 +195,7 @@ test.describe('Accordion Component', () => {
     }
   });
 
-  test('should handle programmatic control - closeAll', async ({ page }) => {
+  test('should handle programmatic control - closeAll', async({ page }) => {
     const accordion = page.locator('#interactive-accordion');
     const openAllButton = page.locator('#open-all');
     const closeAllButton = page.locator('#close-all');
@@ -218,7 +218,7 @@ test.describe('Accordion Component', () => {
     }
   });
 
-  test('should handle toggle multiple mode', async ({ page }) => {
+  test('should handle toggle multiple mode', async({ page }) => {
     const accordion = page.locator('#interactive-accordion');
     const toggleButton = page.locator('#toggle-multiple');
     const openAllButton = page.locator('#open-all');
@@ -227,7 +227,7 @@ test.describe('Accordion Component', () => {
     await openAllButton.click();
     await page.waitForTimeout(500);
 
-    let allOpen = await accordion.locator('accordion-item').evaluateAll(items => 
+    const allOpen = await accordion.locator('accordion-item').evaluateAll(items =>
       items.every(item => item.hasAttribute('open'))
     );
     expect(allOpen).toBe(true);
@@ -241,7 +241,7 @@ test.describe('Accordion Component', () => {
     expect(openCount).toBeLessThanOrEqual(1);
   });
 
-  test('should handle disabled state', async ({ page }) => {
+  test('should handle disabled state', async({ page }) => {
     const accordion = page.locator('#interactive-accordion');
     const toggleDisabledButton = page.locator('#toggle-disabled');
     const firstItem = accordion.locator('accordion-item').first();
@@ -256,13 +256,13 @@ test.describe('Accordion Component', () => {
     expect(isDisabled).toBe(true);
 
     // Should have disabled styling
-    const hasDisabledClass = await firstHeader.evaluate(el => 
+    const hasDisabledClass = await firstHeader.evaluate(el =>
       el.classList.contains('cursor-not-allowed')
     );
     expect(hasDisabledClass).toBe(true);
   });
 
-  test('should emit accordion:change events', async ({ page }) => {
+  test('should emit accordion:change events', async({ page }) => {
     const accordion = page.locator('#interactive-accordion');
     const firstItem = accordion.locator('accordion-item').first();
 
@@ -289,7 +289,7 @@ test.describe('Accordion Component', () => {
     expect(typeof eventFired.openItemsCount).toBe('number');
   });
 
-  test('should display event log updates', async ({ page }) => {
+  test('should display event log updates', async({ page }) => {
     const openAllButton = page.locator('#open-all');
     const logContent = page.locator('#log-content');
 
@@ -306,7 +306,7 @@ test.describe('Accordion Component', () => {
     expect(logText).toContain('opened');
   });
 
-  test('should clear event log', async ({ page }) => {
+  test('should clear event log', async({ page }) => {
     const openAllButton = page.locator('#open-all');
     const clearLogButton = page.locator('#clear-log');
     const logContent = page.locator('#log-content');
@@ -328,7 +328,7 @@ test.describe('Accordion Component', () => {
     expect(logEntries).toBe(0);
   });
 
-  test('should handle content with HTML elements', async ({ page }) => {
+  test('should handle content with HTML elements', async({ page }) => {
     // Second accordion has HTML list in content
     const accordion = page.locator('dry-accordion').nth(1);
     const firstItem = accordion.locator('accordion-item').first();
@@ -347,7 +347,7 @@ test.describe('Accordion Component', () => {
     expect(firstListItem).toContain('Responsive design');
   });
 
-  test('should maintain state when accordion is toggled', async ({ page }) => {
+  test('should maintain state when accordion is toggled', async({ page }) => {
     const accordion = page.locator('dry-accordion').first();
     const firstItem = accordion.locator('accordion-item').first();
     const secondItem = accordion.locator('accordion-item').nth(1);
@@ -369,14 +369,14 @@ test.describe('Accordion Component', () => {
     expect(firstOpen).toBe(true);
   });
 
-  test('should have smooth animations', async ({ page }) => {
+  test('should have smooth animations', async({ page }) => {
     const accordion = page.locator('dry-accordion').first();
     const secondItem = accordion.locator('accordion-item').nth(1);
     const contentWrapper = secondItem.locator('.accordion-content-wrapper');
 
     // Check that transition class is present
     const hasTransitionClass = await contentWrapper.evaluate(el => {
-      return el.classList.contains('transition-all') || 
+      return el.classList.contains('transition-all') ||
              el.className.includes('transition');
     });
     expect(hasTransitionClass).toBe(true);
@@ -388,7 +388,7 @@ test.describe('Accordion Component', () => {
     expect(hasDuration).toBe(true);
   });
 
-  test('should render component builder section', async ({ page }) => {
+  test('should render component builder section', async({ page }) => {
     const builderSection = page.locator('#accordion-component-builder');
     await expect(builderSection).toBeVisible();
 
@@ -398,7 +398,7 @@ test.describe('Accordion Component', () => {
     expect(previewCount).toBeGreaterThan(0);
   });
 
-  test('should handle rapid clicking without breaking', async ({ page }) => {
+  test('should handle rapid clicking without breaking', async({ page }) => {
     const accordion = page.locator('dry-accordion').first();
     const firstItem = accordion.locator('accordion-item').first();
     const header = firstItem.locator('.accordion-header');
@@ -414,7 +414,7 @@ test.describe('Accordion Component', () => {
     expect(isRendered).toBe(true);
   });
 
-  test('should work with keyboard navigation', async ({ page }) => {
+  test('should work with keyboard navigation', async({ page }) => {
     const accordion = page.locator('dry-accordion').first();
     const firstItem = accordion.locator('accordion-item').first();
     const header = firstItem.locator('.accordion-header');
@@ -431,7 +431,7 @@ test.describe('Accordion Component', () => {
     expect(typeof isOpen).toBe('boolean');
   });
 
-  test('should handle empty accordion gracefully', async ({ page }) => {
+  test('should handle empty accordion gracefully', async({ page }) => {
     // Create an empty accordion via JS
     const hasError = await page.evaluate(() => {
       try {

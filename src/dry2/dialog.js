@@ -135,18 +135,18 @@ class DryDialog extends BaseElement {
 
     this._resizeHandler = () => {
       const isMobile = this._isMobile();
-      
+
       // Check if mobile state has changed
       if (this._wasMobile !== null && this._wasMobile !== isMobile) {
         // Close any open dialog/drawer before re-rendering
         if (this._isOpen) {
           this._closeDialog();
         }
-        
+
         // Re-render to switch between dialog and drawer
         this.reRender();
       }
-      
+
       this._wasMobile = isMobile;
     };
 
@@ -162,15 +162,15 @@ class DryDialog extends BaseElement {
     // Force dialog mode on mobile devices (unless opted out)
     const isMobile = !noMobileFallback && this._isMobile();
     const mode = isMobile ? 'dialog' : requestedMode;
-    
+
     // Store current mobile state
     this._wasMobile = isMobile;
-    
+
     // Set up resize handler if not already done (skip when mobile fallback is disabled)
     if (!this._resizeHandler && !noMobileFallback) {
       this._setupResizeHandler();
     }
-    
+
     const url = this.getAttr('url', '');
     const buttonClass = this.getAttr('button-class', 'bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded');
     const triggerId = this.getAttr('trigger-id', `trigger-${this._generateId()}`);
@@ -316,7 +316,7 @@ class DryDialog extends BaseElement {
     closeButton.type = 'button';
     closeButton.className = 'dry-dialog-close-btn';
     closeButton.setAttribute('aria-label', 'Close dialog');
-    closeButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>`;
+    closeButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>';
     this._closeButton = closeButton;
 
     // Content area — this is the HTMX target; close button is a sibling so it
@@ -344,7 +344,7 @@ class DryDialog extends BaseElement {
     // Check if dialog-class is provided (overrides drawer-class)
     const customDialogClass = this.getAttribute('dialog-class');
     let drawerClass;
-    
+
     if (customDialogClass) {
       drawerClass = customDialogClass;
     } else {
@@ -352,7 +352,7 @@ class DryDialog extends BaseElement {
       const defaultBase = baseDrawerClass || 'p-6 bg-white shadow-xl';
       drawerClass = this._getDrawerClasses(direction, defaultBase);
     }
-    
+
     // Backdrop
     const backdrop = document.createElement('div');
     backdrop.setAttribute('data-backdrop', 'true');
@@ -375,7 +375,7 @@ class DryDialog extends BaseElement {
     closeButton.type = 'button';
     closeButton.className = 'dry-dialog-close-btn';
     closeButton.setAttribute('aria-label', 'Close drawer');
-    closeButton.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>`;
+    closeButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/></svg>';
     this._closeButton = closeButton;
 
     // Content area — HTMX target; close button is a sibling so it persists
@@ -407,10 +407,10 @@ class DryDialog extends BaseElement {
    */
   _getDrawerClasses(direction, customClasses) {
     const baseClasses = 'fixed overflow-y-auto transition-transform duration-300 ease-in-out z-50';
-    
+
     // Check if custom classes already include width/height
     const hasCustomDimension = this._hasCustomDimension(customClasses);
-    
+
     let positionClasses = '';
     let transformClass = '';
     let defaultDimension = '';
@@ -420,35 +420,35 @@ class DryDialog extends BaseElement {
     let axisClass = '';
 
     switch (direction) {
-      case 'left':
-        positionClasses = 'left-0 top-0 bottom-0';
-        defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
-        transformClass = '-translate-x-full';
-        axisClass = 'dry-drawer-x';
-        break;
-      case 'right':
-        positionClasses = 'right-0 top-0 bottom-0';
-        defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
-        transformClass = 'translate-x-full';
-        axisClass = 'dry-drawer-x';
-        break;
-      case 'top':
-        positionClasses = 'top-0 left-0 right-0';
-        defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
-        transformClass = '-translate-y-full';
-        axisClass = 'dry-drawer-y';
-        break;
-      case 'bottom':
-        positionClasses = 'bottom-0 left-0 right-0';
-        defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
-        transformClass = 'translate-y-full';
-        axisClass = 'dry-drawer-y';
-        break;
-      default:
-        positionClasses = 'right-0 top-0 bottom-0';
-        defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
-        transformClass = 'translate-x-full';
-        axisClass = 'dry-drawer-x';
+    case 'left':
+      positionClasses = 'left-0 top-0 bottom-0';
+      defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
+      transformClass = '-translate-x-full';
+      axisClass = 'dry-drawer-x';
+      break;
+    case 'right':
+      positionClasses = 'right-0 top-0 bottom-0';
+      defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
+      transformClass = 'translate-x-full';
+      axisClass = 'dry-drawer-x';
+      break;
+    case 'top':
+      positionClasses = 'top-0 left-0 right-0';
+      defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
+      transformClass = '-translate-y-full';
+      axisClass = 'dry-drawer-y';
+      break;
+    case 'bottom':
+      positionClasses = 'bottom-0 left-0 right-0';
+      defaultDimension = hasCustomDimension ? '' : 'h-80 max-h-full';
+      transformClass = 'translate-y-full';
+      axisClass = 'dry-drawer-y';
+      break;
+    default:
+      positionClasses = 'right-0 top-0 bottom-0';
+      defaultDimension = hasCustomDimension ? '' : 'w-80 max-w-full';
+      transformClass = 'translate-x-full';
+      axisClass = 'dry-drawer-x';
     }
 
     return `${baseClasses} ${positionClasses} ${defaultDimension} ${transformClass} ${axisClass} ${customClasses}`.trim();
@@ -459,13 +459,13 @@ class DryDialog extends BaseElement {
    */
   _setupHtmx(triggerId, dialogInnerId, url) {
     const triggerType = this.getAttr('trigger-type', 'click');
-    
+
     if (this._triggerButton && this._contentContainer) {
       this._triggerButton.setAttribute('hx-get', url);
       this._triggerButton.setAttribute('hx-target', `#${dialogInnerId}`);
       this._triggerButton.setAttribute('hx-trigger', triggerType);
       this._triggerButton.setAttribute('hx-swap', 'innerHTML');
-      
+
       // Process with htmx
       if (typeof htmx !== 'undefined' && typeof htmx.process === 'function') {
         htmx.process(this._triggerButton);
@@ -488,7 +488,7 @@ class DryDialog extends BaseElement {
       };
       this.addTrackedListener(this._triggerButton, 'click', handleTriggerClick);
     }
-    
+
     // Prevent default anchor behavior even when HTMX is handling the click
     if (this._triggerButton) {
       const preventDefaultHandler = (e) => {
@@ -624,18 +624,18 @@ class DryDialog extends BaseElement {
       if (this._dialogElement) {
         const direction = this.getAttr('direction', 'right');
         switch (direction) {
-          case 'left':
-            this._dialogElement.classList.add('-translate-x-full');
-            break;
-          case 'right':
-            this._dialogElement.classList.add('translate-x-full');
-            break;
-          case 'top':
-            this._dialogElement.classList.add('-translate-y-full');
-            break;
-          case 'bottom':
-            this._dialogElement.classList.add('translate-y-full');
-            break;
+        case 'left':
+          this._dialogElement.classList.add('-translate-x-full');
+          break;
+        case 'right':
+          this._dialogElement.classList.add('translate-x-full');
+          break;
+        case 'top':
+          this._dialogElement.classList.add('-translate-y-full');
+          break;
+        case 'bottom':
+          this._dialogElement.classList.add('translate-y-full');
+          break;
         }
 
         // After the slide-out transition, remove the panel from layout so the

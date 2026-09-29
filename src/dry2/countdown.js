@@ -61,7 +61,7 @@ class DryCountdown extends BaseElement {
       // Check if there's expired slot content
       const expiredSlot = this.querySelector('[slot="expired"]');
       const hasExpiredSlot = !!expiredSlot;
-      
+
       if (expiredSlot) {
         this._expiredSlot = expiredSlot.cloneNode(true);
       }
@@ -120,7 +120,7 @@ class DryCountdown extends BaseElement {
     const format = this.getAttr('format', 'days,hours,minutes,seconds');
     const showZeros = this.getBoolAttr('show-zeros', false);
     const unitClass = this.getAttr('unit-class', '');
-    const expiryText = this.getAttr('expiry-text', "Time's up!");
+    const expiryText = this.getAttr('expiry-text', 'Time\'s up!');
 
     // Clear existing content
     if (typeof this.replaceChildren === 'function') {
@@ -216,7 +216,7 @@ class DryCountdown extends BaseElement {
    */
   _getUnitLabel(unit, value) {
     const labelAttr = this.getAttr(`${unit}-label`, '');
-    
+
     if (labelAttr) {
       const [singular, plural] = labelAttr.split('|');
       return value === 1 ? singular : (plural || singular);
@@ -263,12 +263,12 @@ class DryCountdown extends BaseElement {
         if (unitElement) {
           const valueElement = unitElement.querySelector('.countdown-value');
           const labelElement = unitElement.querySelector('.countdown-label');
-          
+
           if (valueElement) {
             const formattedValue = leadingZeros ? String(value).padStart(2, '0') : String(value);
             valueElement.textContent = formattedValue;
           }
-          
+
           if (labelElement) {
             labelElement.textContent = this._getUnitLabel(unit, value);
           }
@@ -310,7 +310,7 @@ class DryCountdown extends BaseElement {
       this._intervalId = null;
     }
 
-    const expiryText = this.getAttr('expiry-text', "Time's up!");
+    const expiryText = this.getAttr('expiry-text', 'Time\'s up!');
     this._renderExpired(expiryText);
     this.emit('countdown:completed', { timestamp: new Date() });
   }
@@ -345,7 +345,7 @@ class DryCountdown extends BaseElement {
     }
 
     this._isPaused = false;
-    
+
     // Recalculate remaining time based on target-date or duration
     const targetDate = this.getAttr('target-date', '');
     if (targetDate) {

@@ -42,7 +42,7 @@ class DryCard extends BaseElement {
 
       // Check if content is already available
       const hasContent = this.querySelector('[slot]') || this.childNodes.length > 0;
-      
+
       if (hasContent) {
         // Capture slot content before rendering
         this._captureSlotContent();
@@ -112,7 +112,7 @@ class DryCard extends BaseElement {
           return true;
         })
         .map(node => node.cloneNode(true));
-      
+
       if (remainingContent.length > 0) {
         const tempDiv = document.createElement('div');
         remainingContent.forEach(node => tempDiv.appendChild(node));

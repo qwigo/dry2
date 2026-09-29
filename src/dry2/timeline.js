@@ -7,12 +7,12 @@ class Timeline extends BaseElement {
   render() {
     // Apply simple container styling
     this.className = this.getContainerClasses();
-    
+
     // Initialize all timeline items after a brief delay to ensure they're all in DOM
     setTimeout(() => {
       this._initializeTimelineItems();
     }, 0);
-    
+
     // Set up observer for dynamically added timeline items
     this._setupChildObserver();
   }
@@ -30,7 +30,7 @@ class Timeline extends BaseElement {
     if (this._childObserver) {
       this._childObserver.disconnect();
     }
-    
+
     this._childObserver = new MutationObserver((mutations) => {
       let shouldReinitialize = false;
       mutations.forEach((mutation) => {
@@ -40,12 +40,12 @@ class Timeline extends BaseElement {
           }
         });
       });
-      
+
       if (shouldReinitialize) {
         setTimeout(() => this._initializeTimelineItems(), 0);
       }
     });
-    
+
     this._childObserver.observe(this, { childList: true });
   }
 
@@ -84,7 +84,7 @@ class TimelineItem extends BaseElement {
     if (!this._originalContent) {
       this._originalContent = this.innerHTML;
     }
-    
+
     // Don't initialize immediately - wait for parent timeline to call _initializeWithIndex
     const parentTimeline = this.closest('timeline-component');
     if (parentTimeline && parentTimeline._rendered) {
@@ -101,7 +101,7 @@ class TimelineItem extends BaseElement {
       this._itemIndex = Array.from(allItems).indexOf(this);
       this._isLast = this._itemIndex === allItems.length - 1;
     }
-    
+
     this._initializeItem();
   }
 

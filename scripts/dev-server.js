@@ -2,7 +2,7 @@
 
 /**
  * Development server for DRY2 Web Components
- * 
+ *
  * Provides:
  * - Static file serving
  * - Hot reload for development
@@ -28,7 +28,7 @@ class DevServer {
     this.host = options.host || 'localhost';
     this.app = express();
     this.components = [];
-    
+
     this.setupMiddleware();
     this.setupRoutes();
     this.setupFileWatcher();
@@ -43,7 +43,7 @@ class DevServer {
     this.app.use('/examples', express.static(join(rootDir, 'examples')));
     this.app.use('/test', express.static(join(rootDir, 'test')));
     this.app.use('/dist', express.static(join(rootDir, 'dist')));
-    
+
     // CORS for development
     this.app.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
@@ -93,7 +93,7 @@ class DevServer {
     this.app.get('/component/:name', (req, res) => {
       const componentName = req.params.name;
       const showcasePath = join(rootDir, 'examples', `${componentName}-showcase.html`);
-      
+
       if (existsSync(showcasePath)) {
         const content = readFileSync(showcasePath, 'utf8');
         res.send(this.injectDevTools(content));
@@ -120,7 +120,7 @@ class DevServer {
     this.app.get('/api/component/:name', (req, res) => {
       const componentName = req.params.name;
       const info = this.getComponentInfo(componentName);
-      
+
       if (info) {
         res.json(info);
       } else {
@@ -196,7 +196,7 @@ class DevServer {
    */
   generateComponentBrowser() {
     const components = this.discoverComponents();
-    
+
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -299,7 +299,7 @@ class DevServer {
    */
   generateTestRunner(component) {
     const testFiles = component ? [`test/components/${component}.test.js`] : ['test/**/*.test.js'];
-    
+
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -444,7 +444,7 @@ class DevServer {
    */
   discoverComponents() {
     const srcDir = join(rootDir, 'src', 'dry2');
-    const files = readdirSync(srcDir).filter(file => 
+    const files = readdirSync(srcDir).filter(file =>
       file.endsWith('.js') && file !== 'dry2.js'
     );
 
@@ -467,7 +467,7 @@ class DevServer {
    */
   getComponentInfo(name) {
     const componentPath = join(rootDir, 'src', 'dry2', `${name}.js`);
-    
+
     if (!existsSync(componentPath)) {
       return null;
     }
@@ -516,9 +516,9 @@ class DevServer {
       'avatar': 'User avatars with image fallbacks and initials',
       'badge': 'Status indicators and notification badges',
       'accordion': 'Collapsible content sections',
-              'toast': 'Notification toasts with global API',
-        'carousel': 'Touch-enabled carousel with autoplay',
-        'countdown': 'Flexible countdown timers',
+      'toast': 'Notification toasts with global API',
+      'carousel': 'Touch-enabled carousel with autoplay',
+      'countdown': 'Flexible countdown timers',
       'tabs': 'Tabbed interface with multiple variants',
       'select': 'Advanced select with search and multi-selection'
     };
@@ -571,7 +571,7 @@ class DevServer {
       this.server = this.app.listen(this.port, this.host, () => {
         console.log(`🚀 DRY2 Development Server running at http://${this.host}:${this.port}`);
         console.log(`📦 Components: ${this.discoverComponents().length}`);
-        console.log(`🔄 Hot reload enabled`);
+        console.log('🔄 Hot reload enabled');
         console.log(`📁 Serving from: ${rootDir}`);
         resolve();
       });
@@ -604,14 +604,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const host = process.argv[3] || 'localhost';
 
   const server = new DevServer({ port, host });
-  
+
   server.start().catch(error => {
     console.error('Failed to start development server:', error);
     process.exit(1);
   });
 
   // Graceful shutdown
-  process.on('SIGINT', async () => {
+  process.on('SIGINT', async() => {
     console.log('\n🛑 Shutting down development server...');
     await server.stop();
     process.exit(0);

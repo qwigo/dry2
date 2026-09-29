@@ -11,7 +11,7 @@ describe('DryAccordion Component System', () => {
     cleanupDOM();
   });
 
-  before(async () => {
+  before(async() => {
     await import('../../../src/dry2/accordion.js');
   });
 
@@ -43,13 +43,13 @@ describe('DryAccordion Component System', () => {
       document.body.appendChild(accordionComponent);
     });
 
-    it('should initialize component', async () => {
+    it('should initialize component', async() => {
       // Add some content first to trigger initialization
       accordionComponent.innerHTML = '<accordion-item title="Test">Content</accordion-item>';
-      
+
       // Wait for component initialization with longer timeout
       await new Promise(resolve => setTimeout(resolve, 600));
-      
+
       expect(accordionComponent._isInitialized).to.be.true;
     });
 
@@ -109,7 +109,7 @@ describe('DryAccordion Component System', () => {
   });
 
   describe('Accordion System Integration', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       accordionComponent = document.createElement('dry-accordion');
       accordionComponent.innerHTML = `
         <accordion-item title="Section 1" open>Content 1</accordion-item>
@@ -117,7 +117,7 @@ describe('DryAccordion Component System', () => {
         <accordion-item title="Section 3">Content 3</accordion-item>
       `;
       document.body.appendChild(accordionComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -140,7 +140,7 @@ describe('DryAccordion Component System', () => {
       // Check if the component created the accordion structure
       const accordionContainer = accordionComponent.querySelector('.accordion');
       expect(accordionContainer).to.exist;
-      
+
       // Test the internal _extractItems method
       const items = accordionComponent._extractItems();
       expect(items.length).to.be.greaterThan(0);
@@ -150,7 +150,7 @@ describe('DryAccordion Component System', () => {
   });
 
   describe('Single vs Multiple Mode', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       accordionComponent = document.createElement('dry-accordion');
       accordionComponent.innerHTML = `
         <accordion-item title="Section 1" open>Content 1</accordion-item>
@@ -158,7 +158,7 @@ describe('DryAccordion Component System', () => {
         <accordion-item title="Section 3">Content 3</accordion-item>
       `;
       document.body.appendChild(accordionComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -166,7 +166,7 @@ describe('DryAccordion Component System', () => {
     it('should close other items in single mode', () => {
       // Test single mode behavior by checking the component state
       expect(accordionComponent.multiple).to.be.false;
-      
+
       // Test programmatic API
       expect(typeof accordionComponent.toggleItem).to.equal('function');
     });
@@ -174,21 +174,21 @@ describe('DryAccordion Component System', () => {
     it('should allow multiple open items in multiple mode', () => {
       accordionComponent.setAttribute('multiple', '');
       expect(accordionComponent.multiple).to.be.true;
-      
+
       // Test programmatic API for multiple mode
       expect(typeof accordionComponent.openAll).to.equal('function');
     });
   });
 
   describe('Disabled Items', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       accordionComponent = document.createElement('dry-accordion');
       accordionComponent.innerHTML = `
         <accordion-item title="Section 1">Content 1</accordion-item>
         <accordion-item title="Section 2" disabled>Content 2</accordion-item>
       `;
       document.body.appendChild(accordionComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -234,14 +234,14 @@ describe('DryAccordion Component System', () => {
   });
 
   describe('Accessibility', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       accordionComponent = document.createElement('dry-accordion');
       accordionComponent.innerHTML = `
         <accordion-item title="Section 1" open>Content 1</accordion-item>
         <accordion-item title="Section 2">Content 2</accordion-item>
       `;
       document.body.appendChild(accordionComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -341,7 +341,7 @@ describe('DryAccordion Component System', () => {
       accordionComponent = document.createElement('dry-accordion');
       document.body.appendChild(accordionComponent);
       expect(accordionComponent.isConnected).to.be.true;
-      
+
       accordionComponent.remove();
       expect(accordionComponent.isConnected).to.be.false;
     });
@@ -350,7 +350,7 @@ describe('DryAccordion Component System', () => {
       accordionItem = document.createElement('accordion-item');
       document.body.appendChild(accordionItem);
       expect(accordionItem.isConnected).to.be.true;
-      
+
       accordionItem.remove();
       expect(accordionItem.isConnected).to.be.false;
     });
@@ -407,7 +407,7 @@ describe('DryAccordion Component System', () => {
   });
 
   describe('API Methods', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       accordionComponent = document.createElement('dry-accordion');
       accordionComponent.innerHTML = `
         <accordion-item title="Section 1">Content 1</accordion-item>
@@ -415,7 +415,7 @@ describe('DryAccordion Component System', () => {
         <accordion-item title="Section 3">Content 3</accordion-item>
       `;
       document.body.appendChild(accordionComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -446,4 +446,4 @@ describe('DryAccordion Component System', () => {
       expect(items[0]).to.have.property('id');
     });
   });
-}); 
+});

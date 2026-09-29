@@ -180,10 +180,10 @@ class DryStat extends BaseElement {
   // Helper method to process icons
   processIcon(icon) {
     if (!icon) return '';
-    
+
     // Check if it's a FontAwesome class name (starts with common FA prefixes)
     const fontAwesomePattern = /^(fas|far|fab|fal|fad|fat|fass|fasr|fasl|fad|fa-)\s/;
-    
+
     if (fontAwesomePattern.test(icon.trim())) {
       // It's a FontAwesome class, wrap it in an <i> tag
       return `<i class="${icon}"></i>`;
@@ -202,10 +202,10 @@ class DryStat extends BaseElement {
     const processedIcon = this.processIcon(this.icon);
 
     // Check if custom color theme is applied (look for text-white or other light text colors)
-    const hasLightTheme = customClass.includes('text-white') || 
-                          customClass.includes('text-gray-50') || 
+    const hasLightTheme = customClass.includes('text-white') ||
+                          customClass.includes('text-gray-50') ||
                           customClass.includes('text-gray-100');
-    
+
     // Set default text colors based on theme
     const valueColor = hasLightTheme ? 'text-inherit' : 'text-gray-900 dark:text-gray-100';
     const labelColor = hasLightTheme ? 'text-inherit opacity-90' : 'text-gray-600 dark:text-gray-400';
@@ -237,9 +237,9 @@ class DryStat extends BaseElement {
                      </div>
                  </div>
              `;
-     } else {
-       // Vertical layout (default)
-       html = `
+    } else {
+      // Vertical layout (default)
+      html = `
                  <div class="${customClass}">
                      ${processedIcon ? `<div class="mb-3">${processedIcon}</div>` : ''}
                      <div class="text-2xl font-bold ${valueColor} mb-1">${formattedValue}</div>
@@ -255,11 +255,11 @@ class DryStat extends BaseElement {
                      ` : ''}
                  </div>
              `;
-     }
- 
-     this.innerHTML = html;
-   }
- }
- 
- // Register the custom element
- customElements.define('dry-stat', DryStat);
+    }
+
+    this.innerHTML = html;
+  }
+}
+
+// Register the custom element
+customElements.define('dry-stat', DryStat);

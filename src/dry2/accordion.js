@@ -76,10 +76,10 @@ class AccordionItem extends BaseElement {
       <button 
         id="${headerId}"
         class="accordion-header w-full flex items-center justify-between px-4 py-3 text-left font-medium transition-colors duration-200 ${
-          disabled 
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-            : 'bg-white hover:bg-gray-50 text-gray-900 cursor-pointer'
-        } border-b border-gray-200"
+  disabled
+    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+    : 'bg-white hover:bg-gray-50 text-gray-900 cursor-pointer'
+} border-b border-gray-200"
         aria-expanded="${isOpen}"
         aria-controls="${contentId}"
         ${disabled ? 'disabled' : ''}

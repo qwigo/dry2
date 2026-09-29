@@ -25,7 +25,7 @@ class DryComponentBuilder extends BaseElement {
   static _sanitizeAttribute(value) {
     if (typeof value !== 'string') return value;
     return value.replace(/[<>"'&]/g, (char) => {
-      const map = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' };
+      const map = { '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;', '&': '&amp;' };
       return map[char];
     });
   }
@@ -59,7 +59,7 @@ class DryComponentBuilder extends BaseElement {
 
       // Try to get config from script tag
       const configScript = this.querySelector('script[type="application/json"]');
-      
+
       if (configScript) {
         try {
           this._config = JSON.parse(configScript.textContent);
@@ -503,7 +503,7 @@ class DryComponentBuilder extends BaseElement {
       const property = e.target.dataset.property;
       if (property) {
         this._updateProperty(property, this._getControlValue(e.target));
-        
+
         // If this is a color picker, update the text input
         if (e.target.type === 'color') {
           const textInput = this.querySelector(`[data-property-text="${property}"]`);
@@ -532,7 +532,7 @@ class DryComponentBuilder extends BaseElement {
           textInput.value = e.target.value;
         }
       }
-      
+
       // Handle text input changes for color controls
       const textProperty = e.target.dataset.propertyText;
       if (textProperty) {
@@ -612,12 +612,12 @@ class DryComponentBuilder extends BaseElement {
    */
   _generatePreview() {
     const component = this._generateComponent();
-    
+
     // Apply preview wrapper if provided
     if (this._config.previewWrapper && typeof this._config.previewWrapper === 'function') {
       return this._config.previewWrapper(component);
     }
-    
+
     return component;
   }
 
@@ -712,7 +712,7 @@ class DryComponentBuilder extends BaseElement {
       if (!this._config) {
         this._config = this._getDefaultConfig();
       }
-      
+
       if (name === 'component-tag') {
         this._config.componentTag = newValue;
       } else if (name === 'title') {
@@ -720,7 +720,7 @@ class DryComponentBuilder extends BaseElement {
       } else if (name === 'description') {
         this._config.description = newValue;
       }
-      
+
       this.reRender();
     }
   }
@@ -818,16 +818,16 @@ window.ComponentBuilder = function(config) {
 
   // Create the custom element
   const builder = document.createElement('dry-component-builder');
-  
+
   // Add configuration as a JSON script tag
   const configScript = document.createElement('script');
   configScript.type = 'application/json';
   configScript.textContent = JSON.stringify(config);
   builder.appendChild(configScript);
-  
+
   // Replace the target element's content with the builder
   targetElement.appendChild(builder);
-  
+
   return builder;
 };
 

@@ -51,14 +51,14 @@ class DryAvatar extends BaseElement {
     // Create a simple state object with getState and setState methods
     const stateData = { ...initialData };
     const watchers = new Map();
-    
+
     return {
       getState: () => stateData,
       setState: (updates) => {
         Object.keys(updates).forEach(key => {
           const oldValue = stateData[key];
           stateData[key] = updates[key];
-          
+
           // Notify watchers
           if (watchers.has(key)) {
             watchers.get(key).forEach(callback => {
@@ -83,7 +83,7 @@ class DryAvatar extends BaseElement {
 
   _render(originalContent) {
     const state = this._componentState.getState();
-    
+
     this.innerHTML = `
             <div class="avatar-container ${this._getAvatarClasses(state)}">
                 
@@ -123,7 +123,7 @@ class DryAvatar extends BaseElement {
 
   _setupEventListeners() {
     const state = this._componentState.getState();
-    
+
     // Image event listeners
     const img = this.querySelector('.avatar-image');
     if (img) {
@@ -133,7 +133,7 @@ class DryAvatar extends BaseElement {
           imageError: false
         });
       });
-      
+
       img.addEventListener('error', () => {
         this._componentState.setState({
           imageLoaded: false,
@@ -145,14 +145,14 @@ class DryAvatar extends BaseElement {
 
   _setupReactiveUpdates() {
     const state = this._componentState;
-    
+
     // Watch for state changes and update DOM
     state.watch('src', (newValue, oldValue) => {
       if (newValue !== oldValue) {
         this._updateAvatarDisplay();
       }
     });
-    
+
     state.watch('name', (newValue, oldValue) => {
       if (newValue !== oldValue) {
         const newInitials = this.initials || this._generateInitials(newValue);
@@ -160,32 +160,32 @@ class DryAvatar extends BaseElement {
         this._updateAvatarDisplay();
       }
     });
-    
+
     state.watch('initials', (newValue, oldValue) => {
       if (newValue !== oldValue) {
         this._updateAvatarDisplay();
       }
     });
-    
+
     state.watch('size', (newValue, oldValue) => {
       if (newValue !== oldValue) {
         this._updateAvatarClasses();
       }
     });
-    
+
     state.watch('shape', (newValue, oldValue) => {
       if (newValue !== oldValue) {
         this._updateAvatarClasses();
       }
     });
-    
+
     state.watch('imageError', (newValue, oldValue) => {
       // Only update if the error state actually changed
       if (newValue !== oldValue) {
         this._updateAvatarDisplay();
       }
     });
-    
+
     state.watch('imageLoaded', (newValue, oldValue) => {
       // Only update if the loaded state actually changed
       if (newValue !== oldValue) {
@@ -196,7 +196,7 @@ class DryAvatar extends BaseElement {
 
   _updateAvatarDisplay() {
     const state = this._componentState.getState();
-    
+
     // Update image visibility and src (only if src changed)
     const img = this.querySelector('.avatar-image');
     if (img) {
@@ -209,20 +209,20 @@ class DryAvatar extends BaseElement {
         img.alt = state.alt;
       }
     }
-    
+
     // Update initials visibility
     const initials = this.querySelector('.avatar-initials');
     if (initials) {
       initials.style.display = this._shouldShowInitials(state) ? 'block' : 'none';
       initials.textContent = state.initials;
     }
-    
+
     // Update icon visibility
     const icon = this.querySelector('.avatar-icon');
     if (icon) {
       icon.style.display = this._shouldShowIcon(state) ? 'block' : 'none';
     }
-    
+
     // Update avatar classes
     this._updateAvatarClasses();
   }
@@ -250,7 +250,7 @@ class DryAvatar extends BaseElement {
 
   _getAvatarClasses(state) {
     let classes = 'avatar relative inline-flex items-center justify-center overflow-hidden text-gray-700 dark:text-gray-200 select-none transition-all duration-200 ';
-    
+
     // Size classes
     if (state.size === 'xs') {
       classes += 'w-6 h-6 text-xs ';
@@ -264,7 +264,7 @@ class DryAvatar extends BaseElement {
       // md or default
       classes += 'w-12 h-12 text-base ';
     }
-    
+
     // Shape classes
     if (state.shape === 'square') {
       classes += 'rounded-none ';
@@ -274,12 +274,12 @@ class DryAvatar extends BaseElement {
       // circle or default
       classes += 'rounded-full ';
     }
-    
+
     // Background color for initials
     if (!state.src || state.imageError) {
       classes += this._getInitialsBackground(state);
     }
-    
+
     return classes;
   }
 
@@ -302,12 +302,12 @@ class DryAvatar extends BaseElement {
       'bg-orange-500 text-white',
       'bg-cyan-500 text-white'
     ];
-    
+
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
       hash = text.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     return colors[Math.abs(hash) % colors.length];
   }
 
@@ -338,7 +338,7 @@ class DryAvatar extends BaseElement {
   setImage(src, alt) {
     this.src = src;
     if (alt) this.alt = alt;
-    
+
     if (this._componentState) {
       this._componentState.setState({
         src: src,
@@ -351,7 +351,7 @@ class DryAvatar extends BaseElement {
 
   setName(name) {
     this.name = name;
-    
+
     if (this._componentState) {
       const newInitials = this.initials || this._generateInitials(name);
       this._componentState.setState({
@@ -363,7 +363,7 @@ class DryAvatar extends BaseElement {
 
   setInitials(initials) {
     this.initials = initials;
-    
+
     if (this._componentState) {
       this._componentState.setState({ initials: initials });
     }
@@ -371,7 +371,7 @@ class DryAvatar extends BaseElement {
 
   setSize(size) {
     this.size = size;
-    
+
     if (this._componentState) {
       this._componentState.setState({ size: size });
     }
@@ -379,7 +379,7 @@ class DryAvatar extends BaseElement {
 
   setShape(shape) {
     this.shape = shape;
-    
+
     if (this._componentState) {
       this._componentState.setState({ shape: shape });
     }
@@ -473,8 +473,8 @@ class DryAvatar extends BaseElement {
         this.alt = newValue;
         if (this._componentState) {
           const state = this._componentState.getState();
-          this._componentState.setState({ 
-            alt: newValue || `Avatar for ${state.name || 'user'}` 
+          this._componentState.setState({
+            alt: newValue || `Avatar for ${state.name || 'user'}`
           });
         }
       }
