@@ -23,17 +23,6 @@ describe('Web Components', () => {
                   Test Dialog Content
                 </ajax-dialog>
             `,
-      datePicker: `
-                <date-picker
-                  id="test-datepicker"
-                  placeholder="Select a date"
-                  input-id="date-input"
-                  input-name="date"
-                  input-class="test-input-class"
-                  calendar-class="test-calendar-class"
-                  value="2023-01-15">
-                </date-picker>
-            `,
       toggleSwitch: `
                 <toggle-switch
                   id="test-toggle"
