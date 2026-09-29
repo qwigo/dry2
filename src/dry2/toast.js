@@ -94,19 +94,19 @@ class DryToast extends BaseElement {
     const customClass = this.getAttribute('container-class');
     if (customClass) return customClass;
 
-    let classes = 'toast-container fixed z-50 pointer-events-none transition-all duration-300 ';
+    let classes = 'toast-container fixed z-50 transition-all duration-300 ';
 
     const position = this.position;
     if (position === 'top-left') {
       classes += 'top-4 left-4 ';
     } else if (position === 'top-center') {
-      classes += 'top-4 left-1/2 transform -translate-x-1/2 ';
+      classes += 'top-4 left-1/2 -translate-x-1/2 ';
     } else if (position === 'top-right') {
       classes += 'top-4 right-4 ';
     } else if (position === 'bottom-left') {
       classes += 'bottom-4 left-4 ';
     } else if (position === 'bottom-center') {
-      classes += 'bottom-4 left-1/2 transform -translate-x-1/2 ';
+      classes += 'bottom-4 left-1/2 -translate-x-1/2 ';
     } else {
       // bottom-right or default
       classes += 'bottom-4 right-4 ';
@@ -229,16 +229,33 @@ class DryToast extends BaseElement {
 // Add CSS for animations
 const style = document.createElement('style');
 style.textContent = `
+    .toast-container {
+        position: fixed;
+        z-index: 50;
+        pointer-events: none;
+    }
+
+    .toast-container.top-4 { top: 1rem; }
+    .toast-container.bottom-4 { bottom: 1rem; }
+    .toast-container.left-4 { left: 1rem; }
+    .toast-container.right-4 { right: 1rem; }
+    .toast-container.left-1\\/2 { left: 50%; }
+    .toast-container.-translate-x-1\\/2 { transform: translateX(-50%); }
+
+    .toast-container .toast {
+        pointer-events: auto;
+    }
+
     .toast-container.show .toast {
         transform: translateY(0);
         opacity: 1;
     }
-    
+
     .toast-container.hide .toast {
         transform: translateY(100%);
         opacity: 0;
     }
-    
+
     .toast-close {
         background: none;
         border: none;

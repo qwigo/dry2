@@ -5,11 +5,9 @@
 
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8086';
-
 test.describe('DRY Countdown Component', () => {
   test.beforeEach(async({ page }) => {
-    await page.goto(`${BASE_URL}/examples/countdown-showcase.html`);
+    await page.goto('/examples/countdown-showcase.html');
     // Wait for custom elements to be defined
     await page.waitForTimeout(1000);
   });
@@ -163,6 +161,13 @@ test.describe('DRY Countdown Component', () => {
 
   test('should handle target date countdown', async({ page }) => {
     const targetDateCountdown = page.locator('#target-date-countdown');
+
+    // Set a target date in the future so the countdown shows live time units
+    // instead of the expired text (fixture date is wall-clock dependent).
+    await page.evaluate(() => {
+      const el = document.querySelector('#target-date-countdown');
+      el.targetDate = new Date(Date.now() + 86400000).toISOString();
+    });
 
     // Should be visible and have countdown display
     await expect(targetDateCountdown.locator('.countdown-display')).toBeVisible();
@@ -338,7 +343,15 @@ test.describe('DRY Countdown Component', () => {
     const showZerosCountdown = page.locator('dry-countdown[show-zeros]').first();
 
     if (await showZerosCountdown.count() > 0) {
+      // The first show-zeros countdown is the target-date demo; give it a future
+      // date so it renders live units (an expired fixture would show 0 units).
+      await page.evaluate(() => {
+        const el = document.querySelector('dry-countdown[show-zeros]');
+        el.targetDate = new Date(Date.now() + 86400000).toISOString();
+      });
+
       const units = showZerosCountdown.locator('.countdown-unit');
+      await expect(units.first()).toBeVisible();
       const unitCount = await units.count();
 
       // With show-zeros, all units in format should be displayed

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Chat Bubble Component', () => {
   test.beforeEach(async({ page }) => {
-    await page.goto('http://localhost:8086/examples/chat-bubble-showcase.html');
+    await page.goto('/examples/chat-bubble-showcase.html');
     // Wait for custom elements to be defined and rendered
     await page.waitForTimeout(1500);
   });

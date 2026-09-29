@@ -251,30 +251,14 @@ class DryCountdown extends BaseElement {
   _updateDisplay() {
     const format = this.getAttr('format', 'days,hours,minutes,seconds');
     const showZeros = this.getBoolAttr('show-zeros', false);
-    const leadingZeros = this.getBoolAttr('leading-zeros', false);
+    const unitClass = this.getAttr('unit-class', '');
 
-    const timeValues = this._calculateTimeValues();
-    const units = format.split(',').map(u => u.trim());
-
-    units.forEach(unit => {
-      const value = timeValues[unit];
-      if (value !== undefined && (showZeros || value > 0)) {
-        const unitElement = this._countdownContainer.querySelector(`[data-unit="${unit}"]`);
-        if (unitElement) {
-          const valueElement = unitElement.querySelector('.countdown-value');
-          const labelElement = unitElement.querySelector('.countdown-label');
-
-          if (valueElement) {
-            const formattedValue = leadingZeros ? String(value).padStart(2, '0') : String(value);
-            valueElement.textContent = formattedValue;
-          }
-
-          if (labelElement) {
-            labelElement.textContent = this._getUnitLabel(unit, value);
-          }
-        }
-      }
-    });
+    // Rebuild the unit set each tick: as the countdown progresses, values cross
+    // zero so the visible unit list shrinks (e.g. seconds appears once minutes
+    // drop below the whole-minute mark). Updating only pre-existing nodes would
+    // leave newly-relevant units missing and stale ones on screen.
+    this._countdownContainer.innerHTML = '';
+    this._renderTimeUnits(format, showZeros, unitClass);
   }
 
   /**

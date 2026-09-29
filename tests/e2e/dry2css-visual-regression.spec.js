@@ -9,7 +9,7 @@ test.describe('DRY2.css Visual Regression', () => {
   // Test button component
   test.describe('Button Component', () => {
     test.beforeEach(async({ page }) => {
-      await page.goto('http://localhost:8086/test-button-dry2css-manual.html');
+      await page.goto('/test-button-dry2css-manual.html');
       await page.waitForTimeout(500);
     });
 
@@ -43,7 +43,7 @@ test.describe('DRY2.css Visual Regression', () => {
   // Test card component
   test.describe('Card Component', () => {
     test.beforeEach(async({ page }) => {
-      await page.goto('http://localhost:8086/test-card-dry2css-manual.html');
+      await page.goto('/test-card-dry2css-manual.html');
       await page.waitForTimeout(500);
     });
 
@@ -73,7 +73,7 @@ test.describe('DRY2.css Visual Regression', () => {
   // Test badge component
   test.describe('Badge Component', () => {
     test.beforeEach(async({ page }) => {
-      await page.goto('http://localhost:8086/test-badge-dry2css-manual.html');
+      await page.goto('/test-badge-dry2css-manual.html');
       await page.waitForTimeout(500);
     });
 
@@ -104,7 +104,7 @@ test.describe('DRY2.css Visual Regression', () => {
   test.describe('Responsive Breakpoints', () => {
     test('button should match snapshot on mobile', async({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('http://localhost:8086/test-button-dry2css-manual.html');
+      await page.goto('/test-button-dry2css-manual.html');
       await page.waitForTimeout(500);
 
       await expect(page.locator('body')).toHaveScreenshot('button-mobile.png', {
@@ -114,7 +114,7 @@ test.describe('DRY2.css Visual Regression', () => {
 
     test('button should match snapshot on tablet', async({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
-      await page.goto('http://localhost:8086/test-button-dry2css-manual.html');
+      await page.goto('/test-button-dry2css-manual.html');
       await page.waitForTimeout(500);
 
       await expect(page.locator('body')).toHaveScreenshot('button-tablet.png', {
@@ -124,7 +124,7 @@ test.describe('DRY2.css Visual Regression', () => {
 
     test('button should match snapshot on desktop', async({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.goto('http://localhost:8086/test-button-dry2css-manual.html');
+      await page.goto('/test-button-dry2css-manual.html');
       await page.waitForTimeout(500);
 
       await expect(page.locator('body')).toHaveScreenshot('button-desktop.png', {

@@ -55,15 +55,16 @@ export default defineConfig({
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
     // },
-  ]
+  ],
 
   // Run your local dev server before starting the tests
-  // Note: Assumes the dev server is already running at localhost:8086
-  // If needed, uncomment and configure webServer:
-  // webServer: {
-  //   command: 'npm run dev',
-  //   url: 'http://localhost:8086',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  // The dev server is auto-started below; `reuseExistingServer` lets manual
+  // runs (e.g. http://localhost:8086 for showcase browsing) be reused.
+  webServer: {
+    command: 'node scripts/dev-server.js 8086',
+    url: 'http://localhost:8086',
+    reuseExistingServer: true,
+    timeout: 60 * 1000
+  }
 });
 

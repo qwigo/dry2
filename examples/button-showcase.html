@@ -71,7 +71,7 @@
                     <p class="demo-description">Different button sizes for various interface needs.</p>
                     
                     <div class="demo-container">
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center gap-4">
                             <dry-button size="sm">Small</dry-button>
                             <dry-button size="md">Medium</dry-button>
                             <dry-button size="lg">Large</dry-button>
@@ -160,7 +160,7 @@
                     <p class="demo-description">Control the component programmatically using JavaScript methods.</p>
                     
                     <div class="demo-container">
-                        <div class="flex gap-4 mb-4">
+                        <div class="flex flex-wrap gap-4 mb-4">
                             <dry-button id="api-demo-btn" variant="primary" icon="fas fa-cog">Demo Button</dry-button>
                             <button onclick="toggleLoading()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Loading</button>
                             <button onclick="toggleDisabled()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Toggle Disabled</button>
@@ -188,6 +188,7 @@ button.click();</dry-code>
                     <h2 class="demo-title">API Reference</h2>
                     
                     <h3 class="text-xl font-semibold mt-6 mb-3">Button Properties</h3>
+                    <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 rounded">
                         <thead class="bg-gray-100">
                             <tr>
@@ -248,8 +249,10 @@ button.click();</dry-code>
                             </tr>
                         </tbody>
                     </table>
-                    
+                    </div>
+
                     <h3 class="text-xl font-semibold mt-6 mb-3">Methods</h3>
+                    <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 rounded">
                         <thead class="bg-gray-100">
                             <tr>
@@ -286,6 +289,7 @@ button.click();</dry-code>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </section>
             </main>
         </div>

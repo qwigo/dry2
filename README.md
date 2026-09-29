@@ -228,6 +228,19 @@ npm run test:watch
 npm run test:component button
 ```
 
+### End-to-End Tests (Playwright)
+
+`npx playwright test` is self-contained: the Playwright `webServer` config
+auto-starts `scripts/dev-server.js` on port 8086 (and reuses one that is
+already running).
+
+Manual alternative — start a static server for the repo root yourself before
+running the suite or browsing the showcases:
+
+```bash
+python3 -m http.server 8086 --bind 127.0.0.1
+```
+
 ### Writing Tests
 
 Example test for a custom component:
