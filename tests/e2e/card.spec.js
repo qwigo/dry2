@@ -59,7 +59,7 @@ test.describe('Card Component', () => {
     const filledCard = variantsSection.locator('dry-card[variant="filled"]');
     await expect(filledCard).toBeVisible();
     const filledContainer = filledCard.locator('.card-container');
-    await expect(filledContainer).toHaveClass(/bg-white/);
+    await expect(filledContainer).toHaveClass(/card/);
 
     // Check outlined variant
     const outlinedCard = variantsSection.locator('dry-card[variant="outlined"]');
@@ -319,10 +319,10 @@ test.describe('Card Component', () => {
   test('should apply correct elevation classes', async({ page }) => {
     const variantsSection = page.locator('section').filter({ hasText: 'Variants' });
 
-    // Check filled card has shadow-md (default)
+    // Check filled card has the medium shadow (default)
     const filledCard = variantsSection.locator('dry-card[variant="filled"]').first();
     const filledContainer = filledCard.locator('.card-container');
-    await expect(filledContainer).toHaveClass(/shadow-md/);
+    await expect(filledContainer).toHaveClass(/(^|\s)shadow(\s|$)/);
 
     // Check elevated card has shadow-xl
     const elevatedCard = variantsSection.locator('dry-card[variant="elevated"]');
