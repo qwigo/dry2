@@ -538,7 +538,7 @@ test.describe('Select Component', () => {
 
 test.describe('Select stacking', () => {
   test('should portal dropdown to body with fixed position when open', async({ page }) => {
-    await page.goto('http://localhost:3000/examples/select-showcase.html');
+    await page.goto('/examples/select-showcase.html');
     await page.waitForLoadState('networkidle');
     await page.waitForFunction(() => customElements.get('dry-select'));
 
