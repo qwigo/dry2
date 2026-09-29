@@ -332,13 +332,13 @@ class DrySelect extends BaseElement {
   /**
    * Render options list
    */
-  _renderOptions(container, multiple) {
+  _renderOptions(container, _multiple) {
     container.innerHTML = '';
 
     const filteredOptions = this._searchTerm
       ? this._options.filter(opt =>
-          opt.label.toLowerCase().includes(this._searchTerm.toLowerCase())
-        )
+        opt.label.toLowerCase().includes(this._searchTerm.toLowerCase())
+      )
       : this._options;
 
     if (filteredOptions.length === 0) {
@@ -683,7 +683,7 @@ class DrySelect extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'disabled') {
       this.reRender();
     } else if (['placeholder', 'search-placeholder', 'multiple'].includes(name)) {

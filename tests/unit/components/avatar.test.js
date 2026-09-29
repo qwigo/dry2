@@ -11,7 +11,7 @@ describe('DryAvatar Component', () => {
     cleanupDOM();
   });
 
-  before(async () => {
+  before(async() => {
     await import('../../../src/dry2/avatar.js');
   });
 
@@ -33,7 +33,7 @@ describe('DryAvatar Component', () => {
       document.body.appendChild(component);
     });
 
-    it('should initialize component', async () => {
+    it('should initialize component', async() => {
       await waitForComponent(component);
       expect(component._isInitialized).to.be.true;
     });
@@ -55,7 +55,7 @@ describe('DryAvatar Component', () => {
     it('should support shape variants', () => {
       component.setAttribute('shape', 'square');
       expect(component.getAttribute('shape')).to.equal('square');
-      
+
       component.setAttribute('shape', 'circle');
       expect(component.getAttribute('shape')).to.equal('circle');
     });
@@ -151,7 +151,7 @@ describe('DryAvatar Component', () => {
 
     it('should emit click events when clickable', (done) => {
       component.setAttribute('clickable', '');
-      
+
       component.addEventListener('avatar:click', (event) => {
         expect(event.detail.component).to.equal(component);
         done();
@@ -162,7 +162,7 @@ describe('DryAvatar Component', () => {
 
     it('should not emit click events when not clickable', () => {
       let eventFired = false;
-      
+
       component.addEventListener('avatar:click', () => {
         eventFired = true;
       });
@@ -261,7 +261,7 @@ describe('DryAvatar Component', () => {
       component = document.createElement('dry-avatar');
       document.body.appendChild(component);
       expect(component.isConnected).to.be.true;
-      
+
       component.remove();
       expect(component.isConnected).to.be.false;
     });
@@ -269,10 +269,10 @@ describe('DryAvatar Component', () => {
     it('should handle attribute changes', () => {
       component = document.createElement('dry-avatar');
       document.body.appendChild(component);
-      
+
       component.setAttribute('src', 'new-avatar.jpg');
       expect(component.getAttribute('src')).to.equal('new-avatar.jpg');
-      
+
       component.setAttribute('size', 'lg');
       expect(component.getAttribute('size')).to.equal('lg');
     });
@@ -319,4 +319,4 @@ describe('DryAvatar Component', () => {
       expect(component.hasAttribute('busy')).to.be.true;
     });
   });
-}); 
+});

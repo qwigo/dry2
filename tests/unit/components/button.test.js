@@ -11,7 +11,7 @@ describe('DryButton Component', () => {
     cleanupDOM();
   });
 
-  before(async () => {
+  before(async() => {
     await import('../../../src/dry2/button.js');
   });
 
@@ -33,7 +33,7 @@ describe('DryButton Component', () => {
       document.body.appendChild(component);
     });
 
-    it('should initialize component', async () => {
+    it('should initialize component', async() => {
       await waitForComponent(component);
       expect(component._isInitialized).to.be.true;
     });
@@ -47,7 +47,7 @@ describe('DryButton Component', () => {
     it('should support size variants', () => {
       component.setAttribute('size', 'sm');
       expect(component.getAttribute('size')).to.equal('sm');
-      
+
       component.setAttribute('size', 'lg');
       expect(component.getAttribute('size')).to.equal('lg');
     });
@@ -55,7 +55,7 @@ describe('DryButton Component', () => {
     it('should support variant styles', () => {
       component.setAttribute('variant', 'primary');
       expect(component.getAttribute('variant')).to.equal('primary');
-      
+
       component.setAttribute('variant', 'secondary');
       expect(component.getAttribute('variant')).to.equal('secondary');
     });
@@ -63,7 +63,7 @@ describe('DryButton Component', () => {
     it('should support disabled state', () => {
       component.setAttribute('disabled', '');
       expect(component.hasAttribute('disabled')).to.be.true;
-      
+
       component.removeAttribute('disabled');
       expect(component.hasAttribute('disabled')).to.be.false;
     });
@@ -115,7 +115,7 @@ describe('DryButton Component', () => {
     it('should not emit events when disabled', () => {
       let eventFired = false;
       component.setAttribute('disabled', '');
-      
+
       component.addEventListener('click', () => {
         eventFired = true;
       });
@@ -127,7 +127,7 @@ describe('DryButton Component', () => {
     it('should not emit events when loading', () => {
       let eventFired = false;
       component.setAttribute('loading', '');
-      
+
       component.addEventListener('click', () => {
         eventFired = true;
       });
@@ -171,14 +171,14 @@ describe('DryButton Component', () => {
 
     it('should track loading state', () => {
       expect(component.hasAttribute('loading')).to.be.false;
-      
+
       component.setAttribute('loading', '');
       expect(component.hasAttribute('loading')).to.be.true;
     });
 
     it('should track disabled state', () => {
       expect(component.hasAttribute('disabled')).to.be.false;
-      
+
       component.setAttribute('disabled', '');
       expect(component.hasAttribute('disabled')).to.be.true;
     });
@@ -207,7 +207,7 @@ describe('DryButton Component', () => {
       component = document.createElement('dry-button');
       document.body.appendChild(component);
       expect(component.isConnected).to.be.true;
-      
+
       component.remove();
       expect(component.isConnected).to.be.false;
     });
@@ -215,15 +215,15 @@ describe('DryButton Component', () => {
     it('should handle multiple instances', () => {
       const button1 = document.createElement('dry-button');
       const button2 = document.createElement('dry-button');
-      
+
       button1.setAttribute('variant', 'primary');
       button2.setAttribute('variant', 'secondary');
-      
+
       document.body.appendChild(button1);
       document.body.appendChild(button2);
-      
+
       expect(button1.getAttribute('variant')).to.equal('primary');
       expect(button2.getAttribute('variant')).to.equal('secondary');
     });
   });
-}); 
+});

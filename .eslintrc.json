@@ -19,7 +19,9 @@
     "MutationObserver": "readonly",
     "requestAnimationFrame": "readonly",
     "cancelAnimationFrame": "readonly",
-    "BaseWebComponent": "readonly",
+    "BaseElement": "readonly",
+    "htmx": "readonly",
+    "QRious": "readonly",
     "expect": "readonly",
     "waitForComponent": "readonly",
     "triggerEvent": "readonly",
@@ -27,6 +29,15 @@
     "simulateKeydown": "readonly",
     "cleanupDOM": "readonly"
   },
+  "overrides": [
+    {
+      "files": ["tests/integration/**"],
+      "globals": {
+        "assert": "readonly",
+        "sinon": "readonly"
+      }
+    }
+  ],
   "rules": {
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],

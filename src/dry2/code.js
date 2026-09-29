@@ -240,37 +240,37 @@ class DryCode extends BaseElement {
     let highlightedHtml = '';
 
     switch (normalizedLang) {
-      case 'javascript':
-      case 'js':
-        highlightedHtml = this._highlightJavaScript(code);
-        break;
-      case 'python':
-      case 'py':
-        highlightedHtml = this._highlightPython(code);
-        break;
-      case 'html':
-        highlightedHtml = this._highlightHTML(code);
-        break;
-      case 'css':
-        highlightedHtml = this._highlightCSS(code);
-        break;
-      case 'json':
-        highlightedHtml = this._highlightJSON(code);
-        break;
-      case 'sql':
-        highlightedHtml = this._highlightSQL(code);
-        break;
-      case 'bash':
-      case 'shell':
-      case 'sh':
-        highlightedHtml = this._highlightBash(code);
-        break;
-      case 'xml':
-        highlightedHtml = this._highlightXML(code);
-        break;
-      default:
-        // No highlighting for unknown languages
-        highlightedHtml = DryCode._escapeHtml(code);
+    case 'javascript':
+    case 'js':
+      highlightedHtml = this._highlightJavaScript(code);
+      break;
+    case 'python':
+    case 'py':
+      highlightedHtml = this._highlightPython(code);
+      break;
+    case 'html':
+      highlightedHtml = this._highlightHTML(code);
+      break;
+    case 'css':
+      highlightedHtml = this._highlightCSS(code);
+      break;
+    case 'json':
+      highlightedHtml = this._highlightJSON(code);
+      break;
+    case 'sql':
+      highlightedHtml = this._highlightSQL(code);
+      break;
+    case 'bash':
+    case 'shell':
+    case 'sh':
+      highlightedHtml = this._highlightBash(code);
+      break;
+    case 'xml':
+      highlightedHtml = this._highlightXML(code);
+      break;
+    default:
+      // No highlighting for unknown languages
+      highlightedHtml = DryCode._escapeHtml(code);
     }
 
     codeElement.innerHTML = highlightedHtml;
@@ -324,16 +324,16 @@ class DryCode extends BaseElement {
   _highlightHTML(code) {
     // First escape the HTML
     let highlighted = DryCode._escapeHtml(code);
-    
+
     // Now apply highlighting to the escaped version
     // Tags: &lt;tagname&gt; or &lt;/tagname&gt; with optional attributes
     const tags = /(&lt;\/?[a-zA-Z][a-zA-Z0-9]*(?:\s[^&]*?)?&gt;)/g;
     highlighted = highlighted.replace(tags, '<span class="text-blue-400">$1</span>');
-    
+
     // Attributes: word followed by =
     const attributes = /([a-zA-Z-]+)=/g;
     highlighted = highlighted.replace(attributes, '<span class="text-yellow-400">$1</span>=');
-    
+
     // String values in quotes
     const stringValues = /=(&quot;[^&]*?&quot;|&#039;[^&]*?&#039;)/g;
     highlighted = highlighted.replace(stringValues, '=<span class="text-green-400">$1</span>');
@@ -526,7 +526,7 @@ class DryCode extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     this.reRender();
   }

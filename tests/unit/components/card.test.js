@@ -11,7 +11,7 @@ describe('DryCard Component', () => {
     cleanupDOM();
   });
 
-  before(async () => {
+  before(async() => {
     await import('../../../src/dry2/card.js');
   });
 
@@ -33,7 +33,7 @@ describe('DryCard Component', () => {
       document.body.appendChild(component);
     });
 
-    it('should initialize component', async () => {
+    it('should initialize component', async() => {
       await waitForComponent(component);
       expect(component._isInitialized).to.be.true;
     });
@@ -47,7 +47,7 @@ describe('DryCard Component', () => {
     it('should support variant styles', () => {
       component.setAttribute('variant', 'outlined');
       expect(component.getAttribute('variant')).to.equal('outlined');
-      
+
       component.setAttribute('variant', 'filled');
       expect(component.getAttribute('variant')).to.equal('filled');
     });
@@ -125,7 +125,7 @@ describe('DryCard Component', () => {
 
     it('should emit click events when clickable', (done) => {
       component.setAttribute('clickable', '');
-      
+
       component.addEventListener('card:click', (event) => {
         expect(event.detail.component).to.equal(component);
         done();
@@ -136,7 +136,7 @@ describe('DryCard Component', () => {
 
     it('should not emit click events when not clickable', () => {
       let eventFired = false;
-      
+
       component.addEventListener('card:click', () => {
         eventFired = true;
       });
@@ -221,7 +221,7 @@ describe('DryCard Component', () => {
       component = document.createElement('dry-card');
       document.body.appendChild(component);
       expect(component.isConnected).to.be.true;
-      
+
       component.remove();
       expect(component.isConnected).to.be.false;
     });
@@ -229,10 +229,10 @@ describe('DryCard Component', () => {
     it('should handle attribute changes', () => {
       component = document.createElement('dry-card');
       document.body.appendChild(component);
-      
+
       component.setAttribute('title', 'New Title');
       expect(component.getAttribute('title')).to.equal('New Title');
-      
+
       component.setAttribute('variant', 'outlined');
       expect(component.getAttribute('variant')).to.equal('outlined');
     });
@@ -255,4 +255,4 @@ describe('DryCard Component', () => {
       expect(component.tagName.toLowerCase()).to.equal('dry-card');
     });
   });
-}); 
+});

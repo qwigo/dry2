@@ -52,7 +52,7 @@ class ToggleSwitch extends BaseElement {
       // Set initial checked state from attribute
       this._checked = this.getBoolAttr('checked', false);
     }
-    
+
     super.connectedCallback();
   }
 
@@ -84,7 +84,7 @@ class ToggleSwitch extends BaseElement {
 
     // Build the toggle switch HTML
     const toggleId = this.id || `toggle-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Clear existing content
     if (typeof this.replaceChildren === 'function') {
       this.replaceChildren();
@@ -111,7 +111,7 @@ class ToggleSwitch extends BaseElement {
     checkbox.className = 'sr-only toggle-checkbox';
     checkbox.setAttribute('role', 'switch');
     checkbox.setAttribute('aria-checked', this._checked.toString());
-    
+
     if (label) {
       checkbox.setAttribute('aria-label', label);
     }
@@ -215,7 +215,7 @@ class ToggleSwitch extends BaseElement {
    */
   _handleChange(event) {
     this._checked = event.target.checked;
-    
+
     // Update UI
     this._updateUI();
 
@@ -252,7 +252,7 @@ class ToggleSwitch extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'checked') {
       this._checked = this.getBoolAttr('checked', false);
       this._updateUI();
@@ -281,7 +281,7 @@ class ToggleSwitch extends BaseElement {
     if (!this.disabled) {
       this._checked = !this._checked;
       this._updateUI();
-      
+
       // Trigger change event
       if (this._checkbox) {
         const event = new Event('change', { bubbles: true });
@@ -297,7 +297,7 @@ class ToggleSwitch extends BaseElement {
     if (!this.disabled && !this._checked) {
       this._checked = true;
       this._updateUI();
-      
+
       if (this._checkbox) {
         const event = new Event('change', { bubbles: true });
         this._checkbox.dispatchEvent(event);
@@ -312,7 +312,7 @@ class ToggleSwitch extends BaseElement {
     if (!this.disabled && this._checked) {
       this._checked = false;
       this._updateUI();
-      
+
       if (this._checkbox) {
         const event = new Event('change', { bubbles: true });
         this._checkbox.dispatchEvent(event);

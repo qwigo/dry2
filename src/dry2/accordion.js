@@ -76,10 +76,10 @@ class AccordionItem extends BaseElement {
       <button 
         id="${headerId}"
         class="accordion-header w-full flex items-center justify-between px-4 py-3 text-left font-medium transition-colors duration-200 ${
-          disabled 
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-            : 'bg-white hover:bg-gray-50 text-gray-900 cursor-pointer'
-        } border-b border-gray-200"
+  disabled
+    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+    : 'bg-white hover:bg-gray-50 text-gray-900 cursor-pointer'
+} border-b border-gray-200"
         aria-expanded="${isOpen}"
         aria-controls="${contentId}"
         ${disabled ? 'disabled' : ''}
@@ -212,7 +212,7 @@ class AccordionItem extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'open') {
       if (this.getBoolAttr('open', false)) {
         this._isOpen = false; // Reset so open() will work
@@ -258,7 +258,6 @@ class DryAccordion extends BaseElement {
    */
   render() {
     // Just add styling wrapper - children accordion-items are already rendered
-    const multiple = this.getBoolAttr('multiple', false);
     const disabled = this.getBoolAttr('disabled', false);
 
     // Add base styling to accordion container
@@ -378,7 +377,7 @@ class DryAccordion extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(name, _oldValue, _newValue) {
     if (name === 'multiple') {
       const multiple = this.getBoolAttr('multiple', false);
       // If switching to single mode, close all but the first open item

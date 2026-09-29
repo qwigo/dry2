@@ -16,7 +16,7 @@
 /**
  * TabItem Component - Individual tab content container
  */
-class TabItem extends BaseElement { // eslint-disable-line no-undef
+class TabItem extends BaseElement {
   static get observedAttributes() {
     return ['title', 'icon', 'badge', 'disabled', 'active'];
   }
@@ -34,7 +34,7 @@ class TabItem extends BaseElement { // eslint-disable-line no-undef
   render() {
     // Check if active attribute was set before render
     const isActive = this.getBoolAttr('active', false);
-    
+
     // Set display based on active state
     this.style.display = isActive ? 'block' : 'none';
     this.classList.add('dry-tab-content');
@@ -105,7 +105,7 @@ class TabItem extends BaseElement { // eslint-disable-line no-undef
 /**
  * DryTabs Component - Main tabs container
  */
-class DryTabs extends BaseElement { // eslint-disable-line no-undef
+class DryTabs extends BaseElement {
   static get observedAttributes() {
     return ['variant', 'orientation', 'active-tab', 'disabled'];
   }
@@ -162,7 +162,6 @@ class DryTabs extends BaseElement { // eslint-disable-line no-undef
       return;
     }
 
-    const variant = this.getAttr('variant', 'boxed');
     const orientation = this.getAttr('orientation', 'horizontal');
 
     // Create tab structure

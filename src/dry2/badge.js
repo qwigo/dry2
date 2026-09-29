@@ -238,7 +238,7 @@ class DryBadge extends BaseElement {
   /**
    * Get position-specific classes (without absolute positioning, handled on custom element)
    */
-  _getPositionClasses(position) {
+  _getPositionClasses(_position) {
     // Positioning is handled entirely by inline styles on the custom element
     return '';
   }
@@ -259,7 +259,7 @@ class DryBadge extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     this.reRender();
   }

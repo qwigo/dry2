@@ -76,10 +76,10 @@ global.sessionStorage = {
 global.console = console;
 
 // Helper function to wait for component initialization
-global.waitForComponent = async (element, timeout = 1000) => {
+global.waitForComponent = async(element, timeout = 1000) => {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
-    
+
     const checkInitialized = () => {
       if (element._isInitialized) {
         resolve();
@@ -89,7 +89,7 @@ global.waitForComponent = async (element, timeout = 1000) => {
         setTimeout(checkInitialized, 10);
       }
     };
-    
+
     checkInitialized();
   });
 };
@@ -97,22 +97,22 @@ global.waitForComponent = async (element, timeout = 1000) => {
 // Helper function to create a test component
 global.createTestComponent = (tagName, attributes = {}, innerHTML = '') => {
   const element = document.createElement(tagName);
-  
+
   // Set attributes
   Object.entries(attributes).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       element.setAttribute(key, value);
     }
   });
-  
+
   // Set innerHTML
   if (innerHTML) {
     element.innerHTML = innerHTML;
   }
-  
+
   // Add to DOM
   document.body.appendChild(element);
-  
+
   return element;
 };
 
@@ -160,13 +160,13 @@ global.waitForEvent = (element, eventType, timeout = 1000) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Event ${eventType} timeout`));
     }, timeout);
-    
+
     const handler = (event) => {
       clearTimeout(timeoutId);
       element.removeEventListener(eventType, handler);
       resolve(event);
     };
-    
+
     element.addEventListener(eventType, handler);
   });
 };

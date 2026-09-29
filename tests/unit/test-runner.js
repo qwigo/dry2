@@ -1,6 +1,6 @@
 /**
  * Test Runner for DRY2 Web Components
- * 
+ *
  * This file provides a utility to run unit tests and generate coverage reports.
  * It can be used both in development and CI/CD environments.
  */
@@ -18,9 +18,9 @@ class TestRunner {
     this.testDir = __dirname;
     this.rootDir = join(__dirname, '../..');
     this.components = [
-              'base',
-        'button',
-        'accordion',
+      'base',
+      'button',
+      'accordion',
       'avatar',
       'badge',
       'breadcrumbs',
@@ -28,8 +28,8 @@ class TestRunner {
       'carousel',
       'chat-bubble',
       'collapse',
-              'countdown',
-        'dialog',
+      'countdown',
+      'dialog',
       'qr',
       'select',
       'stat',
@@ -48,7 +48,7 @@ class TestRunner {
     console.log('🧪 Running DRY2 Web Components Unit Test Suite\n');
 
     const startTime = Date.now();
-    
+
     try {
       const result = await this.runMocha([
         'tests/unit/**/*.test.js',
@@ -59,7 +59,7 @@ class TestRunner {
 
       const duration = Date.now() - startTime;
       console.log(`\n✅ All unit tests completed in ${duration}ms`);
-      
+
       return result;
     } catch (error) {
       console.error('❌ Unit test suite failed:', error.message);
@@ -155,7 +155,7 @@ class TestRunner {
 
       // Read and process results
       const results = JSON.parse(readFileSync('test-results.json', 'utf8'));
-      
+
       const report = this.formatTestReport(results);
       writeFileSync('test-report.md', report);
 
@@ -172,7 +172,7 @@ class TestRunner {
    */
   formatTestReport(results) {
     const { stats, tests } = results;
-    
+
     let report = `# DRY2 Web Components Test Report
 
 Generated: ${new Date().toISOString()}
@@ -190,12 +190,12 @@ Generated: ${new Date().toISOString()}
 `;
 
     const componentResults = this.groupTestsByComponent(tests);
-    
+
     for (const [component, componentTests] of Object.entries(componentResults)) {
       const passed = componentTests.filter(t => t.state === 'passed').length;
       const failed = componentTests.filter(t => t.state === 'failed').length;
       const status = failed > 0 ? '❌' : '✅';
-      
+
       report += `### ${status} ${component}
 
 - Passed: ${passed}
@@ -223,7 +223,7 @@ Generated: ${new Date().toISOString()}
    */
   groupTestsByComponent(tests) {
     const grouped = {};
-    
+
     tests.forEach(test => {
       const component = test.fullTitle.split(' ')[0];
       if (!grouped[component]) {
@@ -231,7 +231,7 @@ Generated: ${new Date().toISOString()}
       }
       grouped[component].push(test);
     });
-    
+
     return grouped;
   }
 
@@ -293,30 +293,30 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const command = process.argv[2];
   const arg = process.argv[3];
 
-  (async () => {
+  (async() => {
     try {
       switch (command) {
-        case 'all':
-          await runner.runAllTests();
-          break;
-        case 'coverage':
-          await runner.runWithCoverage();
-          break;
-        case 'watch':
-          await runner.runWatchMode();
-          break;
-        case 'component':
-          if (!arg) {
-            console.error('Component name required. Usage: node test-runner.js component <name>');
-            process.exit(1);
-          }
-          await runner.runComponentTests(arg);
-          break;
-        case 'report':
-          await runner.generateReport();
-          break;
-        default:
-          console.log(`
+      case 'all':
+        await runner.runAllTests();
+        break;
+      case 'coverage':
+        await runner.runWithCoverage();
+        break;
+      case 'watch':
+        await runner.runWatchMode();
+        break;
+      case 'component':
+        if (!arg) {
+          console.error('Component name required. Usage: node test-runner.js component <name>');
+          process.exit(1);
+        }
+        await runner.runComponentTests(arg);
+        break;
+      case 'report':
+        await runner.generateReport();
+        break;
+      default:
+        console.log(`
 DRY2 Test Runner
 
 Usage:

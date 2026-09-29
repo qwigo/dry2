@@ -42,7 +42,7 @@ class DryCard extends BaseElement {
 
       // Check if content is already available
       const hasContent = this.querySelector('[slot]') || this.childNodes.length > 0;
-      
+
       if (hasContent) {
         // Capture slot content before rendering
         this._captureSlotContent();
@@ -112,7 +112,7 @@ class DryCard extends BaseElement {
           return true;
         })
         .map(node => node.cloneNode(true));
-      
+
       if (remainingContent.length > 0) {
         const tempDiv = document.createElement('div');
         remainingContent.forEach(node => tempDiv.appendChild(node));
@@ -280,7 +280,7 @@ class DryCard extends BaseElement {
   /**
    * Handle card click
    */
-  _handleCardClick(event) {
+  _handleCardClick(_event) {
     const cardEvent = new CustomEvent('card:click', {
       bubbles: true,
       cancelable: true,
@@ -295,7 +295,7 @@ class DryCard extends BaseElement {
   /**
    * Handle attribute changes
    */
-  onAttributeChange(name, oldValue, newValue) {
+  onAttributeChange(_name, _oldValue, _newValue) {
     // Re-render on any attribute change
     if (this.hasAttribute('data-rendered')) {
       this.reRender();

@@ -11,7 +11,7 @@ describe('DryTabs Component System', () => {
     cleanupDOM();
   });
 
-  before(async () => {
+  before(async() => {
     await import('../../../src/dry2/tabs.js');
   });
 
@@ -43,13 +43,13 @@ describe('DryTabs Component System', () => {
       document.body.appendChild(tabsComponent);
     });
 
-    it('should initialize component', async () => {
+    it('should initialize component', async() => {
       // Add some content first to trigger initialization
       tabsComponent.innerHTML = '<tab-item title="Test">Content</tab-item>';
-      
+
       // Wait for component initialization with longer timeout
       await new Promise(resolve => setTimeout(resolve, 600));
-      
+
       expect(tabsComponent._isInitialized).to.be.true;
     });
 
@@ -62,7 +62,7 @@ describe('DryTabs Component System', () => {
     it('should support variant styles', () => {
       tabsComponent.setAttribute('variant', 'bordered');
       expect(tabsComponent.getAttribute('variant')).to.equal('bordered');
-      
+
       tabsComponent.setAttribute('variant', 'lifted');
       expect(tabsComponent.getAttribute('variant')).to.equal('lifted');
     });
@@ -121,7 +121,7 @@ describe('DryTabs Component System', () => {
   });
 
   describe('Tab System Integration', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       tabsComponent = document.createElement('dry-tabs');
       tabsComponent.innerHTML = `
         <tab-item title="Tab 1" active>Content 1</tab-item>
@@ -129,7 +129,7 @@ describe('DryTabs Component System', () => {
         <tab-item title="Tab 3">Content 3</tab-item>
       `;
       document.body.appendChild(tabsComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -165,7 +165,7 @@ describe('DryTabs Component System', () => {
   });
 
   describe('Tab Navigation', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       tabsComponent = document.createElement('dry-tabs');
       tabsComponent.innerHTML = `
         <tab-item title="Tab 1" active>Content 1</tab-item>
@@ -173,7 +173,7 @@ describe('DryTabs Component System', () => {
         <tab-item title="Tab 3" disabled>Content 3</tab-item>
       `;
       document.body.appendChild(tabsComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -231,14 +231,14 @@ describe('DryTabs Component System', () => {
   });
 
   describe('Accessibility', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       tabsComponent = document.createElement('dry-tabs');
       tabsComponent.innerHTML = `
         <tab-item title="Tab 1" active>Content 1</tab-item>
         <tab-item title="Tab 2">Content 2</tab-item>
       `;
       document.body.appendChild(tabsComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -316,7 +316,7 @@ describe('DryTabs Component System', () => {
       tabsComponent = document.createElement('dry-tabs');
       document.body.appendChild(tabsComponent);
       expect(tabsComponent.isConnected).to.be.true;
-      
+
       tabsComponent.remove();
       expect(tabsComponent.isConnected).to.be.false;
     });
@@ -325,7 +325,7 @@ describe('DryTabs Component System', () => {
       tabItem = document.createElement('tab-item');
       document.body.appendChild(tabItem);
       expect(tabItem.isConnected).to.be.true;
-      
+
       tabItem.remove();
       expect(tabItem.isConnected).to.be.false;
     });
@@ -342,16 +342,16 @@ describe('DryTabs Component System', () => {
       expect(newTab.getAttribute('title')).to.equal('Dynamic Tab');
     });
 
-    it('should initialize after children are added', async () => {
+    it('should initialize after children are added', async() => {
       tabsComponent = document.createElement('dry-tabs');
       document.body.appendChild(tabsComponent);
-      
+
       // Add children after component is connected
       tabsComponent.innerHTML = '<tab-item title="Added Later">Content</tab-item>';
-      
+
       // Wait for MutationObserver to trigger
       await new Promise(resolve => setTimeout(resolve, 600));
-      
+
       expect(tabsComponent._isInitialized).to.be.true;
     });
   });
@@ -384,24 +384,24 @@ describe('DryTabs Component System', () => {
       expect(activeTabs.length).to.equal(2);
     });
 
-    it('should handle empty tabs container', async () => {
+    it('should handle empty tabs container', async() => {
       // Initialize with no children
       await new Promise(resolve => setTimeout(resolve, 600));
-      
+
       // Should not crash
       expect(tabsComponent.tagName.toLowerCase()).to.equal('dry-tabs');
     });
 
     it('should handle malformed tab content', () => {
       tabsComponent.innerHTML = '<div>Not a tab item</div>';
-      
+
       // Should not crash
       expect(tabsComponent.children.length).to.equal(1);
     });
   });
 
   describe('API Methods', () => {
-    beforeEach(async () => {
+    beforeEach(async() => {
       tabsComponent = document.createElement('dry-tabs');
       tabsComponent.innerHTML = `
         <tab-item title="Tab 1">Content 1</tab-item>
@@ -409,7 +409,7 @@ describe('DryTabs Component System', () => {
         <tab-item title="Tab 3" disabled>Content 3</tab-item>
       `;
       document.body.appendChild(tabsComponent);
-      
+
       // Wait for initialization
       await new Promise(resolve => setTimeout(resolve, 600));
     });
@@ -438,4 +438,4 @@ describe('DryTabs Component System', () => {
       expect(tabsComponent.disabled).to.be.true;
     });
   });
-}); 
+});

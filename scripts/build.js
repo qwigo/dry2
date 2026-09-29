@@ -2,7 +2,7 @@
 
 /**
  * Build script for DRY2 Web Components
- * 
+ *
  * This script handles:
  * - Component bundling and optimization
  * - Documentation generation
@@ -10,8 +10,8 @@
  * - Distribution preparation
  */
 
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync, rmSync } from 'fs';
-import { join, dirname, extname, basename } from 'path';
+import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync, readdirSync, statSync, rmSync } from 'fs';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { gzipSync } from 'zlib';
 import { minify } from 'terser';
@@ -21,7 +21,6 @@ const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 const srcDir = join(rootDir, 'src');
 const distDir = join(rootDir, 'dist');
-const docsDir = join(rootDir, 'docs');
 
 class Builder {
   constructor() {
@@ -87,15 +86,15 @@ class Builder {
    */
   discoverComponents() {
     console.log('🔍 Discovering components...');
-    
+
     const dry2Dir = join(srcDir, 'dry2');
     const files = readdirSync(dry2Dir);
-    
+
     // Define component dependencies
     const dependencies = {
       'component-builder-example': ['component-builder']
     };
-    
+
     // First, find and add the base class
     const baseFile = files.find(file => file === 'base.js');
     if (baseFile) {
@@ -106,12 +105,12 @@ class Builder {
       });
       console.log('   Bundling base...');
     }
-    
+
     // Create a map of all components
     const componentMap = new Map(
       files
-        .filter(file => file.endsWith('.js') && 
-                        file !== 'dry2.js' && 
+        .filter(file => file.endsWith('.js') &&
+                        file !== 'dry2.js' &&
                         file !== 'base.js')
         .map(file => [
           file.replace('.js', ''),
@@ -126,7 +125,7 @@ class Builder {
     // Function to add component and its dependencies
     const addComponent = (componentName) => {
       if (!componentMap.has(componentName)) return;
-      
+
       const component = componentMap.get(componentName);
       if (this.components.some(c => c.name === component.name)) return;
 
@@ -162,11 +161,11 @@ class Builder {
    */
   async generateBundledFile() {
     console.log('📦 Generating bundled file...');
-    
+
     // Read base component first
     const baseComponent = this.components.find(c => c.name === 'base');
     const baseContent = baseComponent ? readFileSync(baseComponent.path, 'utf8') : '';
-    
+
     // Read all other component files
     const componentContents = this.components
       .filter(component => component.name !== 'base')
@@ -174,7 +173,7 @@ class Builder {
         console.log(`   Bundling ${component.name}...`);
         return readFileSync(component.path, 'utf8');
       });
-    
+
     // Create bundled content
     const bundledContent = `/**
  * DRY2 Web Components Library - Complete Bundle
@@ -217,9 +216,9 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
    */
   async generateMinifiedFile() {
     console.log('🗜️  Generating minified file...');
-    
+
     const sourceContent = readFileSync(join(distDir, 'dry2.js'), 'utf8');
-    
+
     try {
       const result = await minify(sourceContent, {
         compress: {
@@ -230,12 +229,12 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
         },
         mangle: {
           reserved: [
-            'DRY2', 
+            'DRY2',
             'BaseElement',
             // Component method names referenced by name in templates
             'getButtonClasses',
             'getAvatarClasses',
-            'getInitialsBackground', 
+            'getInitialsBackground',
             'getImageClasses',
             'shouldShowImage',
             'shouldShowInitials',
@@ -244,7 +243,7 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
             'handleImageError',
             'getCardClasses',
             'getHeaderClasses',
-            'getMediaClasses', 
+            'getMediaClasses',
             'getBodyClasses',
             'getFooterClasses',
             'hasHeader',
@@ -264,11 +263,11 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
       });
 
       writeFileSync(join(distDir, 'dry2.min.js'), result.code);
-      
+
       const originalSize = (sourceContent.length / 1024).toFixed(1);
       const minifiedSize = (result.code.length / 1024).toFixed(1);
       const savings = (((sourceContent.length - result.code.length) / sourceContent.length) * 100).toFixed(1);
-      
+
       console.log(`   Created minified file: ${originalSize}KB → ${minifiedSize}KB (${savings}% smaller)`);
     } catch (error) {
       console.error('❌ Minification failed:', error.message);
@@ -281,9 +280,9 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
    */
   async generateGzippedFile() {
     console.log('📦 Generating gzipped file...');
-    
+
     const minifiedContent = readFileSync(join(distDir, 'dry2.min.js'));
-    
+
     try {
       const gzippedContent = gzipSync(minifiedContent, {
         level: 9, // Maximum compression
@@ -291,11 +290,11 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
       });
 
       writeFileSync(join(distDir, 'dry2.min.js.gz'), gzippedContent);
-      
+
       const minifiedSize = (minifiedContent.length / 1024).toFixed(1);
       const gzippedSize = (gzippedContent.length / 1024).toFixed(1);
       const savings = (((minifiedContent.length - gzippedContent.length) / minifiedContent.length) * 100).toFixed(1);
-      
+
       console.log(`   Created gzipped file: ${minifiedSize}KB → ${gzippedSize}KB (${savings}% smaller)`);
     } catch (error) {
       console.error('❌ Gzip compression failed:', error.message);
@@ -308,7 +307,7 @@ console.log('🎉 DRY2 Web Components v${this.getVersion()} loaded with', window
    */
   async generateIndex() {
     console.log('📝 Generating index file...');
-    
+
     const indexContent = `/**
  * DRY2 Web Components Library
  * 
@@ -335,9 +334,9 @@ export function loadComponent(name) {
 }
 
 export const components = [
-${this.components.map(component => 
-  `  '${component.name}'`
-).join(',\n')}
+${this.components.map(component =>
+    `  '${component.name}'`
+  ).join(',\n')}
 ];
 
 export const version = '${this.getVersion()}';
@@ -351,7 +350,7 @@ export const version = '${this.getVersion()}';
    */
   async copyAssets() {
     console.log('📦 Copying assets...');
-    
+
     // Copy package.json
     copyFileSync(
       join(rootDir, 'package.json'),
@@ -380,7 +379,7 @@ export const version = '${this.getVersion()}';
    */
   async generatePackageInfo() {
     console.log('📋 Generating package info...');
-    
+
     const packageInfo = {
       name: 'dry2-web-components',
       version: this.getVersion(),
@@ -432,7 +431,7 @@ export const version = '${this.getVersion()}';
    */
   async generateTypeDefinitions() {
     console.log('📝 Generating TypeScript definitions...');
-    
+
     // Main index.d.ts
     const indexTypes = `/**
  * DRY2 Web Components Library - TypeScript Definitions
@@ -464,9 +463,9 @@ ${this.components.map(component => this.generateComponentTypes(component)).join(
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-${this.components.map(component => 
-  `      '${this.getComponentTagName(component)}': any;`
-).join('\n')}
+${this.components.map(component =>
+    `      '${this.getComponentTagName(component)}': any;`
+  ).join('\n')}
     }
   }
 }
@@ -536,12 +535,12 @@ ${this.components.map(component =>
    */
   copyDirectory(src, dest) {
     mkdirSync(dest, { recursive: true });
-    
+
     const files = readdirSync(src);
     files.forEach(file => {
       const srcPath = join(src, file);
       const destPath = join(dest, file);
-      
+
       if (statSync(srcPath).isDirectory()) {
         this.copyDirectory(srcPath, destPath);
       } else {
