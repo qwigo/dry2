@@ -2,13 +2,15 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Locate a select's dropdown panel whether it is docked inside the component
- * (closed) or portaled to document.body with fixed positioning (open).
+ * (closed) or portaled to document.body with fixed positioning (open). The
+ * portaled branch is scoped by data-select-name so another select's open
+ * panel can never double-match.
  * @param {import('@playwright/test').Page} page - Playwright page handle.
  * @param {string} name - Name attribute of the owning dry-select element.
  * @returns {import('@playwright/test').Locator} Dropdown panel locator.
  */
 const dropdownPanel = (page, name) =>
-  page.locator(`body > .absolute.z-50, dry-select[name="${name}"] .absolute.z-50`);
+  page.locator(`dry-select[name="${name}"] .absolute.z-50, body > .absolute.z-50[data-select-name="${name}"]`);
 
 test.describe('Select Component', () => {
   test.beforeEach(async({ page }) => {

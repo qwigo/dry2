@@ -188,8 +188,12 @@ class DrySelect extends BaseElement {
     this._triggerElement = this._createTrigger(placeholder, disabled, multiple);
     container.appendChild(this._triggerElement);
 
-    // Create dropdown
+    // Create dropdown — tag it with its owner's name so tests can still find
+    // it after it is portaled to document.body on open
     this._dropdownElement = this._createDropdown(searchPlaceholder, multiple);
+    if (name) {
+      this._dropdownElement.setAttribute('data-select-name', name);
+    }
     container.appendChild(this._dropdownElement);
 
     this.appendChild(container);
