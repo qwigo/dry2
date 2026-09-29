@@ -55,11 +55,12 @@ test.describe('Card Component', () => {
     const variantsSection = page.locator('section').filter({ hasText: 'Variants' });
     await expect(variantsSection).toBeVisible();
 
-    // Check filled variant
+    // Check filled variant — no border and no extra elevation
     const filledCard = variantsSection.locator('dry-card[variant="filled"]');
     await expect(filledCard).toBeVisible();
     const filledContainer = filledCard.locator('.card-container');
-    await expect(filledContainer).toHaveClass(/card/);
+    await expect(filledContainer).not.toHaveClass(/border/);
+    await expect(filledContainer).not.toHaveClass(/shadow-xl/);
 
     // Check outlined variant
     const outlinedCard = variantsSection.locator('dry-card[variant="outlined"]');
