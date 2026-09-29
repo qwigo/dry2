@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Locate a select's dropdown panel whether it is docked inside the component
+ * (closed) or portaled to document.body with fixed positioning (open).
+ * @param {import('@playwright/test').Page} page - Playwright page handle.
+ * @param {string} name - Name attribute of the owning dry-select element.
+ * @returns {import('@playwright/test').Locator} Dropdown panel locator.
+ */
+const dropdownPanel = (page, name) =>
+  page.locator(`body > .absolute.z-50, dry-select[name="${name}"] .absolute.z-50`);
+
 test.describe('Select Component', () => {
   test.beforeEach(async({ page }) => {
     await page.goto('/examples/select-showcase.html');
@@ -31,14 +41,14 @@ test.describe('Select Component', () => {
     await expect(trigger).toContainText('Select a fruit...');
 
     // Dropdown should be hidden initially
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     await expect(dropdown).toHaveClass(/hidden/);
   });
 
   test('should open dropdown when trigger is clicked', async({ page }) => {
     const select = page.locator('dry-select[name="fruit"]').first();
     const trigger = select.locator('button[type="button"]').first();
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
 
     // Initially closed - check classList
     const hasHiddenInitially = await dropdown.evaluate(el => el.classList.contains('hidden'));
@@ -70,7 +80,7 @@ test.describe('Select Component', () => {
     await page.waitForTimeout(200);
 
     // Click an option (e.g., "Banana")
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     const bananaOption = dropdown.locator('[data-value="banana"]');
     await bananaOption.click();
     await page.waitForTimeout(200);
@@ -90,7 +100,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     const searchInput = dropdown.locator('input[type="text"]');
 
     // Type search term
@@ -147,7 +157,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(300);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'languages');
     await dropdown.locator('[data-value="javascript"]').click({ force: true });
     await page.waitForTimeout(200);
 
@@ -187,7 +197,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'languages');
 
     // Click "Select All" button
     const selectAllBtn = dropdown.locator('button:has-text("Select All")');
@@ -212,7 +222,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'colors');
 
     // Click "Clear" button
     const clearBtn = dropdown.locator('button:has-text("Clear")');
@@ -235,7 +245,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(300);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     let hasHidden = await dropdown.evaluate(el => el.classList.contains('hidden'));
     expect(hasHidden).toBe(false);
 
@@ -274,7 +284,7 @@ test.describe('Select Component', () => {
     await trigger.click({ force: true });
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'test-disabled');
     await expect(dropdown).toHaveClass(/hidden/);
   });
 
@@ -286,7 +296,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     const searchInput = dropdown.locator('input[type="text"]');
 
     // Type search term with no matches
@@ -314,7 +324,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     await dropdown.locator('[data-value="apple"]').click();
     await page.waitForTimeout(200);
 
@@ -336,13 +346,13 @@ test.describe('Select Component', () => {
     const select1 = page.locator('dry-select[name="fruit"]').first();
     await select1.locator('button[type="button"]').first().click();
     await page.waitForTimeout(200);
-    await select1.locator('[data-value="apple"]').click();
+    await dropdownPanel(page, 'fruit').locator('[data-value="apple"]').click();
     await page.waitForTimeout(200);
 
     const select2 = page.locator('dry-select[name="languages"]').first();
     await select2.locator('button[type="button"]').first().click();
     await page.waitForTimeout(200);
-    await select2.locator('[data-value="python"]').click();
+    await dropdownPanel(page, 'languages').locator('[data-value="python"]').click();
     await page.waitForTimeout(200);
 
     expect(errors).toEqual([]);
@@ -379,7 +389,7 @@ test.describe('Select Component', () => {
     // Select a value
     await trigger.click();
     await page.waitForTimeout(200);
-    await select.locator('[data-value="banana"]').click();
+    await dropdownPanel(page, 'fruit').locator('[data-value="banana"]').click();
     await page.waitForTimeout(200);
 
     // Get value programmatically
@@ -459,7 +469,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(300);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'dynamic-test');
     const hasHidden = await dropdown.evaluate(el => el.classList.contains('hidden'));
     expect(hasHidden).toBe(false);
 
@@ -475,7 +485,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
 
     // Select an option
     await dropdown.locator('[data-value="apple"]').click();
@@ -500,7 +510,7 @@ test.describe('Select Component', () => {
     await page.waitForTimeout(300);
 
     // Search input should be focused
-    const searchInput = select.locator('input[type="text"]');
+    const searchInput = dropdownPanel(page, 'fruit').locator('input[type="text"]');
     await expect(searchInput).toBeFocused();
   });
 
@@ -512,7 +522,7 @@ test.describe('Select Component', () => {
     await trigger.click();
     await page.waitForTimeout(200);
 
-    const dropdown = select.locator('.absolute.z-50');
+    const dropdown = dropdownPanel(page, 'fruit');
     const searchInput = dropdown.locator('input[type="text"]');
 
     // Type search term
@@ -581,4 +591,3 @@ test.describe('Select stacking', () => {
     expect(closedParent).toContain('relative');
   });
 });
-
