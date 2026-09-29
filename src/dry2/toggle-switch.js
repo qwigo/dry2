@@ -82,8 +82,10 @@ class ToggleSwitch extends BaseElement {
     // Get size classes
     const sizeClasses = this._getSizeClasses(size);
 
-    // Build the toggle switch HTML
-    const toggleId = this.id || `toggle-${Math.random().toString(36).substr(2, 9)}`;
+    // Build the toggle switch HTML. The inner checkbox needs its own unique id
+    // so it cannot collide with the host element's id (which would break the
+    // label's htmlFor association, since getElementById would resolve to host).
+    const toggleId = `${this.id || 'toggle'}-${Math.random().toString(36).substr(2, 9)}`;
 
     // Clear existing content
     if (typeof this.replaceChildren === 'function') {

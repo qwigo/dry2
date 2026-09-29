@@ -229,16 +229,35 @@ class DryToast extends BaseElement {
 // Add CSS for animations
 const style = document.createElement('style');
 style.textContent = `
+    .toast-container {
+        position: fixed;
+        z-index: 50;
+        pointer-events: none;
+    }
+
+    .toast-container.top-4 { top: 1rem; }
+    .toast-container.bottom-4 { bottom: 1rem; }
+    .toast-container.left-4 { left: 1rem; }
+    .toast-container.right-4 { right: 1rem; }
+    .toast-container.left-1\\/2 { left: 50%; }
+    .toast-container.top-1\\/2 { top: 50%; }
+    .toast-container.-translate-x-1\\/2 { transform: translateX(-50%); }
+    .toast-container.-translate-y-1\\/2 { transform: translateY(-50%); }
+
+    .toast-container .toast {
+        pointer-events: auto;
+    }
+
     .toast-container.show .toast {
         transform: translateY(0);
         opacity: 1;
     }
-    
+
     .toast-container.hide .toast {
         transform: translateY(100%);
         opacity: 0;
     }
-    
+
     .toast-close {
         background: none;
         border: none;

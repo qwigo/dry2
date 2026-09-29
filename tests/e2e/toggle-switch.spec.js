@@ -221,9 +221,10 @@ test.describe('Toggle Switch Component', () => {
       // Count initial entries
       const initialCount = await eventLog.locator('div.text-xs').count();
 
-      // Click the checkbox directly (more reliable than clicking label)
-      const checkbox = demo1Toggle.locator('input[type="checkbox"]');
-      await checkbox.click({ force: true });
+      // Click the visible switch (the sr-only checkbox is clipped to 1px and
+      // is not a reliable click target)
+      const toggleSwitch = demo1Toggle.locator('label.toggle-switch-label');
+      await toggleSwitch.click();
 
       // Wait for event to be processed
       await page.waitForTimeout(1000);
