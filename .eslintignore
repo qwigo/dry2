@@ -1,12 +1,11 @@
 # Issue #13 documented exclusions (temporary quarantine).
 #
-# The files below are tracked in git but owned by a parallel workstream that
-# required them to stay byte-identical while issue #13 landed. They carry
-# remaining eslint findings (mostly auto-fixable formatting) that must be
-# resolved by that workstream (or a follow-up commit) before these entries are
-# removed. Excluding them keeps the lint gate honest for everything else.
-#
-# Remove this block once the owning workstream finishes its changes.
+# The three tests/e2e/mobile-*.spec.js files below are tracked in git but are
+# being functionally rewritten on the issue #14 branch (mobile e2e specs).
+# They still carry eslint findings that the issue #14 workstream will fix;
+# issue #14 removes these entries when it lands. Do not add new entries: the
+# exact allowlist is pinned by tests/unit/infra/eslint-quarantine.test.js and
+# any growth fails that test with a named diff.
 tests/e2e/mobile-button.spec.js
 tests/e2e/mobile-card.spec.js
 tests/e2e/mobile-tabs.spec.js
