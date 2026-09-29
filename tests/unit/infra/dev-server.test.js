@@ -11,6 +11,7 @@
 
 import chai from 'chai';
 import { existsSync, readdirSync, renameSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import DevServer from '../../../scripts/dev-server.js';
@@ -121,8 +122,12 @@ describe('DevServer static asset serving', () => {
     const privatePaths = [
       '/.git/config',
       '/node_modules/express/package.json',
-      // Encoded traversal and hidden-file probes: each would pass the root-HTML
-      // route regex if its allowlist ever regressed.
+      // Real-file probes: these resolve to existing files once decoded, so they
+      // return 200 if the root-HTML allowlist ever regresses. They pin the
+      // route as root-only (single path segment, no traversal).
+      '/examples%2fpartials%2fnav.inc.html',
+      '/..%2fdry2%2findex.html',
+      // Nonexistent-target probes: extra negatives that stay 404 regardless.
       '/..%2fpackage.json',
       '/%2e%2e%2fsecrets.html',
       '/.hidden.html',
@@ -132,14 +137,17 @@ describe('DevServer static asset serving', () => {
     for (const path of privatePaths) {
       const response = await get(path);
 
-      expect(response.status, `GET ${path}`).to.equal(404);
+      expect(response.status, `GET ${path} must 404: the HTML route is root-only`)
+        .to.equal(404);
     }
   });
 });
 
 describe('DevServer dist bundle bootstrap and shutdown', () => {
   const bundlePath = join(rootDir, 'dist', 'dry2.js');
-  const bundleBackupPath = join(rootDir, 'dist', 'dry2.js.test-backup');
+  // Keep the backup outside dist/: scripts/build.js cleanDist() wipes dist/ on
+  // rebuild, which would destroy a backup stashed inside it.
+  const bundleBackupPath = join(tmpdir(), 'dry2-dry2.js.test-backup');
   const buildScriptPath = join(rootDir, 'scripts', 'build.js');
   const buildBackupPath = join(rootDir, 'scripts', 'build.js.test-backup');
 
