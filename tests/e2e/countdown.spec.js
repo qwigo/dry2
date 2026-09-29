@@ -5,11 +5,9 @@
 
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:8086';
-
 test.describe('DRY Countdown Component', () => {
   test.beforeEach(async({ page }) => {
-    await page.goto(`${BASE_URL}/examples/countdown-showcase.html`);
+    await page.goto('/examples/countdown-showcase.html');
     // Wait for custom elements to be defined
     await page.waitForTimeout(1000);
   });

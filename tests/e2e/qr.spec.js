@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('QR Component', () => {
   test.beforeEach(async({ page }) => {
-    await page.goto('http://localhost:8086/examples/qr-showcase.html');
+    await page.goto('/examples/qr-showcase.html');
     // Wait for custom elements to upgrade
     await page.waitForTimeout(1000);
   });

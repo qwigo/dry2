@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('DRY Code Component', () => {
   test.beforeEach(async({ page }) => {
-    await page.goto('http://localhost:8086/examples/code-showcase.html');
+    await page.goto('/examples/code-showcase.html');
     // Wait for component to be defined and rendered
     await page.waitForTimeout(1500);
   });
@@ -90,7 +90,7 @@ test.describe('DRY Code Component', () => {
 
   test('should hide header when show-header is false', async({ page }) => {
     // Navigate to a section with show-header="false"
-    await page.goto('http://localhost:8086/examples/code-showcase.html#configuration-options');
+    await page.goto('/examples/code-showcase.html#configuration-options');
     await page.waitForTimeout(1000);
 
     // Find code element with show-header="false"
@@ -104,7 +104,7 @@ test.describe('DRY Code Component', () => {
 
   test('should hide copy button when show-copy is false', async({ page }) => {
     // Navigate to a section with show-copy="false"
-    await page.goto('http://localhost:8086/examples/code-showcase.html#configuration-options');
+    await page.goto('/examples/code-showcase.html#configuration-options');
     await page.waitForTimeout(1000);
 
     // Find code element with show-copy="false"
@@ -174,7 +174,7 @@ test.describe('DRY Code Component', () => {
       }
     });
 
-    await page.goto('http://localhost:8086/examples/code-showcase.html');
+    await page.goto('/examples/code-showcase.html');
     await page.waitForTimeout(2000);
 
     // Filter out known external errors (like failed CDN loads in dev)
@@ -265,7 +265,7 @@ test.describe('DRY Code Component', () => {
 
   test('should show floating copy button when header is hidden but copy is enabled', async({ page }) => {
     // Find code with show-header="false" but show-copy not specified (defaults to true)
-    await page.goto('http://localhost:8086/examples/code-showcase.html#configuration-options');
+    await page.goto('/examples/code-showcase.html#configuration-options');
     await page.waitForTimeout(1000);
 
     const codeElement = page.locator('dry-code[show-header="false"]').first();
