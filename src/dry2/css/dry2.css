@@ -3313,6 +3313,11 @@ header > nav {
 
 .dry-tabs-list {
   gap: var(--stem-spacing-xs);
+  overflow-x: auto;
+}
+
+.dry-tabs-vertical .dry-tabs-list {
+  overflow-x: visible;
 }
 
 .dry-tabs-list .dry-tab-button {
@@ -3320,6 +3325,7 @@ header > nav {
   align-items: center;
   justify-content: center;
   gap: var(--stem-spacing-xs);
+  min-height: 44px;
   padding: var(--stem-spacing-sm) var(--stem-spacing-md);
   font-family: var(--stem-font-family-sans);
   font-size: var(--stem-font-size-sm);
@@ -3492,6 +3498,7 @@ header > nav {
 
 /* ---------- Misc ---------- */
 .overflow-hidden { overflow: hidden; }
+.overflow-x-auto { overflow-x: auto; }
 .overflow-y-auto { overflow-y: auto; }
 .object-cover { object-fit: cover; }
 .select-none { user-select: none; }

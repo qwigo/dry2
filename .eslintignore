@@ -8,7 +8,4 @@
 #
 # Remove this block once the owning workstream finishes its changes.
 src/dry2/theme-toggle.js
-tests/e2e/mobile-button.spec.js
-tests/e2e/mobile-card.spec.js
-tests/e2e/mobile-tabs.spec.js
 tests/unit/css/theme-switching.test.js
