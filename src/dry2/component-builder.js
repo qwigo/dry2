@@ -454,7 +454,8 @@ class DryComponentBuilder extends BaseElement {
     copyButton.setAttribute('aria-label', 'Copy code to clipboard');
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.classList.add('w-3', 'h-3');
+    svg.setAttribute('width', '12');
+    svg.setAttribute('height', '12');
     svg.setAttribute('fill', 'none');
     svg.setAttribute('stroke', 'currentColor');
     svg.setAttribute('viewBox', '0 0 24 24');
@@ -531,6 +532,10 @@ class DryComponentBuilder extends BaseElement {
         if (textInput) {
           textInput.value = e.target.value;
         }
+      } else if (property) {
+        // Plain controls (text, etc.): refresh preview on every edit so typing
+        // reflects immediately rather than waiting for a change/blur event.
+        this._updateProperty(property, this._getControlValue(e.target));
       }
 
       // Handle text input changes for color controls
